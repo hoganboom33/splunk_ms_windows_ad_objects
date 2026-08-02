@@ -1,0 +1,157 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - App Health - Scheduled Searches</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+  </init>
+  <search id="base_search">
+    <query>index=_internal sourcetype=scheduler savedsearch_name="AD_Obj_*_Update" (status="completed" OR status="success" OR status="skipped" OR status="deferred")
+| fields _time, status, dispatch_time,run_time,scheduled_time,window_time,savedsearch_id,savedsearch_name,user,alert_actions,reason,cron_schedule,app,result_count</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-30m</earliest>
+        <latest>@m</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+      <center>
+        <a href="/manager/ms_windows_ad_objects/saved/searches?sort_dir=desc&amp;sort_key=next_scheduled_time&amp;ns=ms_windows_ad_objects&amp;pwnr=-&amp;search=_Update&amp;app_only=1&amp;count=25" target="_blank">Click Here</a> to view the Scheduled Searches that are part of this app so you can optionally adjust the schedule for admon Updates/New/Deleted events that apply the changes to the specific AD Objects lookup tables.
+      </center>
+    </html>
+    </panel>
+  </row>
+  <row id="tabs_row">
+    <panel>
+      <title>Scheduled Search Analytics</title>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_ms_ad_obj_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_sched_stat_basic" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}">Runtime Statistics - Basic</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_sched_stat_adv" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}">Runtime Statistics - Advance</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_sched_overtime" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}">Execution - Overtime</a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a id="tab_sched_skipped" href="#tab_dash_rep" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}">Skipped Scheduled Searches</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="tab_sched_stat_basic" depends="$tok_tab_1$">
+    <panel>
+      <title>Scheduled Searches - Runtime Statistics - Basic</title>
+      <table>
+        <search base="base_search">
+          <query>search (status="completed" OR status="success") 
+| rex field=savedsearch_name "AD_Obj_(?&lt;AD_Object_Category&gt;.+)_(?&lt;AD_Object_Type&gt;.*)"
+| rex field=savedsearch_name "AD_Obj_(?&lt;AD_Object_Category&gt;(User|Group|Computer|OU\_GPO|GPO\_OU|GPO|OU|Admin_Audit))_(?&lt;AD_Object_Type&gt;.*)"
+| rex field=savedsearch_name "AD_Obj_(?&lt;AD_Object_Category&gt;(User|Group|Computer|OU\_GPO|GPO\_OU|GPO|OU|Admin_Audit))_(?&lt;AD_MD_Domain&gt;[^\_]+)_(?&lt;AD_Object_MD_Type&gt;.*)"
+| eval AD_Object_Type=if(isnull(AD_MD_Domain),AD_Object_Type,AD_Object_MD_Type)
+| eval AD_Object_Category=if(isnull(AD_MD_Domain),AD_Object_Category." - ".AD_Object_Type,AD_Object_Category." - ".AD_MD_Domain." - ".AD_Object_Type)
+| eval window_time = if(isnotnull(window_time), window_time, 0)
+| eval execution_latency = max(dispatch_time - (scheduled_time + window_time), 0)
+| stats max(run_time) AS Longest_Run_Time_Seconds, avg(run_time) AS Average_Run_Time_Seconds, count AS Total_Executions, last(result_count) AS Last_Result_Count,last(dispatch_time) AS Last_Execution_Time,last(scheduled_time) AS Schedule_Execution_time,last(execution_latency) AS Execution_Latency by savedsearch_name, AD_Object_Category
+| eval Execution_Latency=Execution_Latency." Seconds"
+| eval Last_Execution_Time=strftime(Last_Execution_Time,"%m/%d/%y %I:%M %P")
+| eval Schedule_Execution_time=strftime(Schedule_Execution_time,"%m/%d/%y %I:%M %P")
+| eval Longest_Run_Time_Seconds=round(Longest_Run_Time_Seconds,1) 
+| eval Average_Run_Time_Seconds=round(Average_Run_Time_Seconds,1) 
+| sort -Average_Run_Time_Seconds, AD_Object_Category</query>
+        </search>
+        <option name="count">30</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_sched_stat_adv" depends="$tok_tab_2$">
+    <panel>
+      <title>Scheduled Searches - Runtime Statistics - Advance</title>
+      <table>
+        <search base="base_search">
+          <query>search (status="completed" OR status="success" OR status="skipped" OR status="deferred")
+| eval window_time = if(isnotnull(window_time), window_time, 0)
+| eval execution_latency = max(dispatch_time - (scheduled_time + window_time), 0)
+| stats avg(run_time) as runtime, avg(execution_latency) AS avg_exec_latency, count(eval(status=="completed" OR status="success" OR status=="skipped")) AS total_exec, count(eval(status=="skipped")) AS skipped_exec count(eval(status=="deferred")) AS deferred_exec by app, savedsearch_name, user, savedsearch_id
+| join savedsearch_id type=outer [
+    | rest "/servicesNS/-/-/saved/searches/" earliest_time=`ms_obj_time_modifier(-0s@s)` latest_time=`ms_obj_time_modifier(+1d@d)` search="is_scheduled=1" search="disabled=0"
+    | search NOT (dispatch.earliest_time=rt* OR dispatch.latest_time=rt*) eai:acl.app="ms_windows_ad_objects"
+    | mvexpand scheduled_times
+    | stats count(title) as count max(scheduled_times) as max_t min(scheduled_times) as min_t by title, eai:acl.app, eai:acl.owner cron_schedule
+    | eval schedule_interval=round((max_t-min_t)/(count-1), 0)
+    | eval savedsearch_id = 'eai:acl.owner'.";".'eai:acl.app'.";".title
+    | fields savedsearch_id, cron_schedule, schedule_interval ]
+| eval runtime = round(runtime, 0)
+| eval avg_exec_latency = round(avg_exec_latency, 0)
+| eval search_workload = round(runtime / schedule_interval * 100, 2)." %"
+| eval skip_ratio = round(skipped_exec / total_exec * 100, 2)." %"
+| fields savedsearch_name, app, user, cron_schedule, schedule_interval, runtime, search_workload, total_exec, skipped_exec, skip_ratio, deferred_exec, avg_exec_latency
+| sort - search_workload
+| rename savedsearch_name as "Report Name", app as App, user as User, cron_schedule as "Cron Schedule", runtime as "Average Runtime (sec)", total_exec as "Total Executions", skip_ratio as "Skip Ratio", skipped_exec as "Skipped Executions", deferred_exec AS "Deferred Executions", schedule_interval as "Schedule Interval (sec)", search_workload as "Interval Load Factor", avg_exec_latency AS "Average Execution Latency (sec)"</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Skipped Executions">
+          <colorPalette type="minMidMax" maxColor="#D6563C" midColor="#ED8440" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax" maxValue="10" midValue="3" minValue="0"></scale>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_sched_overtime" depends="$tok_tab_3$">
+    <panel>
+      <title>Successful Scheduled Searches Execution Overtime</title>
+      <chart>
+        <search base="base_search">
+          <query>search status="success"
+             | timechart limit=20 count by savedsearch_name</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_sched_skipped" depends="$tok_tab_4$">
+    <panel>
+      <title>Skipped - Scheduled Searches - Details</title>
+      <chart>
+        <search base="base_search">
+          <query>search status="skipped"
+            | eval alert_actions = if(isnull(alert_actions) OR alert_actions == "", "none", alert_actions)
+            | eval reason = if(isnull(reason) OR reason == "", "none", reason)
+            | stats count AS count values(alert_actions) AS alert_actions, max(_time) AS last_time by savedsearch_name, reason
+            | eval reason_and_count = reason." (".count.")"
+            | stats max(last_time) AS last_time,values(reason_and_count) AS reasons first(alert_actions) AS alert_actions by savedsearch_name
+            | eval last_time=strftime(last_time,"%m/%d/%y %H:%M:%S")
+            | rename reasons AS "Skip Reason (Skip Count)" alert_actions AS "Alert Actions" savedsearch_name AS "Report
+            Name", last_time AS "Last Time Attempted"</query>
+        </search>
+        <option name="charting.chart">column</option>
+      </chart>
+    </panel>
+  </row>
+</form>

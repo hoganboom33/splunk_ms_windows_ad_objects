@@ -1,0 +1,874 @@
+<form script="ms_ad_obj_login_by.js" stylesheet="ms_ad_obj_gbl_tabs.css,ms_ad_obj_login_by.css" version="1.1">
+  <label>AD Objects - User - Logins by Group Membership</label>
+  <init>
+    <unset token="tok_group"></unset>
+    <set token="form.input_tok_group">sel</set>
+    <set token="tok_user_filt"></set>
+    <set token="rem_tok_message_color">green</set>
+    <set token="rem_tok_message_state">Info:</set>
+    <set token="rem_tok_message">1: Select the AD Domain for the target Group.</set>
+  </init>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="make_obj_search_token">
+    <query>| makeresults 
+| eval cmb_tokens="$tok_group_lkp$ $tok_group_filter$"
+</query>
+      <progress>
+        <condition match=" 'job.resultCount' != 0">
+          <set token="tok_srch_ad_group_list">| inputlookup $tok_group_lkp$ where domain="$tok_domain$" AND membercount!="0" AND (cn="$tok_group_filter$" OR sAMAccountName="$tok_group_filter$")
+| eval srt_field=case(isDeleted="TRUE" OR isRecycled="TRUE",1,isDeleted="FALSE",2)
+| eval cn=if(isDeleted="TRUE","Deleted: ".sAMAccountName." (".membercount.")",cn." (".membercount.")")
+| fields cn,sAMAccountName,distinguishedName,member, srt_field</set>
+        </condition>
+      </progress>
+  </search>
+  <search id="make_search_tokens">
+    <query>| makeresults 
+| eval cmb_tokens="$tok_kv_suffix$ $tok_user_lkp$ $tok_domain$ $tok_group$"
+</query>
+      <progress>
+      <condition match=" 'job.resultCount' != 0">
+        <set token="ts_srch_admon_base">`ms_obj_md_admon_group($tok_dc_val$)`</set>
+        <set token="ts_srch_bs_logon">`ms_obj_failed_success_logons("user")`
+| fields _time,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1" OR src_ip=="-","",src_ip)
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),upper(host),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eventstats values(src_nt_host) AS src_nt_host,count by user,_time
+| eval user=lower(user)
+| fillnull value="Not In Event" src_nt_host
+| table _time,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason</set>
+        <set token="tok_srch_logon">`ms_obj_failed_success_logons("user")`
+    [| `ms_obj_md_filter_lkup_group_members("$tok_group_lkp$","$tok_user_lkp$","$tok_domain$","$tok_group$")` 
+    | `ms_obj_ss_filt_flds_raw("cn,sAMAccountName,userPrincipalName")`]
+| fields _time,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| search user IN( 
+    [| `ms_obj_md_filter_lkup_group_members("$tok_group_lkp$","$tok_user_lkp$","$tok_domain$","$tok_group$")`
+     | `ms_obj_ss_filt_flds_in("cn,sAMAccountName,userPrincipalName")`])
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1" OR src_ip=="-","",src_ip)
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),upper(host),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eventstats values(src_nt_host) AS src_nt_host,count by user,_time
+| eval user=lower(user)
+| fillnull value="Not In Event" src_nt_host</set>
+        <set token="tok_srch_ad_user_list">| `ms_obj_md_filter_lkup_group_members("$tok_group_lkp$","$tok_user_lkp$","$tok_domain$","$tok_group$")`
+| table cn,sAMAccountName, userPrincipalName,memberOf,domain 
+| eval User_Logon_Search_Values=if(userPrincipalName="",if(cn="",sAMAccountName,sAMAccountName."|".cn),sAMAccountName."|".cn."|".userPrincipalName)
+| makemv delim="|" User_Logon_Search_Values
+| stats values(User_Logon_Search_Values) AS User_Logon_Search_Values by domain,cn,sAMAccountName,userPrincipalName</set>
+      </condition>
+    </progress>
+  </search>
+  <search base="base_obj_m_search" id="sub_ad_user_lookup_filt">
+    <query>fields User_Logon_Search_Values,sAMAccountName
+$tok_user_filt$    
+| stats values(User_Logon_Search_Values) AS user_filter
+| eval raw_filter="\"".mvjoin(user_filter,"\" OR \"")."\""
+| eval user_filter="\"".mvjoin(user_filter,"\",\"")."\""
+| table user_filter, raw_filter
+    </query>
+    <done>
+      <set token="tok_srch_logon_nond">`ms_obj_failed_success_logons("user")` ($result.raw_filter$)
+| fields _time,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| search user IN($result.user_filter$)
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1" OR src_ip=="-","",src_ip)
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),upper(host),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eventstats values(src_nt_host) AS src_nt_host,count by user,_time
+| eval user=lower(user)
+| fillnull value="Not In Event" src_nt_host</set>
+    </done>
+  </search>
+  <search base="base_logon_search" id="login_user_list">
+    <query>fields user
+| stats values(user) AS user
+| eval user=if(mvcount(user)>1,"\"".mvjoin(user,"\",\"")."\"","\"".user."\"")</query>
+    <done>
+      <condition>
+        <set token="tok_user_logins">$result.user$</set>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+  </fieldset>
+  <row id="rw_inputs">
+    <panel id="rw_initial_panel">
+    <input type="time" token="time_field">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_domain" searchWhenChanged="true">
+      <label>1. Select Domain</label>
+      <choice value="sel">Select Domain...</choice>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+        <search base="base_domain_search">
+          <query>sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="show_obj_filt"></unset>
+            <unset token="tok_group_filter"></unset>
+            <unset token="tok_group"></unset>
+            <unset token="tok_srch_ad_group_list"></unset>
+            <unset token="tok_srch_ad_user_list"></unset>
+            <unset token="tok_group_filter_bs"></unset>
+            <unset token="ex_s_trigger"></unset>
+            <set token="input_tok_group">sel</set>
+            <set token="form.input_tok_group">sel</set> 
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the AD Domain for the target Group</set>
+          </condition>
+          <condition>
+            <unset token="form.tok_group_filter_bs"></unset>
+            <unset token="tok_group_filter"></unset>  
+            <unset token="tok_group"></unset>
+            <unset token="tok_srch_ad_group_list"></unset>
+            <unset token="tok_srch_ad_user_list"></unset>
+            <unset token="tok_group_filter_bs"></unset>
+            <unset token="ex_s_trigger"></unset>
+            <set token="input_tok_group">sel</set>
+            <set token="form.input_tok_group">sel</set>
+            <set token="show_obj_filt">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Enter a AD Group Name or Wildcard filter (Ex. admin*) to filter the AD Group List. (Case Sensitive)</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="tok_group_filter_bs" searchWhenChanged="true" depends="$show_obj_filt$">
+        <label>2: Filter Domain Groups</label>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)>0">
+            <set token="tok_group_filter">$value$</set>
+          </condition>
+          <condition>
+            <unset token="tok_group_filter"></unset>
+            <unset token="tok_user_filter"></unset>
+            <unset token="tok_group"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="input_obj_list_id" type="dropdown" token="input_tok_group" searchWhenChanged="true">
+        <label>3. Select AD Group (Member Count)</label>
+        <choice value="sel">Select Group...</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <search base="base_obj_search">
+          <query>stats count by sAMAccountName, cn,distinguishedName, srt_field | sort -srt_field, sAMAccountName | table cn, distinguishedName</query>
+        </search>
+        <fieldForLabel>cn</fieldForLabel>
+        <fieldForValue>distinguishedName</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_group"></unset>
+            <unset token="tok_group_label"></unset>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">3: Select the target AD Group to search for login activity for the its members.</set>
+          </condition>
+          <condition>
+            <set token="tok_group">$value$</set>
+            <set token="tok_group_label">$label$</set>
+          </condition>
+        </change>
+      </input>
+        <html depends="$tok_message_state$" id="inp_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="$tok_message_color$">
+              <i>
+                <b>$tok_message_state$ </b> $tok_message$</i> 
+            </font>
+          </p>
+        </html>    
+      </panel>
+      <panel id="rw_initial_post_panel">
+     <input type="dropdown" token="tok_user" searchWhenChanged="true">
+        <label>Results Filter: Select Logon Users</label>
+        <choice value="all">All</choice>
+        <search base="base_obj_m_search">
+          <query>| fields cn,sAMAccountName,User_Logon_Search_Values
+| WHERE User_Logon_Search_Values IN($tok_user_logins$)
+| eval user_filt="\"".mvjoin(User_Logon_Search_Values,"\",\"")."\""
+| table cn,user_filt</query>
+        </search>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <fieldForLabel>cn</fieldForLabel>
+        <fieldForValue>user_filt</fieldForValue>
+        <change>       
+          <condition value="all">
+  	        <set token="tok_user_filt"></set>
+          </condition>
+          <condition>   
+            <set token="tok_user_filt">| search user IN($value$)</set>
+          </condition>
+        </change>
+      </input>      
+      <input type="dropdown" token="tok_logon_type" searchWhenChanged="true">
+        <label>Results Filter: Select Logon Type</label>
+        <choice value="All">All Logons</choice>
+        <choice value="Success">Succesful</choice>
+        <choice value="Failed">Failed</choice>
+        <default>All</default>
+        <initialValue>All</initialValue>
+        <change>
+          <condition value="All">
+            <set token="tok_all_o_time">True</set>
+            <set token="tok_success_o_time">True</set>
+            <set token="tok_failed_o_time">True</set>
+            <set token="tok_logon_srch_top">| stats count(eval(status="failure")) AS Failed_Attempts,count(eval(status="success")) AS Successful_Attempts, count AS Total_Attempts by user,src_nt_domain 
+  | streamstats count as total_members
+  | sort -Total_Attempts</set>
+            <set token="tok_logon_srch_src">| stats count(eval(status="failure")) AS Failed_Attempts,count(eval(status="success")) AS Successful_Attempts, count AS Total_Attempts by src_nt_host, src_ip 
+  | sort -Total_Attempts</set>
+            <set token="tok_logon_srch_sum">| stats count AS Total_Attempts, count(eval(status="failure")) AS f_cnt, count(eval(status="success")) AS s_cnt by src_nt_host,src_ip,user,Failure_Reason 
+| eventstats sum(f_cnt) AS uf_cnt,sum(s_cnt) AS us_cnt by user,src_nt_host 
+| eventstats sum(f_cnt) AS sf_cnt by Failure_Reason,src_nt_host 
+| sort -uf_cnt -us_cnt -sf_cnt
+| eval Top_Failed_Users=if(uf_cnt>0,"(".tostring(uf_cnt,"commas").") ".user,""),Failure_Reason=if(sf_cnt>0,"(".tostring(sf_cnt,"commas").") ".Failure_Reason,""),Top_Success_Users=if(us_cnt>0,"(".tostring(us_cnt,"commas").") ".user,"")
+| stats sum(Total_Attempts) AS Total_Attempts, list(Top_Failed_Users) AS Top_Failed_Users, list(Failure_Reason) AS Failure_Reason,list(Top_Success_Users) AS Top_Success_Users,values(src_ip) AS src_ip by src_nt_host
+| eval Top_Success_Users=if(isnull(Top_Success_Users),"NA",mvindex(mvdedup(Top_Success_Users),0,9)),Top_Failed_Users=if(isnull(Top_Failed_Users),"NA",mvindex(mvdedup(Top_Failed_Users),0,9)),Failure_Reason=mvdedup(Failure_Reason) 
+| sort -Total_Attempts 
+| rename signature AS "Top_Failure_Reasons", src_nt_host AS "Source System", src_ip AS "Source IP"</set>
+          </condition>
+          <condition value="Success">
+            <set token="tok_success_o_time">True</set>
+            <set token="tok_logon_srch_top">| WHERE status="success"
+  | streamstats count as total_members
+  | stats count AS Successful_Attempts by user,src_nt_domain 
+  | sort -Successful_Attempts</set>
+            <set token="tok_logon_srch_src">| WHERE status="success"
+  | stats count AS Successful_Attempts by src_nt_host, src_ip 
+  | sort -Successful_Attempts</set>
+            <set token="tok_logon_srch_sum">| WHERE status="success"
+  | stats count AS Total_Attempts, count(eval(status="success")) AS s_cnt,values(src_ip) AS src_ip by src_nt_host,user
+  | sort -s_cnt
+  | eval eval Top_Success_Users=if(s_cnt&gt;0,"(".tostring(s_cnt,"commas").") ".user,NULL)
+  | stats sum(Total_Attempts) AS Total_Successful_Attempts, list(Top_Success_Users) AS Top_Success_Users,values(src_ip) AS src_ip by src_nt_host
+  | eval Top_Success_Users=if(isnull(Top_Success_Users),"NA",mvindex(mvdedup(Top_Success_Users),0,9))
+  | sort -Total_Successful_Attempts
+  | rename src_nt_host AS "Source System", src_ip AS "Source IPs"</set>
+            <unset token="tok_failed_o_time"></unset>
+            <unset token="tok_all_o_time"></unset>
+          </condition>
+          <condition value="Failed">
+            <set token="tok_failed_o_time">True</set>
+            <set token="tok_logon_srch_top">| WHERE status="failure"
+  | stats count AS Failed_Attempts by user,src_nt_domain
+  | streamstats count as total_members
+  | sort -Failed_Attempts</set>
+            <set token="tok_logon_srch_src">| WHERE status="failure"
+  | stats count AS Failed_Attempts by src_nt_host, src_ip 
+  | sort -Failed_Attempts</set>
+            <set token="tok_logon_srch_sum">| WHERE status="failure"
+  | stats count AS Total_Attempts, count(eval(status="failure")) AS f_cnt,values(src_ip) AS src_ip by src_nt_host,user,Failure_Reason
+  | eventstats sum(f_cnt) AS uf_cnt by user,src_nt_host
+  | eventstats sum(f_cnt) AS sf_cnt by Failure_Reason,src_nt_host
+  | sort -uf_cnt -sf_cnt
+  | eval Top_Failed_Users=if(uf_cnt>0,"(".tostring(uf_cnt,"commas").") ".user,""),Failure_Reason=if(sf_cnt>0,"(".tostring(sf_cnt,"commas").") ".Failure_Reason,"")
+  | stats sum(Total_Attempts) AS Total_Attempts, list(Top_Failed_Users) AS Top_Failed_Users, list(Failure_Reason) AS Failure_Reason,values(src_ip) AS src_ips by src_nt_host
+  | eval Top_Failed_Users=if(Top_Failed_Users=="","NA",mvindex(mvdedup(Top_Failed_Users),0,9)),Failure_Reason=mvdedup(Failure_Reason)
+  | sort -Total_Attempts
+  | rename Failure_Reason AS "Top_Failure_Reasons", src_nt_host AS "Source System", src_ip AS "Source IP"</set>
+            <unset token="tok_success_o_time"></unset>
+            <unset token="tok_all_o_time"></unset>
+          </condition>
+        </change>
+      </input>    
+      <html depends="$tok_message_state$" id="inp_post_msg">
+        <p style="font-size:8;" id="inp_msg_p">
+          <font color="green">
+            <i>
+              <b>Info: </b> Use the above inputs to filter the Returned Results.</i> 
+          </font>
+        </p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html id="rw_show_filt_btn">
+          <center>
+            <div class="prg_run_state"><h2><img class="img_run_spin" style="height:30px;width:30px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> <div id="prg_run_state_msg" style="display:inline !important;"></div></h2></div>
+            <div class="show_filt_btn"><button class="btn btn-primary btn-mini" data-filt-btn-show=".hide_filt_btn" data-filt-btn-hide=".show_filt_btn" data-filt-tgt="rw_inputs">Show Filters</button></div>
+            <div class="hide_filt_btn"><button class="btn btn-primary btn-mini" data-filt-btn-show=".show_filt_btn" data-filt-btn-hide=".hide_filt_btn" data-filt-tgt="rw_inputs">Hide Filters</button></div>
+        </center>
+      </html>
+      <html id="row_msgs">
+          <center>
+            <div class="msg_prg_init_nodomain"><h2><i class="icon-warning ms-obj-mod-icon"> No AD Domain information in the <b>AD_Obj_Domain</b> lookup. Click</i> <i class="icon-question-circle ms-obj-mod-icon" data-t-mod-id="domain_warn_mod_pop"> <i style="font-size:18px !important;color:#DC4E41 !important;">for more Troubleshooting Steps.</i></i></h2></div>
+            <div class="msg_obj_warn"><h2><i class="icon-warning ms-obj-mod-icon"> No AD Groups in the $tok_group_lkp$ lookup match the filter <b>$tok_group_filter$</b>  First, try using different Case for the filter or Click</i> <i class="icon-question-circle ms-obj-mod-icon" data-t-mod-id="group_warn_mod_pop"></i> <i style="font-size:18px !important;color:#DC4E41 !important;">for more Troubleshooting Steps.</i></h2></div>
+            <div class="msg_obj_m_warn"><h2><i class="icon-warning ms-obj-mod-icon"> None of the Group Members in the <b>$tok_group$</b> AD Group are AD User Accounts.</i></h2></div>
+            <div class="msg_prg_run_failed"><h2><i class="icon-warning ms-obj-mod-icon"> Login Search Failed</i></h2></div>
+            <div class="msg_prg_run_nodata"><h2><i class="icon-warning ms-obj-mod-icon"> <b>No Login Results returned for members of the group ($tok_group_label$).</b> Expand the Search Time Period, or select a different AD Group</i></h2><h4>Click <a href="/app/ms_windows_ad_objects/search?q=$ts_srch_bs_logon|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn btn-mini sp-btn-gradient" target="_blank"><i class="icon-search" style="color:white !important;"> Open Base Search</i></a> to view base login data Or Click <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_logon|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn btn-mini sp-btn-gradient" target="_blank"><i class="icon-search" style="color:white !important;"> Open Filtered Search</i></a> to view filtered login data.</h4></div>
+        </center>
+      </html>
+      <html id="row_tabs">
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_ms_ad_obj_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li id="tab_li_results_a" class="tb_res_def">
+            <a href="#tab_results_a_id" class="toggle-tab tb_res_def" data-tab-tgt="results_a">Results Counts <b style="color:$tok_results_count_color$;">($tok_results_count$)</b></a>
+          </li>
+          <li id="tab_li_results_b" class="tab_hld">
+            <a href="#tab_results_b_id" class="toggle-tab" data-tab-tgt="results_b">Results Over Time</a>
+          </li>
+          <li id="tab_li_members" class="tab_hld">
+            <a href="#tab_members_id" class="toggle-tab" data-tab-tgt="members">Group Members <b style="color:green;">($tok_g_m_count$)</b></a>
+          </li>
+          <li id="tab_li_search_info" class="tab_hld">
+            <a href="#tab_search_info_id" class="toggle-tab" data-tab-tgt="search_info">Search Info</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="row_d_results_a">
+    <panel id="pan_res_a">
+      <table>
+        <title>$tok_logon_type$ Logins by User Accounts</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$
+$tok_logon_srch_top$ 
+|rename user as "Username", src_nt_domain as "Domain"</query>
+          <done>
+            <eval token="tok_results_count">toString($job.resultCount$,"commas")</eval>
+          </done>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Failed_Attempts">
+          <colorPalette type="list">[#65A637,#D93F3C]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <format type="color" field="Successful_Attempts">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+      </table>
+      <table>
+        <title>$tok_logon_type$ Logins by Source System</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$ 
+$tok_logon_srch_src$
+| rename src_nt_host as "Workstation",src_ip as "IP Address"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Failed_Attempts">
+          <colorPalette type="list">[#65A637,#D93F3C]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <format type="number" field="Failed_Attempts">
+          <option name="precision">0</option>
+        </format>
+        <format type="color" field="Successful_Attempts">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+      </table>
+      </panel>
+      <panel id="pan_res_b">
+      <table>
+        <title>Top 10 Users by System - $tok_logon_type$ Logins</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$ $tok_logon_srch_sum$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row id="row_d_results_b">
+    <panel>
+      <chart depends="$tok_all_o_time$">
+        <title>All Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$
+| eval user=lower(user)
+| timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+      <chart depends="$tok_failed_o_time$">
+        <title>Failed Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$
+| WHERE status="failure"
+| eval user=lower(user)
+| timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+      <chart depends="$tok_success_o_time$">
+        <title>Success Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>$tok_user_filt$
+| WHERE status="success"
+| eval user=lower(user)
+| timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="row_d_members">
+    <panel>
+      <table id="aatbl_members">
+        <title>Filtered Users Lists</title>
+        <fields>"User Domain","User Name","User Account",userPrincipalName,User_Logon_Search_Values</fields>
+        <search base="base_obj_m_search">
+          <query>eval user=User_Logon_Search_Values $tok_user_filt$
+| sort cn 
+| rename domain AS "User Domain", cn AS "User Name", sAMAccountName AS "User Account"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>  
+  <row id="row_d_search_info">
+    <panel>
+      <html>
+        <table class="mddominpsettoptbl">
+          <tr>
+            <th style="width: 15%">
+              <center>
+                <h3>Type</h3>
+              </center>
+            </th>
+            <th style="width: 75%">
+              <center>
+                <h3>Search Text</h3>
+              </center>
+            </th>      
+            <th style="width: 10%">
+              <center>
+                <h3>Action</h3>
+              </center>
+            </th>              
+          </tr>            
+          <tr>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>Group List</center>
+            </td>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_ad_group_list$</code>
+              </pre>
+            </td>      
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_ad_group_list|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>Group Members List</center>
+            </td>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_ad_user_list$</code>
+              </pre>
+            </td>      
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_ad_user_list|u$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>   
+          <tr>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>Base Logon Search<br/>
+              <b>Dynamic</b><br />
+              <i>Dynamic uses the subsearch and is the type leveraged by this dashboard</i>
+              </center>
+            </td>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_logon$</code>
+              </pre>
+            </td>      
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_logon|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>     
+          <tr>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>Base Logon Search<br/>
+              <b>Non-Dynamic</b><br />
+              <i>Non-Dynamic uses only the values retrieved from the configured subsearch.</i>
+              </center>
+            </td>
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_logon_nond$</code>
+              </pre>
+            </td>      
+            <td style="padding:4px;border: 2px solid #f99d1c;">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_logon_nond|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr> 
+        </table>              
+      </html>
+    </panel>
+  </row>
+  <row depends="$hidden_style$">
+    <panel>
+      <html>
+			  <div id="domain_warn_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+      		<div class="modal-dialog" id="domain_warn_mod_pop" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;">
+      			<div class="modal-content">
+      				<div class="modal-header">
+      					<center>
+      						<div class="mod-head-box">
+      							<h1 class="title" id="myModalLabel" style="text-align:center;">
+      								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+      								<b>Troubleshooting Steps</b> - <i  class="splkblue flarge">No AD Domain data available in the <b>AD_Obj_Domain</b> lookup.</i></i>
+      							</h1>  							
+      						</div>
+      					</center>
+      				</div>   
+      				<div class="modal-body">		
+      					<div class="mod-body-box">
+      						<center>
+      						  <h4>The <b>AD_Obj_Domain</b> lookup is required for this dashboard. Use the below troubleshooting step to walkthrough and verify the AD_Obj_Domain lookup is populated. </h4>
+                    <table border="1" style="width:100%">
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_1.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <h4>
+                                <i>Review and Verify collected AD Domain site information:</i>
+                              </h4>
+                              <ul>
+                                <li>
+                                  <i>
+                                    <a href="/app/ms_windows_ad_objects/search?q=$ts_srch_domain|u$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                      <i class="icon-list"> Click Here</i>
+                                    </a> to verify that the <code>`ms__obj_win_ad_index` eventtype="ms_ad_obj_msad-dc-health"</code> data is available, which is used to build the <b>AD_Obj_Domain</b> lookup.
+                                  </i>
+                                </li>
+                              </ul>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_2.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <li>
+                                <h4>
+                                  <i>Data Is Returned from Step 1 Search.</i>
+                                </h4>
+                                <ul>
+                                  <li>
+                                    <i>If data is returned in step 1, then <a href="/app/ms_windows_ad_objects/search?q=$ts_bld_domain|u$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                        <i class="icon-list"> Click Here</i>
+                                      </a> to populate the AD_Obj_Domain lookup with the AD Domain data.
+                                    </i>
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <h4>
+                                  <i>Data Is NOT Returned from Step 1 Search.</i>
+                                </h4>
+                                <ul>
+                                  <li>
+                                    <i>If data is NOT returned in step 1 search, then <a href="/app/ms_windows_ad_objects/ad_objects__configuration__getting_data_in" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                        <i class="icon-list"> Click Here</i>
+                                      </a> to walk through the initial configuration steps for verifying that the AD data <code>`ms__obj_win_ad_index` eventtype="ms_ad_obj_msad-dc-health"</code> is being collected and all of the steps have been completed.
+                                    </i>
+                                  </li>
+                                  <li>
+                                    <i><b>OR </b> <a href="/app/ms_windows_ad_objects/ad_objects__configuration__getting_data_in" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                        <i class="icon-list"> Click Here</i>
+                                      </a> to Open the <b>Build AD Lookup Lists - Main</b>, then click on the <b>Manual Build AD_Obj_Domain</b> lookup button, to manually populate this lookup.
+                                    </i>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>      
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <h4>
+                                <i>Re-open this dashboard to pickup the newly created, required, lookups:</i>
+                              </h4>
+                              <ul>
+                                <li>
+                                  <i>
+                                    <a href="/app/ms_windows_ad_objects/ms_ad_obj_ad_user_by_group_logons" class="btn btn-mini sp-btn-gradient">
+                                      <i class="icon-list"> Click Here</i>
+                                    </a> to re-open this dashboard.  
+                                  </i>
+                                </li>
+                              </ul>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>           
+                    </table>
+      						</center>	
+      					</div>
+      				</div>
+      				<div class="modal-footer">
+      					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      				</div>
+      			</div>    		
+      		</div>
+      	</div>
+			  <div id="group_warn_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+      		<div class="modal-dialog" id="group_warn_mod_pop" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;">
+      			<div class="modal-content">
+      				<div class="modal-header">
+      					<center>
+      						<div class="mod-head-box">
+      							<h1 class="title" id="myModalLabel" style="text-align:center;">
+      								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+      								<b>Troubleshooting Steps</b> - <i  class="splkblue flarge">No AD Groups available in the $tok_group_lkp$ lookup.</i></i>
+      							</h1>  							
+      						</div>
+      					</center>
+      				</div>   
+      				<div class="modal-body">		
+      					<div class="mod-body-box">
+      						<center>
+      						  <h4>If you are not seeing specific AD Groups returned, and are sure the applied filter ($tok_group_filter$) is correct, then use the below steps to troubleshoot. </h4>
+      						  <b>NOTE:</b> Before performing the below steps, <i>try changing the group filters "Case", Ex. admin* with ADMIN*. KV Store Lookups are Case Sensitive.</i>
+                    <table border="1" style="width:100%">
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_1.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <h4>
+                                <i>Review and Verify collected admon:</i>
+                              </h4>
+                              <ul>
+                                <li>
+                                  <i>
+                                    <a href="/app/ms_windows_ad_objects/search?q=$ts_srch_admon_base|u$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                      <i class="icon-list"> Click Here</i>
+                                    </a> to verify that the admon <i>Group</i> baseline data is available for the <b>$tok_domain$</b> domain. <b>Adjust time period if neccessary.</b>
+                                  </i>
+                                </li>
+                              </ul>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_2.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <li>
+                                <h4>
+                                  <i>Data Is Returned from Step 1 Search.</i>
+                                </h4>
+                                <ul>
+                                  <li>
+                                    <i>If data is returned in step 1, then <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_ad_group_list|u$" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                        <i class="icon-list"> Click Here</i>
+                                      </a> to verify the $tok_group_lkp$ lookup to verify it has data.
+                                    </i>
+                                  </li>
+                                </ul>
+                              </li>
+                              <li>
+                                <h4>
+                                  <i>Data Is NOT Returned from Step 1 Search.</i>
+                                </h4>
+                                <ul>
+                                  <li>
+                                    <i>If data is NOT returned in step 1 search, then <a href="/app/ms_windows_ad_objects/ad_objects__configuration__getting_data_in" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                        <i class="icon-list"> Click Here</i>
+                                      </a> to walk through the initial configuration steps for verifying that the admon data collection steps have been completed.
+                                    </i>
+                                  </li>
+                                </ul>
+                              </li>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <h4>
+                                <i>Data Is Returned from Step 1, but NOT returned from Step 2, then make sure that you have completed the initial building of the Lookups.  Open the <b>Build AD Lookp Lists - Main</b> dashboard to build AD Object Lookups:</i>
+                              </h4>
+                              <ul>
+                                <li>
+                                  <i>
+                                    <a href="/app/ms_windows_ad_objects/ms_ad_obj_build_ad_lookup_lists__main" class="btn btn-mini sp-btn-gradient" target="_blank">
+                                      <i class="icon-list"> Click Here</i>
+                                    </a> to open the <b>Build AD Lookp Lists - Main</b> dashboard.  
+                                  </i>
+                                </li>
+                              </ul>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>        
+                      <tr>
+                        <td style="width: 5%">
+                          <center>
+                            <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+                          </center>
+                        </td>
+                        <td style="width: 95%">                 
+                          <p>  
+                            <ul>
+                              <h4>
+                                <i>Re-open this dashboard to pickup the newly created, required, lookups:</i>
+                              </h4>
+                              <ul>
+                                <li>
+                                  <i>
+                                    <a href="/app/ms_windows_ad_objects/ms_ad_obj_ad_user_by_group_logons" class="btn btn-mini sp-btn-gradient">
+                                      <i class="icon-list"> Click Here</i>
+                                    </a> to re-open this dashboard.  
+                                  </i>
+                                </li>
+                              </ul>
+                            </ul>    
+                          </p>
+                        </td>
+                      </tr>           
+                    </table>
+      						</center>	
+      					</div>
+      				</div>
+      				<div class="modal-footer">
+      					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+      				</div>
+      			</div>    		
+      		</div>
+      	</div>
+      	<style>
+#input_obj_list_id {padding-right: 20px !important;margin-right: 20px !important;}
+[id^="input_obj_list_id"] [data-component="splunk-core:/splunkjs/mvc/components/Dropdown"] {padding-right:20px;margin-right:20px !important;display: flex;}       	
+/* Hidden - Initial Hiding of Objects */
+[id^=row_] {display:none;}
+#rw_inputs {display:none;}
+#rw_initial_post_panel {display:none;}
+#input_obj_list_id {display:none;}
+.prg_run_state {display:none;}
+.show_filt_btn {display:none;}
+.hide_filt_btn {display:none;}
+.msg_obj_warn {display:none;}
+.msg_obj_m_warn {display:none;}
+.msg_prg_run_failed {display:none;}
+.msg_prg_run_nodata {display:none;}
+.msg_prg_init_nodomain {display:none;}
+#row_d_results_a {display:none;}
+#row_d_results_b {display:none;}
+      	</style>
+      </html>
+    </panel>
+  </row>
+</form>

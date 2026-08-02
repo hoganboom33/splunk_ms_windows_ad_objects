@@ -1,0 +1,2 @@
+host,DomainNetBIOSName,DomainDNSName,ForestName,Site,domain
+DC2012R2,sedemo,"sedemo.local","sedemo.local","Default-First-Site-Name",sedemo

@@ -1,0 +1,93 @@
+<form version="1.1">
+  <label>AD Objects - File Audit - Analysis</label>
+  <init>
+    <set token="tok_raw_filt"></set>
+    <set token="tok_type_filt">Accesses="*"</set>
+  </init>
+  <search id="base_search">
+    <query>`ms_obj_win_events_security` Object_Server="Security" TaskCategory="File System" $tok_raw_filt$ user_type="user"
+| fields Object_Name,Accesses,Account_Name,user,src_user
+| eval Object_Path=Object_Name, temp=_time, signature=if(isnull(signature),"NA",signature)
+| eval user=if(isnull(user),lower(src_user),lower(user))
+| stats count, max(_time) AS l_time by Accesses,Object_Path,user</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="tok_raw_filt" searchWhenChanged="true">
+      <label>Raw Search</label>
+      <default></default>
+    </input>
+    <input type="dropdown" token="tok_type">
+      <label>Select Action Type</label>
+      <choice value="">All</choice>
+      <choice value="no_r_x">Not Read or Execute</choice>
+      <choice value="del">Delete</choice>
+      <choice value="w_only">Write Only</choice>
+      <choice value="append">Append File/Dir</choice>
+      <choice value="x_only">Execute Only</choice>
+      <choice value="r_only">Read Only</choice>
+      <choice value="sync">Synchronize</choice>
+      <default></default>
+      <change>
+        <condition value="all">
+          <set token="tok_type_filt">Accesses="*"</set>
+        </condition>
+        <condition value="no_r_x">
+          <set token="tok_type_filt">Accesses!="Read*" Accesses!="Execute/Traverse" Accesses!="SYNCHRONIZE"</set>
+        </condition>
+        <condition value="del">
+          <set token="tok_type_filt">Accesses="DELETE"</set>
+        </condition>
+        <condition value="w_only">
+          <set token="tok_type_filt">Accesses="Write*"</set>
+        </condition>
+        <condition value="r_only">
+          <set token="tok_type_filt">Accesses="Read*"</set>
+        </condition>
+        <condition value="x_only">
+          <set token="tok_type_filt">Accesses="Execute*"</set>
+        </condition>
+        <condition value="append">
+          <set token="tok_type_filt">Accesses="AppendData*"</set>
+        </condition>
+        <condition value="sync">
+          <set token="tok_type_filt">Accesses="SYNCHRONIZE*"</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <search base="base_search">
+          <query>search  $tok_type_filt$
+| sort -count
+| lookup AD_Obj_User lookup_usr AS user OUTPUT cn
+| eval user=if(isnull(cn),user,cn." (".user.")")
+| eval cmb=count." - ".Object_Path
+| stats max(l_time) AS last_time,sum(count) AS Total_Events,list(cmb) AS cmb by Accesses,user
+| eval last_time=strftime(last_time,"%m/%d/%y %I:%M:%S %P")
+| eval Top_10_Type_Details=mvindex(cmb,0,9)
+| table user,Accesses, last_time,Top_10_Type_Details, Total_Events
+| sort -Total_Events</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

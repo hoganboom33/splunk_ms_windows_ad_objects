@@ -1,0 +1,960 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Admin - Logins - Users</label>
+  <init>
+  	 <condition match=" $tok_user_dd$ !='' ">
+		  <set token="tok_bypass_min">200</set>
+		  <set token="tok_results_max">500</set>
+		  <set token="tok_message_color">green</set>
+		  <set token="tok_message_state">Info:</set>
+		  <set token="tok_message">1: Select the Domain Status of the user.</set>
+    </condition>
+    <condition>
+		  <unset token="tok_tgr_bs_login_search"></unset>
+		  <unset token="tok_tgr_bs_dom_user"></unset>
+		  <unset token="tok_tgr_sub_non_dom_logon_filt"></unset>
+		  <unset token="show_user_filt_dom"></unset>
+		  <unset token="show_user_filt_non_dom"></unset>
+		  <set token="tok_bypass_min">200</set>
+		  <set token="tok_results_max">500</set>
+		  <set token="tok_message_color">green</set>
+		  <set token="tok_message_state">Info:</set>
+		  <set token="tok_message">1: Select the Domain Status of the user.</set>
+		  <set token="tok_user_lkp">AD_Obj_User</set>
+		  <set token="tok_group_lkp">AD_Obj_Group</set>
+		  <set token="tok_computer_lkp">AD_Obj_Computer</set>
+		  <set token="tok_domain_ad_user"></set>
+    </condition>
+  </init>
+    <!-- Drill down Search tok_tgr_sub_user_list tok_sel_user_filt tok_pre_filt_flds tok_domain_ad_user-->
+    <search id="dd_srch">
+    	<query>| makeresults
+| eval dd_val="$tok_user_dd$"
+| rex field=dd_val "(?&lt;dom_status&gt;[^\|]+)\|(?&lt;domain&gt;[^\|]+)\|(?&lt;user&gt;[^\|]+)\|(?&lt;user_lookup&gt;.+)"
+| eval flg_dom=if(user_lookup=="#All#","F","T")
+| eval bs_user=lower(user),bs_domain=lower(domain)
+| eval raw_txt=if(flg_dom=="F",domain." ".user,"([|`ms_obj_ss_filt_raw_link(\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"".user_lookup."\",\"".bs_domain."\",\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"raw_txt\")`])")
+| eval raw_txt_lbl=if(flg_dom=="F",domain." ".user,"|`ms_obj_ss_filt_raw_link(\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"".user_lookup."\",\"".bs_domain."\",\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"raw_txt\")`")
+| eval link_txt_r_evt=if(flg_dom=="F","| search user=\"".user."\"","| search user IN([|`ms_obj_ss_filt_raw_link(\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"".user_lookup."\",\"".bs_domain."\",\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])")
+| eval link_txt=if(flg_dom=="F","| search Logon_User =\"".user."\"","| search Logon_User IN([|`ms_obj_ss_filt_raw_link(\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"".user_lookup."\",\"".bs_domain."\",\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])")
+| eval link_add=if(flg_dom=="F","","| join type=left Logon_User [|inputlookup ".user_lookup." WHERE [|`ms_obj_ss_filt_pre_base(\"".bs_user."\",\"cn,sAMAccountName,userPrincipalName\")`] | eval Logon_User=cn.\"|\".sAMAccountName.\"|\".userPrincipalName | makemv delim=\"|\" Logon_User | stats values(uac_details) AS uac_details by Logon_User | eval uac_details=mvjoin(uac_details,\":\")| table Logon_User, uac_details]")
+| eval tbl_flds=if(flg_dom=="F","| table Logon_User,","| table Logon_User,uac_details,")
+| eval tok_domain_acct=if(dom_status="Domain_Account","NOT Sub_Status=0xC0000064 NOT Error_Code=0xC0000064","Sub_Status=0xC0000064 OR Error_Code=0xC0000064")
+| table dd_val,flg_dom,bs_user,bs_domain,user_lookup,dom_status,raw_txt,raw_txt_lbl,link_txt_r_evt,link_txt,link_add,tbl_flds,tok_domain_acct</query>
+      <done>
+      	<condition match="$job.resultCount$ == 0">
+      	</condition>
+      	<condition>
+          <set token="tok_user_domain_acct_bs">all</set>
+          <set token="form.tok_user_domain_acct_bs">all</set>
+          <set token="show_user_filt_non_dom">True</set>
+          <set token="tok_user_filter_non_dom_bs">$result.bs_user$</set>
+          <set token="form.tok_user_filter_non_dom_bs">$result.bs_user$</set>
+          <unset token="tok_user_filter"></unset>
+          <unset token="tok_tgr_sub_non_dom_logon_filt"></unset>
+          <set token="tok_domain_acct">$result.tok_domain_acct$</set>
+          <set token="tok_domain_ad_user">$result.bs_domain$</set>
+          <set token="tok_filt_raw_txt">$result.raw_txt$</set>
+          <set token="tok_srch_filt_raw">$result.raw_txt_lbl$</set>
+          <set token="tok_filt_link_r_evt">$result.link_txt_r_evt$</set>
+          <set token="tok_filt_link">$result.link_txt$</set>
+          <set token="tok_filt_link_add">$result.link_add$</set>
+          <set token="tok_table_search">$result.tbl_flds$</set>
+          <set token="tok_message_color">green</set>
+          <set token="tok_message_state">OK</set>
+          <set token="tok_message">Drilldown Login Search for User($result.bs_user$)</set>
+          <set token="tok_tgr_bs_login_search">True</set>
+          <set token="tok_tgr_bs_raw_login_search">True</set>
+        </condition>
+      </done>
+    </search>
+    <search id="dom_stat_vals">
+      <query>| makeresults
+| eval d_st_type="$tok_user_domain_acct_bs$"
+| eval dom_stat=case(d_st_type=="all","",d_st_type=="False","(Sub_Status=0xC0000064 OR Error_Code=0xC0000064)",d_st_type=="True","NOT Sub_Status=0xC0000064 NOT Error_Code=0xC0000064")
+</query>
+      <done>
+        <set token="tok_domain_acct">$result.dom_stat$</set>
+      </done>
+    </search>
+   <search id="bs_dom_list">
+    <query>| `ms_obj_domain_list`</query>
+  </search>
+  <search base="bs_dom_list" id="dom_lkp_vals">
+    <query>search domain="$tok_domain_ad_user$"
+| eval dom_lkp_srch_trigger="$show_dom_acc$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+      </condition>
+    </done>
+  </search> 
+  <!-- Base Domain User Lookup -->
+  <search id="bs_dom_user">
+    <query> | `ms_obj_ss_filt_pre_lkp("$tok_user_lkp$","$tok_domain_ad_user$","$tok_user_filter$","cn,sAMAccountName,userPrincipalName","domain,cn,sAMAccountName,userPrincipalName,dn,_key")`
+| eval dom_srch_trigger="$tok_tgr_bs_dom_user$",key_val=_key</query>
+  </search>
+  <!-- Check Matching Results Count - Prevent Search if beyond $tok_results_max$, warn if under $tok_results_max$ but above $tok_bypass_min$.  This prevents slowness when building the Domain User List -->
+  <search base="bs_dom_user" id="sub_check_size_res">
+    <query>| fields 
+| `ms_obj_ss_filt_pre_cnt_chk($tok_bypass_min$,$tok_results_max$)`
+| eval show_bypass_option=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"true","false")
+| eval show_user_list=if(count&gt;=$tok_bypass_min$,"false","true")
+| eval inp_bypass_nmb=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"4","false")
+| eval inp_usr_lst_nmb=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"5","4")
+| eval msg_state=if(count&gt;=$tok_bypass_min$,"Warning","Info")
+| eval msg_color=if(count&gt;=$tok_bypass_min$,"red","green")
+| eval msg=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,inp_usr_lst_nmb.": ".count." Total Users matched the \"Filter User\" ($tok_user_filter$). Either update the \"Filter User\" to reduce the matching count, or click the \"Yes\" option in the \"Bypass Large List\" input and run the search (Slow Search Possible).",if(count&gt;=$tok_results_max$,inp_usr_lst_nmb.": ".count." Total Users matched the \"Filter User\" ($tok_user_filter$). Update the \"Filter User\" to reduce the matching count.",inp_usr_lst_nmb.": (".count." Users) Either select a individual matching user account or \"All\" from the \"Select User\" input."))
+</query>
+    <done>
+      <condition match="$result.count$>0">
+        <eval token="tok_show_bypass_option">if($result.show_bypass_option$=="false",NULL,"true")</eval>
+        <eval token="tok_show_user_list">if($result.show_user_list$=="false",NULL,"true")</eval>
+        <eval token="tok_tgr_sub_user_list">if($result.show_user_list$=="false",NULL,"true")</eval>
+        <set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_inp_usr_filt_nmb">3</set>
+        <set token="tok_inp_bypass_nmb">$result.inp_bypass_nmb$</set>
+        <set token="tok_inp_usr_list_nmb">$result.inp_usr_lst_nmb$</set>
+        <set token="tok_message_color">$result.msg_color$</set>
+        <set token="tok_message_state">$result.msg_state$</set>
+        <set token="tok_message">$result.msg$</set>
+        <unset token="tok_tgr_post_check"></unset>
+      </condition>   
+      <condition match="$result.count$==0">
+      	<set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_tgr_post_check">true</set>
+      </condition>
+    </done>
+  </search>
+  <search id="empty_check_size_res">
+  	<query>| makeresults | eval tok_tgr_post_check="$tok_tgr_post_check$",dom_srch_trigger="$tok_tgr_bs_dom_user$",count=$tok_filt_user_cnt$</query>
+    <done>   
+      <condition match="$result.count$==0">
+        <unset token="tok_show_bypass_option"></unset>
+        <unset token="tok_tgr_sub_user_list"></unset>
+        <unset token="tok_show_user_list"></unset>
+        <unset token="tok_filt_user_cnt"></unset>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">4: No Users found matching the "Filter User" ($tok_user_filter$) entry. Update the "Filter User" to return values. Note: You can use wildcards, (ex. al*), however you cannot enter only a * to search for all.</set>
+      </condition>
+    </done>
+  </search>
+<!-- Search to populate Domain User Lists -->
+  <search base="bs_dom_user" id="sub_user_list">
+    <query>eval trigger_sub_user_list="$tok_tgr_sub_user_list$"
+| eval label=if(isnull(cn),sAMAccountName." (".domain." )",cn." (".domain." )")
+| stats count by label,key_val 
+| sort label</query>
+  </search>
+  <search id="sub_dom_logon_filt">
+    <query>| makeresults
+| eval exec_trigger="$tok_tgr_sub_user_list$"
+| eval filt_link_add="| join type=left Logon_User [|inputlookup $tok_user_lkp$ WHERE [|`ms_obj_ss_filt_pre_base(\"$tok_sel_user_filt$\",\"$tok_pre_filt_flds$\")`] | eval Logon_User=cn.\"|\".sAMAccountName.\"|\".userPrincipalName | makemv delim=\"|\" Logon_User | stats values(uac_details) AS uac_details by Logon_User | eval uac_details=mvjoin(uac_details,\":\")| table Logon_User, uac_details]
+| eval uac_details=if(isnull(uac_details),\"Not Available\",uac_details) 
+| makemv delim=\":\" uac_details"
+| eval filt_raw_text="([|`ms_obj_ss_filt_raw_link(\"$tok_sel_user_filt$\",\"$tok_pre_filt_flds$\",\"$tok_user_lkp$\",\"$tok_domain_ad_user$\",\"$tok_sel_user_filt$\",\"cn,sAMAccountName,userPrincipalName\",\"raw_txt\")`])"
+| eval filt_raw_text_lbl="|`ms_obj_ss_filt_raw_link(\"$tok_sel_user_filt$\",\"$tok_pre_filt_flds$\",\"$tok_user_lkp$\",\"$tok_domain_ad_user$\",\"$tok_sel_user_filt$\",\"cn,sAMAccountName,userPrincipalName\",\"raw_txt\")`"
+| eval filt_link="| search Logon_User IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_user_filt$\",\"$tok_pre_filt_flds$\",\"$tok_user_lkp$\",\"$tok_domain_ad_user$\",\"$tok_sel_user_filt$\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])"
+| eval filt_link_r_evt="| search user IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_user_filt$\",\"$tok_pre_filt_flds$\",\"$tok_user_lkp$\",\"$tok_domain_ad_user$\",\"$tok_sel_user_filt$\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])"
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt,filt_raw_text_lbl</query>
+  <done>
+    <condition match=" 'job.resultCount' == 0">
+      <unset token="tok_filt_raw_txt"></unset>
+      <unset token="tok_filt_link"></unset>
+      <unset token="tok_filt_link_add"></unset>
+      <unset token="tok_filt_link_r_evt"></unset>
+      <unset token="tok_tgr_bs_login_search"></unset>
+    </condition>
+    <condition>    
+      <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+      <set token="tok_filt_link">$result.filt_link$</set>
+      <set token="tok_filt_link_add">$result.filt_link_add$</set>
+      <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+      <set token="tok_srch_filt_raw">$result.filt_raw_text_lbl$</set>
+    </condition>
+  </done>
+  </search>
+ <!-- Filter Creation Search - Non - Domain Accounts - Using Selected Input Vales to build filters for the logon search -->
+  <search id="sub_non_dom_logon_filt">
+    <query>| makeresults 
+| eval non_dom_filt_srch_trigger="$tok_tgr_sub_non_dom_logon_filt$"
+| eval filt_raw_text=if(match("$tok_user_filter$","^\*$$"),"","\"$tok_user_filter$\"")
+| eval filt_link=if(match("$tok_user_filter$","^\*$$"),"","| search Logon_User=\"$tok_user_filter$\"")
+| eval filt_link_r_evt=if(match("$tok_user_filter$","^\*$$"),"","| search user=\"$tok_user_filter$\"")
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt</query>
+  <done>
+    <condition match=" 'job.resultCount' == 0">
+      <unset token="tok_filt_raw_txt"></unset>
+      <unset token="tok_filt_link"></unset>
+      <unset token="tok_filt_link_add"></unset>
+      <unset token="tok_filt_link_r_evt"></unset>
+      <unset token="tok_tgr_bs_login_search"></unset>
+    </condition>
+    <condition>
+      <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+      <set token="tok_filt_link">$result.filt_link$</set>
+      <set token="tok_filt_link_add"></set>
+      <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+      <set token="tok_tgr_bs_login_search">True</set>
+    </condition>
+  </done>
+  </search>
+  <!-- Possible Speed Up - Places Raw Values instead of using a sub search
+   <search base="bs_dom_user" id="sub_dom_logon_filt">
+    <query>
+ $tok_sel_user_filt$
+| eval exec_trigger="$tok_tgr_sub_user_list$"     
+| eval filt_vals=mvdedup(mvappend(cn,sAMAccountName,userPrincipalName)) 
+| eval filt_link_add="cn=\"".cn."\" OR sAMAccountName=\"".sAMAccountName."\" OR userPrincipalName=\"".userPrincipalName."\""
+| stats values(filt_vals) AS filt_vals,values(filt_link_add) AS filt_link_add 
+| eval filt_vals=mvfilter(match(filt_vals,"^\S+"))
+| eval filt_raw_text=if(mvcount(filt_vals)==1,"(\"".filt_vals."\")"," (\"".mvjoin(filt_vals,"\" OR \"")."\")")
+| eval filt_link=if(mvcount(filt_vals)==1,"| search Logon_User IN(\"".filt_vals."\")","| search Logon_User IN([`ms_obj_ss_filt_raw_link(\"$tok_user_lkp$\",\"$tok_domain_ad_user$\",\"$tok_user_filter$\",\"cn,sAMAccountName,principalName\",\"link\")`])")
+| eval filt_link_r_evt=if(mvcount(filt_vals)==1,"| search user IN(\"".filt_vals."\")","| search user IN(\"".mvjoin(filt_vals,"\",\"")."\")"))
+| eval filt_link_add=mvjoin(filt_link_add," OR ")
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt</query>
+</search>-->  
+  <!-- Logon Searches - Using Filters from the sub_dom_logon_filt search -->
+  <search id="bs_login_search">
+    <query>`ms_obj_failed_success_logons("user")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$
+| fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status,Error_Code
+| eval exec_logon_srch_trigger="$tok_tgr_bs_login_search$"
+| eval Domain_Account=if(match(Sub_Status,"(?i)0xc0000064") OR match(Error_Code,"(?i)0xc0000064"),"Non_Domain_Account","Domain_Account") 
+| eval Logon_User=lower(user) 
+| eval src_ip=if(isnull(src_ip) OR match(src_ip,"^::|\-|127.0.0.1"),upper(host),src_ip) 
+| eval src_nt_host=if(isnull(src_nt_host),src_ip,replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eval Failure_Reason=if(isnull(Failure_Reason),signature,Failure_Reason)
+| fillnull value="Not In Event" src_nt_host, src_ip,Failure_Reason,signature 
+| eval Session_Status="Audit ".status 
+| fields _time, host,src_ip,src_nt_host,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account 
+| stats values(src_nt_host) as src_nt_host,count by _time, host,src_ip,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account
+$tok_filt_link$</query>
+    <earliest>$time_field.earliest$</earliest>
+    <latest>$time_field.latest$</latest>
+    <progress>
+      <unset token="tok_logon_srch_empty"></unset>
+      <unset token="tok_message_color"></unset>
+      <unset token="tok_message_state"></unset>
+      <unset token="tok_message"></unset>
+      <unset token="tok_show_results"></unset>
+      <set token="tok_logon_srch_run">true</set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+          <unset token="tok_logon_srch_run"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_show_results"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <set token="tok_logon_srch_empty">true</set>
+          <set token="tok_result_msg">true</set>
+          <set token="tok_srch_bs_logon">`ms_obj_failed_success_logons("user")`
+| fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status</set>
+          <set token="tok_srch_bs_logon_dom">`ms_obj_failed_success_logons("user")` $tok_domain_acct$</set>
+    	  <set token="tok_srch_bs_logon_dom_filt">`ms_obj_failed_success_logons(\"user\")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$
+| fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status</set>
+		  <set token="tok_srch_bs_logon_full">`ms_obj_failed_success_logons("user")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$
+| fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status
+| eval Domain_Account=if(Sub_Status=="0xC0000064" OR Error_Code=="0xC0000064","Non_Domain_Account","Domain_Account")
+| eval Logon_User=lower(user) 
+| eval src_ip=if(isnull(src_ip) OR match(src_ip,"^::|\-|127.0.0.1"),upper(host),src_ip) 
+| eval src_nt_host=if(isnull(src_nt_host),src_ip,replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eval Failure_Reason=if(isnull(Failure_Reason),signature,Failure_Reason)
+| fillnull value="Not In Event" src_nt_host, src_ip,Failure_Reason,signature 
+| eval Session_Status="Audit ".status 
+| fields _time, host,src_ip,src_nt_host,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account 
+| stats values(src_nt_host) as src_nt_host,count by _time, host,src_ip,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account
+$tok_filt_link$</set>
+      </condition>      
+        <condition>
+          <set token="tok_show_results">true</set>
+          <set token="tok_tgr_bs_raw_login_search">True</set>
+          <unset token="tok_logon_srch_empty"></unset>
+          <unset token="tok_logon_srch_run"></unset>
+          <unset token="tok_result_msg"></unset>
+          <set token="tok_srch_bs_logon">`ms_obj_failed_success_logons("user")`
+| fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status</set>
+          <set token="tok_srch_bs_logon_dom">`ms_obj_failed_success_logons("user")` $tok_domain_acct$</set>
+      	  <set token="tok_srch_bs_logon_dom_filt">`ms_obj_failed_success_logons(\"user\")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$</set>
+    		  <set token="tok_srch_bs_logon_full">`ms_obj_failed_success_logons("user")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$
+    | fields user, status, _time, host,src_ip,src_nt_host,signature,Failure_Reason,Logon_Type,session_id,Sub_Status
+    | eval Domain_Account=if(Sub_Status=="0xC0000064" OR Error_Code=="0xC0000064","Non_Domain_Account","Domain_Account")
+    | eval Logon_User=lower(user) 
+    | eval src_ip=if(isnull(src_ip) OR match(src_ip,"^::|\-|127.0.0.1"),upper(host),src_ip) 
+    | eval src_nt_host=if(isnull(src_nt_host),src_ip,replace(src_nt_host,"\s","####"))
+    | makemv delim="####" src_nt_host
+    | eval Failure_Reason=if(isnull(Failure_Reason),signature,Failure_Reason)
+    | fillnull value="Not In Event" src_nt_host, src_ip,Failure_Reason,signature 
+    | eval Session_Status="Audit ".status 
+    | fields _time, host,src_ip,src_nt_host,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account 
+    | stats values(src_nt_host) as src_nt_host,count by _time, host,src_ip,Logon_User, status, Session_Status,signature,Failure_Reason,session_id,Logon_Type,Domain_Account
+    $tok_filt_link$</set>
+          <set token="tok_show_tabs">true</set>
+          <set token="tok_tab_1">active</set>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_3"></unset>
+          <unset token="tok_tab_4"></unset>
+          <unset token="tok_tab_5"></unset>
+          <unset token="tok_tab_6"></unset>
+          <unset token="tok_tab_7"></unset>
+          <unset token="tok_tab_8"></unset>
+          <unset token="tok_tab_9"></unset>
+        </condition>
+    </done>
+  </search>
+  <!-- Search for showing the raw events -->
+  <search id="bs_raw_login_search">
+    <query>`ms_obj_failed_success_logons("user")` $tok_domain_acct$ $tok_domain_ad_user$ $tok_filt_raw_txt$
+    | fields _raw,_time,user
+    | eval exec_logon_srch_trigger="$tok_tgr_bs_raw_login_search$"
+    | fields - exec_logon_srch_trigger
+    $tok_filt_link_r_evt$
+    </query>
+    <earliest>$time_field.earliest$</earliest>
+    <latest>$time_field.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="false">
+    <input type="time" token="time_field" searchWhenChanged="true">
+      <label>Select Time Period</label>
+      <default>
+        <earliest>-4h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="radio" token="tok_user_domain_acct_bs" searchWhenChanged="true">
+      <label>1: Domain Status Type</label>
+      <choice value="True">Domain Account</choice>
+      <choice value="False">Non-Domain Account</choice>
+      <choice value="all">All</choice>
+      <change>
+        <condition value="True">
+          <set token="show_dom_list">true</set>
+          <unset token="tok_show_user_list"></unset>
+          <unset token="tok_show_bypass_option"></unset>
+          <unset token="form.tok_user_filter_bs"></unset>
+          <unset token="tok_user_filter_bs"></unset>
+          <unset token="remove_tok_filt_raw_txt"></unset>
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <unset token="tok_tgr_bs_dom_user"></unset>
+          <unset token="tok_tgr_sub_non_dom_logon_filt"></unset>
+          <unset token="show_non_dom_acc"></unset>
+          <unset token="show_all_acc"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="show_user_filt_non_dom"></unset>
+          <unset token="show_user_filt_dom"></unset>
+          <unset token="tok_tgr_sub_user_list"></unset>
+          <set token="tok_domain">sel</set>
+          <set token="form.tok_domain">sel</set>
+          <set token="tok_user">sel</set>
+          <set token="form.tok_user">sel</set>
+          <set token="tok_message_color">green</set>
+          <set token="tok_message_state">Info:</set>
+          <set token="tok_message">2: Select a specific domain from the "Select Domain" list.</set>
+          <set token="show_dom_acc">True</set>
+          <set token="tok_domain_acct">NOT Sub_Status=0xC0000064 NOT Error_Code=0xC0000064</set>
+          <set token="tok_table_search">| table Logon_User, uac_details</set>
+        </condition>
+        <condition>
+          <unset token="show_dom_list"></unset>
+          <unset token="tok_show_user_list"></unset>
+          <unset token="tok_show_bypass_option"></unset>
+          <unset token="tok_sel_user_filt"></unset>
+          <unset token="remove_tok_filt_raw_txt"></unset>
+          <unset token="remove_tok_tgr_bs_login_search"></unset>
+          <unset token="remove_tok_tgr_bs_raw_login_search"></unset>
+          <unset token="tok_tgr_bs_dom_user"></unset>
+          <unset token="tok_tgr_post_check"></unset>
+          <unset token="tok_tgr_sub_user_list"></unset>
+          <unset token="show_dom_acc"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="show_user_filt_dom"></unset>
+          <set token="show_user_filt_non_dom">True</set>
+          <set token="tok_tgr_sub_non_dom_logon_filt">$value$</set>
+          <set token="tok_message_color">green</set>
+          <set token="tok_message_state">Info:</set>
+          <set token="tok_message">2: Enter a user filter in the "Filter User" input. Note: You can use wildcards, enter * to search for all logon users during specified time period.</set>
+          <set token="tok_table_search">| table Logon_User</set>
+        </condition>
+       
+      </change>
+    </input>
+    <input type="text" token="tok_user_filter_non_dom_bs" searchWhenChanged="true" depends="$show_user_filt_non_dom$">
+      <label>2: Filter User</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="len($value$)>0">
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_result_msg"></unset>
+          <set token="atok_tgr_bs_login_search">True</set>
+          <set token="tok_user_filter">$value$</set>
+          <set token="tok_message_color"></set>
+          <set token="tok_message_state"></set>
+          <set token="tok_message"></set>
+          <set token="tok_logon_srch_run">true</set>
+        </condition>
+        <condition>
+          <unset token="tok_exec_search"></unset>
+          <unset token="tok_user_filter"></unset>
+          <unset token="show_user_dropdown"></unset>
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <unset token="tok_tgr_bs_dom_user"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <set token="tok_message_color">green</set>
+          <set token="tok_message_state">Info:</set>
+          <set token="tok_message">2: Enter a user filter in the "Filter User" input. Note: You can use wildcards, you can enter * for all logon users but will be slower.</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_domain" searchWhenChanged="true" depends="$show_dom_list$">
+      <label>2: Select Domain</label>
+      <choice value="sel">Select Domain</choice>
+      <initialValue>sel</initialValue>
+      <default>sel</default>
+      <search base="bs_dom_list">
+        <query>fields domain | eval domain_val=lower(domain) | table domain,domain_val | search domain!="" | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain_val</fieldForValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <unset token="show_user_filt_dom"></unset>
+          <unset token="tok_tgr_bs_dom_user"></unset>
+          <unset token="tok_user_filter"></unset>
+          <unset token="form.tok_user_filter_bs"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+        </condition>
+        <condition>
+          <unset token="tok_user_filter"></unset>
+          <unset token="form.tok_user_filter_bs"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <set token="tok_user">sel</set>
+          <set token="tok_tgr_bs_dom_user">True</set>
+          <set token="tok_tgr_sub_user_list">True</set>
+          <set token="tok_domain_ad_user">$value$</set>
+          <set token="show_user_filt_dom"></set>
+          <set token="tok_message_color">green</set>
+          <set token="tok_message_state">Info:</set>
+          <set token="tok_message">3: Enter a user filter in the "Filter User" input. Note: This filter will look through the "CN, sAMAccountName, and userPrincipalName" for matches and open the "Select User" dropdown list with matching results. You can use wildcards, however you cannot enter only a "*" to search for all.</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="tok_user_filter_bs" searchWhenChanged="true" depends="$show_user_filt_dom$">
+      <label>3: Filter Domain User</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="len($value$)>0">
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <set token="tok_user">sel</set>
+          <set token="tok_user_filter">$value$</set>
+        </condition>
+        <condition>
+          <unset token="tok_exec_search"></unset>
+          <unset token="tok_user_filter"></unset>
+          <unset token="show_user_dropdown"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_tgr_bs_raw_login_search"></unset>
+          <set token="tok_user">sel</set>
+        </condition>
+      </change>
+    </input>
+    <input type="radio" token="tok_bypass_lg" depends="$tok_show_bypass_option$">
+      <label>4. Bypass Large List</label>
+      <choice value="no">No</choice>
+      <choice value="yes">Yes</choice>
+      <default>no</default>
+      <initialValue>no</initialValue>
+      <change>
+        <condition value="no">
+          <unset token="tok_tgr_sub_user_list"></unset>
+          <unset token="tok_show_user_list"></unset>
+        </condition>
+        <condition value="yes">
+          <set token="tok_tgr_sub_user_list">true</set>
+          <set token="tok_show_user_list">true</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_user" searchWhenChanged="true" depends="$tok_show_user_list$">
+      <label>$tok_inp_usr_list_nmb$: Select User</label>
+      <choice value="sel">Select...</choice>
+      <choice value="all">All</choice>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <search base="sub_user_list" id="user_list">
+        <query></query>
+      </search>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>key_val</fieldForValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_tgr_bs_login_search"></unset>
+          <unset token="tok_sel_user_filt"></unset>
+          <unset token="tok_show_tabs"></unset>
+        </condition>      
+        <condition value="all">
+          <unset token="tok_result_msg"></unset>
+          <set token="tok_logon_srch_run">true</set>
+          <set token="tok_tgr_bs_login_search">True</set>
+          <set token="tok_sel_user_filt">$tok_user_filter$</set>
+          <set token="tok_pre_filt_flds">cn,sAMAccountName,userPrincipalName</set>
+          <set token="tok_message_color"></set>
+          <set token="tok_message_state"></set>
+          <set token="tok_message"></set>      
+        </condition>
+        <condition>
+          <unset token="tok_show_tabs"></unset>
+          <unset token="tok_result_msg"></unset>
+          <set token="tok_logon_srch_run">true</set>
+          <set token="tok_tgr_bs_login_search">True</set>
+          <set token="tok_sel_user_filt">$value$</set>
+          <set token="tok_pre_filt_flds">_key</set>
+          <set token="atok_sel_user_filt">search _key="$value$"</set>
+          <set token="tok_message_color"></set>
+          <set token="tok_message_state"></set>
+          <set token="tok_message"></set>
+        </condition>
+      </change>
+    </input>
+    <html depends="$tok_message_state$" id="inp_msg">
+      <p style="font-size:8;" id="inp_msg_p">
+        <font color="$tok_message_color$">
+          <i>
+            <b>$tok_message_state$ </b> $tok_message$</i> 
+        </font>
+      </p>
+    </html>
+  </fieldset>
+  <row id="tabs_row" depends="$tok_show_tabs$">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_stat_ratio" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Status - Ratio</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_time_user" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Status - Over Time</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_fail_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Failure - Details</a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a href="#tab_suc_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Success - Details</a>
+          </li>
+          <li class="$tok_tab_5$">
+            <a href="#tab_time_src_host" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Source Host,Status - Overtime</a>
+          </li>
+          <li class="$tok_tab_6$">
+			<a href="#tab_time_src_ip" class="toggle-tab" data-token-json="{&quot;tok_tab_6&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Source IP,Status - Overtime</a>
+          </li>    
+          <li class="$tok_tab_7$">
+            <a href="#tab_map_ext_logins" class="toggle-tab" data-token-json="{&quot;tok_tab_7&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">External Logins - Map</a>
+          </li>
+			<li class="$tok_tab_8$">
+            <a href="#tab_time_raw_events" class="toggle-tab" data-token-json="{&quot;tok_tab_8&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Raw Login Events</a>
+          </li>  
+			<li class="$tok_tab_9$">
+            <a href="#tab_search_details" class="toggle-tab" data-token-json="{&quot;tok_tab_9&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Search Details</a>
+          </li> 
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="tab_stat_ratio" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_1$">
+      <title>User Login - Success - Failure - Ratio</title>
+      <table>
+        <search base="bs_login_search">
+          <query>| lookup AD_Audit_Logon_Types Logon_Type OUTPUT Logon_TypeName
+| eval Logon_TypeName=if(isnull(Logon_TypeName),"Unknown Logon Type - ".Logon_Type,Logon_TypeName)
+| eventstats count AS Logon_Type_Count by Logon_TypeName,Logon_User
+| eval Session_Types=Logon_TypeName." (".tostring(Logon_Type_Count,"commas").")"
+| stats max(_time) AS latest, min(_time) AS earliest, count AS Total_Attempts, dc(session_id) AS sesscount, dc(src_nt_host) AS Source_Host_Count, values(Session_Types) AS Session_Types, count(eval(status="success")) AS success_count, count(eval(status="failure")) AS fail_count by Logon_User,Domain_Account 
+| eval Fail_Percent=round((fail_count/Total_Attempts)*100,2) 
+| eval Success_Percent=round((success_count/Total_Attempts)*100,2)
+| eval Attempt_Summary="Total Attempts: ".tostring(Total_Attempts,"commas")."|Failed: ".Fail_Percent."% (".tostring(fail_count,"commas").")|Success: ".Success_Percent."% (".tostring(success_count,"commas").")|First Attempt: ".strftime(earliest, "%m/%d/%Y %H:%M:%S")."|Last_Attempt: ".strftime(latest, "%m/%d/%Y %H:%M:%S") 
+| makemv delim="|" Attempt_Summary 
+| sort -Fail_Percent, -Total_Attempts 
+| eval Total_Attempts=tostring(Total_Attempts,"commas")
+| eval Fail_Percent=Fail_Percent."%" 
+| eval Success_Percent=Success_Percent."%" 
+$tok_filt_link_add$
+| eval uac_details=if(Domain_Account=="False","Not Available",uac_details) 
+| makemv delim=":" uac_details
+$tok_table_search$,Domain_Account,Total_Attempts, Fail_Percent, Success_Percent,Session_Types,Source_Host_Count, Attempt_Summary</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Domain_Account">
+          <colorPalette type="map">{"True":#65A637,"False":#D93F3C}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_time_user" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_2$">
+      <title>User Login - Status - Over Time</title>
+      <chart>
+        <title>Successful Logins</title>
+        <search base="bs_login_search">
+          <query>search status="success"
+| timechart count by Logon_User</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+      <chart>
+        <title>Failed Logins</title>
+        <search base="bs_login_search">
+          <query>search status="failure"
+| timechart count by Logon_User</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_fail_details_user" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_3$">
+      <title>User Login - Failure - Details</title>
+      <table>
+        <search base="bs_login_search">
+          <query>search status="failure"
+| eventstats count AS Failure_Reason_cnt by Failure_Reason,Logon_User
+| eventstats count AS src_ip_cnt by src_ip,Logon_User
+| eventstats count AS src_nt_host_cnt by src_nt_host,Logon_User
+| eval Failure_Reason="(".Failure_Reason_cnt.") - ".Failure_Reason
+| eval src_ip="(".src_ip_cnt.") - ".src_ip
+| eval src_nt_host="(".src_nt_host_cnt.") - ".src_nt_host
+| stats count AS Total_Failed_Attempts, values(Failure_Reason) AS Top_Reasons,values(src_ip) AS Source_IPs,values(src_nt_host) AS Source_Hosts by Logon_User,Domain_Account
+| sort -Total_Failed_Attempts
+| eval Top_Reasons=mvindex(Top_Reasons,0,9)
+$tok_filt_link_add$
+| eval uac_details=if(Domain_Account=="False","Not Available",uac_details) 
+| makemv delim=":" uac_details
+$tok_table_search$,Domain_Account,Total_Failed_Attempts,Source_IPs, Source_Hosts,Top_Reasons
+| rename uac_details AS "User Account Control Details"</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_suc_details_user" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_4$">
+      <title>User Login - Success - Details</title>
+      <table>
+        <search base="bs_login_search">
+          <query>search status="success"
+| fillnull value="Not Available" uac_details
+| eventstats count AS src_ip_cnt by src_ip,Logon_User
+| eventstats count AS src_nt_host_cnt by src_nt_host,Logon_User
+| eval src_ip="(".src_ip_cnt.") - ".src_ip
+| eval src_nt_host="(".src_nt_host_cnt.") - ".src_nt_host
+| stats count AS Total_Successful_Attempts, values(src_ip) AS Source_IPs,values(src_nt_host) AS Source_Hosts by Logon_User,Domain_Account
+| sort -Total_Successful_Attempts
+$tok_filt_link_add$
+| eval uac_details=if(Domain_Account=="False","Not Available",uac_details) 
+| makemv delim=":" uac_details
+$tok_table_search$,Domain_Account,Total_Successful_Attempts,Source_IPs, Source_Hosts
+| rename uac_details AS "User Account Control Details"</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_time_src_host" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_5$">
+      <title>Source Host Login - Status - Over Time</title>
+      <chart>
+        <title>Successful Logins</title>
+        <search base="bs_login_search">
+          <query>search status="success"
+| timechart count by src_nt_host</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+      <chart>
+        <title>Failed Logins</title>
+        <search base="bs_login_search">
+          <query>search status="failure"
+| timechart count by src_nt_host</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_time_src_ip" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_6$">
+      <title>Source IP Login - Status - Over Time</title>
+      <chart>
+        <title>Successful Logins</title>
+        <search base="bs_login_search">
+          <query>search status="success"
+| timechart count by src_ip</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+      <chart>
+        <title>Failed Logins</title>
+        <search base="bs_login_search">
+          <query>search status="failure"
+| timechart count by src_ip</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_map_ext_logins" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_7$">
+      <map>
+        <search base="bs_login_search">
+          <query>stats count by src_ip, Logon_User
+| iplocation src_ip
+| geostats count by Logon_User</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="mapping.choroplethLayer.colorBins">5</option>
+        <option name="mapping.choroplethLayer.colorMode">auto</option>
+        <option name="mapping.choroplethLayer.maximumColor">0xDB5800</option>
+        <option name="mapping.choroplethLayer.minimumColor">0x2F25BA</option>
+        <option name="mapping.choroplethLayer.neutralPoint">0</option>
+        <option name="mapping.choroplethLayer.shapeOpacity">0.75</option>
+        <option name="mapping.choroplethLayer.showBorder">1</option>
+        <option name="mapping.data.maxClusters">100</option>
+        <option name="mapping.legend.placement">bottomright</option>
+        <option name="mapping.map.center">(0,0)</option>
+        <option name="mapping.map.panning">1</option>
+        <option name="mapping.map.scrollZoom">0</option>
+        <option name="mapping.map.zoom">2</option>
+        <option name="mapping.markerLayer.markerMaxSize">50</option>
+        <option name="mapping.markerLayer.markerMinSize">10</option>
+        <option name="mapping.markerLayer.markerOpacity">0.8</option>
+        <option name="mapping.showTiles">1</option>
+        <option name="mapping.tileLayer.maxZoom">7</option>
+        <option name="mapping.tileLayer.minZoom">0</option>
+        <option name="mapping.tileLayer.tileOpacity">1</option>
+        <option name="mapping.type">marker</option>
+        <option name="trellis.enabled">0</option>
+        <option name="trellis.scales.shared">1</option>
+        <option name="trellis.size">medium</option>
+      </map>
+    </panel>
+  </row>
+  <row id="tab_time_raw_events" depends="$tok_show_tabs$">
+    <panel depends="$tok_show_results$,$tok_tab_8$">
+      <title>Raw Login Events</title>
+      <event>
+        <search base="bs_raw_login_search">
+          <query/>
+        </search>
+        <option name="list.drilldown">none</option>
+      </event>
+    </panel>
+  </row>
+  <row id="tab_search_details" depends="$tok_show_tabs$">
+    <panel depends="$tok_tab_9$">
+      <title></title>
+      <html>
+        <center>
+        <h2><b>Base Search Details:</b></h2>
+        <table border="1" style="width:98%;">
+          <tr>
+            <th style="width:10%;">Search Content:</th>
+            <th style="width:50%;">Search:</th>
+            <th style="width:40%;">Description:</th>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><h4>1. <i>Base Data</i></h4><i>Logon Events</i></td>
+            <td><pre>$tok_srch_bs_logon$</pre></td>
+            <td style="vertical-align:top;">
+              <ul style="padding-left:10px;">
+                <li>This is the base search that looks for failed or successful <b>User</b> logons.</li>
+                <li>
+                  <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_bs_logon|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                    <i class="icon-search"> Open Search</i>
+                  </a>
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><h4>2. <i>Base Filter</i></h4><i>Domain Status</i></td>
+            <td><pre>$tok_domain_acct$</pre></td>
+            <td style="vertical-align:top;">
+              <ul style="padding-left:10px;">
+                <li>This filter determines whether the user account that failed to logon was found in the AD Domain.
+                  <ul><b>Domain Status Selection to Search Values:</b>
+                    <li><b>Domain Account:</b> <code>NOT Sub_Status=0xC0000064 NOT Error_Code=0xC0000064</code></li>
+                    <li><b>Non-Domain Account:</b> <code>(Sub_Status=0xC0000064 OR Error_Code=0xC0000064)</code></li>
+                    <li><b>All:</b> <i>When selected the Domain Status filter will be blank.</i></li>
+                  </ul>
+                </li>
+                <li>
+                  <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_bs_logon_dom|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                    <i class="icon-search"> Open Search</i>
+                  </a>
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><h4>3. <i>Base Filter</i></h4><i>Raw Text</i></td>
+            <td><pre>($tok_srch_filt_raw$)</pre></td>
+            <td style="vertical-align:top;">
+              <ul style="padding-left:10px;">
+                <li>This filter is raw text that is added to the <b>Base Logon Search</b> for quickly filtering out logon events for matching, or selected user accounts.</li>
+                <li>Raw Text searching provides greater speed and performance vs trying to look for exact field values <i>(ie. <code>"hax0r"</code> <b>vs</b> <code>user="hax0r"</code></i>.</li>
+                <li>When searching for the <b>Domain Account</b> logon activity, the <i>Raw Text Filter</i> will inlcude the matching or selected User's <b>CN, sAMAccountName, and userPrincipleName</b> to ensure all logon activity data is captured for the User.</li>
+                <li>
+                  <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_filt_raw|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                    <i class="icon-search"> Open Search</i>
+                  </a>
+                </li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><h4>4. <i>Final Filter</i></h4><i>User Link</i></td>
+            <td><pre>$tok_filt_link$</pre></td>
+            <td style="vertical-align:top;">
+              <ul style="padding-left:10px;">
+                <li>This filter is used later in the search to specifically match the <b>user</b> field in the data with input selections.</li>
+                <li>This seems to be redundant, but it speeds up the search process by using the <b>Raw Text Filter</b> first, and then using this <b>Link Filter</b> later on to match the user.</li>   
+                <li>It is also necessary to ensure the returned values are correctly mapped to the input selections.</li>
+              </ul>
+            </td>
+          </tr>
+          <tr>
+            <td style="text-align:center;"><h4>5. <i>Full Base</i></h4><i>Resulting Search</i></td>
+            <td><pre>$tok_srch_bs_logon_full$
+            </pre></td>
+            <td style="vertical-align:top;">
+              <ul style="padding-left:10px;">
+                <li>This is the full, <b>base</b> search that combines the above search components, along with field formatting, to return the data used by the <i>Post Processing Searches</i> to populate each of the resulting panels in this dashboard.</li>
+                <li>
+                  <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_bs_logon_full|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                    <i class="icon-search"> Open Search</i>
+                  </a>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </table>
+        </center>
+      </html>
+    </panel>
+  </row>
+    <row depends="$tok_logon_srch_run$">
+      <panel>
+        <html>
+          <center><h2><img class="run_spin run_spin_dom_chk hidden" style="height:30px;width:30px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Search Running</h2></center>
+        </html>
+      </panel>
+    </row>
+    <row depends="$tok_result_msg$">
+    <panel>
+      <html depends="$tok_logon_srch_empty$">
+        <center><h2><i class="icon-warning" style="height:20px;width:20px;color:red;"> Warning: No Logon Events were found with matching users from the selected inputs.</i></h2>
+        <h4>Either adjust the <i>Selected Time Period</i> or the selected inputs.</h4></center>
+        <center>
+			<table border="1">
+				<tr>
+					<td style="width:90%;">
+						<ul>
+							<li>Base Search:
+								<ul>
+									<li><pre>$tok_srch_bs_logon_dom_filt$</pre></li>
+								</ul>
+							</li>
+						</ul>
+					</td>
+					<td style="width:10%;">
+						<a href="/app/ms_windows_ad_objects/search?q=$tok_srch_bs_logon_dom_filt|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+							<i class="icon-search"> Open Search</i>
+						</a>
+					</td>
+				</tr>
+				<tr>
+					<td style="width:90%;">
+						<ul>
+							<li>Full Search:
+								<ul>
+									<li><pre>$tok_srch_bs_logon_full$</pre></li>
+								</ul>
+							</li>
+						</ul>
+					</td>
+					<td style="width:10%;">
+						<center>
+						  <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_bs_logon_full|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+							<i class="icon-search"> Open Search</i>
+						  </a>
+						</center>
+					</td>
+				</tr>
+			</table>
+		</center>
+      </html>
+    </panel>
+  </row>
+</form>

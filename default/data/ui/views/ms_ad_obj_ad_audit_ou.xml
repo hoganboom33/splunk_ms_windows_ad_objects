@@ -1,0 +1,123 @@
+﻿<form script="customized_chart_preload.js,ms_ad_obj_audit_report.js" version="1.1">
+  <label>AD Objects - OU - Audit</label>
+  <search id="audit_query" base="base_audit_search">
+    <query>search domain="$ldaprecord.nt_domain$" distinguishedName="$ldaprecord.ouobject$"
+| rename gPLink AS gpoLink
+| rename Linked_GPO as gPLink  
+|fields *</query>
+  </search>
+  <search id="base_audit_search">
+    <query>| inputlookup AD_Obj_OU 
+| makemv delim="|" objectClass
+| makemv delim="####" dSCorePropagationData 
+| fields *</query>
+    <earliest>0</earliest>
+    <latest>now</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="ldaprecord.nt_domain" searchWhenChanged="true">
+      <label>Account Domain</label>
+      <search base="base_audit_search">
+        <!--replace - <query>| inputlookup DomainSelector | eval nt_domain=DomainNetBIOSName | dedup nt_domain | search nt_domain !="" | table nt_domain</query-->
+        <query>stats count by domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <selectFirstChoice>true</selectFirstChoice>
+    </input>
+    <input type="text" token="input_tok_ou_filt" searchWhenChanged="true">
+      <label>Filter OU List</label>
+      <default> </default>
+      <initialValue> </initialValue>
+      <change>
+        <condition value=" ">
+          <set token="tok_ou_filt"></set>
+        </condition>
+        <condition>
+          <set token="tok_ou_filt">| WHERE match(dn,"$value$")</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="ldaprecord.ouobject" searchWhenChanged="true" id="input_src_filt_element_ou">
+      <label>Organizational Unit</label>
+      <search base="base_audit_search">
+        <query>search domain="$ldaprecord.nt_domain$" $tok_ou_filt$
+| eval type=if(match(objectClass,"container"),"(CN)","(OU)")
+| eval ou_spec=replace(distinguishedName,"^(OU|CN)\=","")
+| eval ou_spec=type." ".replace(ou_spec,",(OU|CN|DC)\=",".")
+| table distinguishedName,ou_spec
+| sort 0 -ou_spec</query>
+      </search>
+      <fieldForLabel>ou_spec</fieldForLabel>
+      <fieldForValue>distinguishedName</fieldForValue>
+      <selectFirstChoice>true</selectFirstChoice>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div id="audit_report"/>
+      </html>
+    </panel>
+    <panel>
+      <table>
+        <title>Group Policy Links</title>
+        <search base="audit_query">
+          <query>table name,dn,description,Linked_GPO 
+| rename Linked_GPO as "Linked GPO", dn as distinguishedName, name as Name
+          </query>
+        </search>
+      </table>
+      <table>
+        <title>OU Change History</title>
+        <search>
+          <query>`ms_obj_changes_base_cat("OU")` dn="$ldaprecord.ouobject$" OR DN="$ldaprecord.ouobject$"
+| eval dest_ou_dn=if(isnull(New_DN),DN,New_DN)
+| rex field=dest_ou_dn "(?i)ou\=(?&lt;ou_name&gt;[^\,]+)"
+| rex field=Value max_match=0 "\{(?&lt;chg_gp_guid&gt;[^\}]+)"
+| fillnull value="NA" chg_gp_guid,dir_svcs_action,signature,LDAP_Display_Name,gpo_name,DN,Old_DN,New_DN,Correlation_ID
+| mvexpand chg_gp_guid
+| eval chg_gplink=if(LDAP_Display_Name=="gPLink","{".chg_gp_guid."}","")
+| eval Value=if(isnull(Value),AttributeValue,Value)
+| join type=left chg_gplink [| inputlookup AD_Obj_GPO | fields cn,displayName | rex field=cn "^(?&lt;chg_gplink&gt;[^(\s|$)]+)" | dedup chg_gplink | table chg_gplink, displayName | rename displayName AS gpo_name] 
+| table _time,ou_name,dest_ou_dn,src_nt_domain,src_user,LDAP_Display_Name,dir_svcs_action, chg_gp_guid,gpo_name,EventCode,signature,DN,Old_DN,New_DN,Value,msad_action,Correlation_ID 
+| eval mod_summary=if(LDAP_Display_Name=="gPLink" AND isnotnull(gpo_name),"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Linked GPO: ".gpo_name."| - Target Linked GPO ID: ".chg_gp_guid,"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Attribute Value: ".Value)
+| eval chg_summary=case(EventCode=5137,"OU Created:| - Event Correlation ID: ".Correlation_ID."| - DN: ".DN,EventCode=5138,"OU Undeleted:| - Event Correlation ID: ".Correlation_ID." - ",EventCode=5139,"OU Moved:| - Event Correlation ID: ".Correlation_ID."| - From: ".Old_DN."| - To: ".New_DN,EventCode=5141,"OU Deleted:| - Event Correlation ID: ".Correlation_ID,EventCode=5136 OR EventCode=4662,"OU Modified: | - Event Correlation ID: ".Correlation_ID."|".mod_summary)
+| table _time,msad_action,src_user,EventCode,chg_summary
+| makemv delim="|" chg_summary
+| rename msad_action AS "OU Action",src_user AS "Admin User",chg_summary AS "Change Details"</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hidden_style$">
+    <panel>
+      <html>
+        <style>
+#input_src_filt_element_ou {
+width:500px !important;
+padding-right: 20px !important;
+margin-right: 20px !important;
+}
+[id^="input_src_filt_element_"] [data-component="splunk-core:/splunkjs/mvc/components/Dropdown"] {
+width: 475px !important; 
+padding-right:20px;
+margin-right:20px !important;
+display: flex;  
+}
+ 
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

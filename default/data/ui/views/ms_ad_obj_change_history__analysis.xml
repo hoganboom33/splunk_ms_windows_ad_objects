@@ -1,0 +1,185 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Admin - Change History</label>
+  <init>
+  	<set token="tok_tab_1">active</set>
+  </init>
+  <search id="base_search">
+    <query>`ms_obj_changes_base_all`
+| fields _time,src_user,msad_action,src_user,obj_type
+| eval src_user=lower(src_user)
+| lookup AD_Obj_User lookup_usr AS src_user OUTPUT cn AS Admin
+| eval Admin=if(isnull(Admin),src_user,Admin)
+| eval Day=strftime(_time,"%m/%d/%y")
+| stats count by msad_action, Admin,Day,obj_type
+| table Admin,Day, count, msad_action,obj_type</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_obj_type_input" searchWhenChanged="true">
+      <label>Select Object Type</label>
+      <choice value="all">All</choice>
+      <choice value="user">User</choice>
+      <choice value="group">Group</choice>
+      <choice value="ou">OU</choice>
+      <choice value="gpo">Group Policy</choice>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <change>
+        <condition value="all">
+          <set token="tok_obj_type">stats sum(count) AS count by msad_action, Admin,Day</set>
+          <set token="tok_obj_label">All</set>
+        </condition>
+        <condition value="user">
+          <set token="tok_obj_type">search obj_type="user"</set>
+          <set token="tok_obj_label">User</set>
+        </condition>
+        <condition value="group">
+          <set token="tok_obj_type">search obj_type="group"</set>
+          <set token="tok_obj_label">Group</set>
+        </condition>
+        <condition value="ou">
+          <set token="tok_obj_type">search obj_type="organizationalunit"</set>
+          <set token="tok_obj_label">Organizational Unit</set>
+        </condition>
+        <condition value="gpo">
+          <set token="tok_obj_type">search obj_type="grouppolicycontainer"</set>
+          <set token="tok_obj_label">Group Policy</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <center>
+          <h3>$tok_obj_label$ Object Change History Analysis</h3>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_cday_padmin_chg" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Count By Day - Pivot On Admin By Change Type</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_cday_pchg_admin" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Count By Day - Pivot On Change By Admin</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_cchg_pday_admin" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Count By Change - Pivot On Day By Admin</a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a href="#tab_cchg_padmin_day" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Count By Admin - Pivot On Change By Day</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>  
+  <row id="tab_cday_padmin_chg" depends="$tok_tab_1$">
+    <panel>
+      <table>
+        <title>Count By Day - Pivot On Admin By Change Type</title>
+        <search base="base_search">
+          <query>$tok_obj_type$|eval comb="|".Day." (".count.")"
+| sort -count
+| stats list(comb) AS Daily_Change_Summary, sum(count) AS Total_Events by Admin,msad_action
+| makemv delim="|" Daily_Change_Summary
+| sort -Day 
+| xyseries  Admin msad_action  Daily_Change_Summary</query>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_cday_pchg_admin" depends="$tok_tab_2$">
+    <panel>
+      <table>
+        <title>Count By Day - Pivot On Change By Admin</title>
+        <search base="base_search">
+          <query>$tok_obj_type$|eval comb="|".Day." (".count.")"
+| sort -count
+| stats list(comb) AS Daily_Change_Summary, sum(count) AS Total_Events by Admin,msad_action
+| makemv delim="|" Daily_Change_Summary
+| sort -Day 
+| xyseries  msad_action Admin Daily_Change_Summary</query>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_cchg_pday_admin" depends="$tok_tab_3$">
+    <panel>
+      <table>
+        <title>Count By Change Type - Pivot On Day By Admin</title>
+        <search base="base_search">
+          <query>$tok_obj_type$|eval comb="|".msad_action." (".count.")"
+| sort -count
+| stats list(comb) AS Daily_Change_Summary, sum(count) AS Total_Events by Admin,Day
+| makemv delim="|" Daily_Change_Summary
+| sort -Day 
+| xyseries  Day Admin Daily_Change_Summary</query>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_cchg_padmin_day" depends="$tok_tab_4$">
+    <panel>
+      <table>
+        <title>Count By Change Type - Pivot On Day By Admin</title>
+        <search base="base_search">
+          <query>$tok_obj_type$|eval comb="|".Admin." (".count.")"
+| sort -count
+| stats list(comb) AS Daily_Change_Summary, sum(count) AS Total_Events by msad_action,Day
+| makemv delim="|" Daily_Change_Summary
+| rename msad_action AS Change_Type
+| sort -Day 
+| xyseries  Day Change_Type Daily_Change_Summary</query>
+        </search>
+        <option name="count">100</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

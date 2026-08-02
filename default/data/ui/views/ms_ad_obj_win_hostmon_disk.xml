@@ -1,0 +1,162 @@
+<form version="1.1">
+  <label>AD Objects - WinHostMon - Disk</label>
+  <search id="base_disk_search">
+    <query>`ms_obj_winhostmon_base` Type=Disk host="$HostMonitoringHost$"
+| fields Name,FreeSpaceKB,TotalSpaceKB,host,DriveType,FileSystem
+| fillnull value="NA" FileSystem
+| streamstats min(FreeSpaceKB) AS min_FreeSpaceKB by host,Name
+| fillnull value=0 FreeSpaceKB,TotalSpaceKB,min_FreeSpaceKB
+| search FileSystem="$FileSystem$" DriveType="$DriveType$" Name="$Drive$"
+| stats max(_time) AS Last_Time,latest(FreeSpaceKB) AS FreeSpaceKB,latest(TotalSpaceKB) AS TotalSpaceKB,min(min_FreeSpaceKB) AS min_FreeSpaceKB by host, Name,DriveType,FileSystem
+| eval FreeSpacePct=round(FreeSpaceKB/TotalSpaceKB*100) 
+| eval TotalSpaceGB=round(TotalSpaceKB/1024/1024) 
+| eval FreeSpaceGB=round(FreeSpaceKB/1024/1024,2)
+| eval Minimum_FreeSpaceGB=round(min_FreeSpaceKB/1024/1024,2)
+| eval Last_Time=strftime(Last_Time,"%m/%d/%y %I:%M:%S %P")
+| table host, Last_Time, Name, FileSystem, DriveType, TotalSpaceGB, FreeSpaceGB, FreeSpacePct,Minimum_FreeSpaceGB</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <search id="base_disk_lookup">
+    <query>`ms_obj_winhostmon_base` Type=Disk 
+| stats count by host,Name,FileSystem,DriveType
+| table host,Name,FileSystem,DriveType</query>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="HostMonitoringHost" searchWhenChanged="true">
+      <label>Host</label>
+      <choice value="*">All</choice>
+      <search base="base_disk_lookup">
+        <query>search FileSystem="$FileSystem$" AND DriveType="$DriveType$"| stats count by host</query>
+      </search>
+      <fieldForLabel>Host</fieldForLabel>
+      <fieldForValue>Host</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="Drive" searchWhenChanged="true">
+      <label>Drive</label>
+      <choice value="*">All</choice>
+      <search base="base_disk_lookup" id="sub_name_lookup">
+        <query>search FileSystem="$FileSystem$" AND DriveType="$DriveType$" | stats count by Name | sort Name</query>
+      </search>
+      <fieldForLabel>Name</fieldForLabel>
+      <fieldForValue>Name</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="FileSystem" searchWhenChanged="true">
+      <label>File System</label>
+      <choice value="*">All</choice>
+      <search base="base_disk_lookup">
+        <query>search DriveType="$DriveType$" AND Name="$Drive$" | stats count by FileSystem | sort FileSystem</query>
+      </search>
+      <fieldForLabel>FileSystem</fieldForLabel>
+      <fieldForValue>FileSystem</fieldForValue>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="DriveType" searchWhenChanged="true">
+      <label>Type</label>
+      <choice value="*">All</choice>
+      <search base="base_disk_lookup">
+        <query>search FileSystem="$FileSystem$" AND Name="$Drive$" | stats count by DriveType | sort DriveType</query>
+      </search>
+      <fieldForLabel>DriveType</fieldForLabel>
+      <fieldForValue>DriveType</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <condition value="CD-ROM">
+          <unset token="show_fs_input"></unset>
+          <unset token="show_ts_input"></unset>
+          <set token="tok_field_list">host,Name,DriveType,Last_Time</set>
+          <set token="tok_space_filter"></set>
+          <set token="tok_fspace_filter"></set>
+          <set token="tok_srch_filter"></set>
+        </condition>
+        <condition value="removable">
+          <unset token="show_fs_input"></unset>
+          <unset token="show_ts_input"></unset>
+          <set token="tok_field_list">host,Name,DriveType,Last_Time</set>
+          <set token="tok_space_filter"></set>
+          <set token="tok_fspace_filter"></set>
+          <set token="tok_srch_filter"></set>
+        </condition>
+        <condition>
+          <set token="show_fs_input">True</set>
+          <set token="show_ts_input">True</set>
+          <set token="tok_field_list">host,Name,DriveType,FileSystem,Last_Time,TotalSpaceGB, FreeSpacePct,FreeSpaceGB, Minimum_FreeSpaceGB</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="max_FreeSpacePct" searchWhenChanged="true" depends="$show_fs_input$">
+      <label>Max Free Space %</label>
+      <default>100</default>
+      <initialValue>100</initialValue>
+      <change>
+        <set token="tok_fspace_filter">FreeSpacePct&lt;=$value$</set>
+        <set token="tok_srch_filter">search</set>
+      </change>
+    </input>
+    <input type="text" token="min_TotalSpaceGB" searchWhenChanged="true" depends="$show_ts_input$">
+      <label>Minimum Total Space (GB)</label>
+      <initialValue>0</initialValue>
+      <default>0</default>
+      <change>
+        <set token="tok_space_filter">TotalSpaceGB&gt;=$value$</set>
+        <set token="tok_srch_filter">search</set>
+      </change>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Disk Information</title>
+        <search base="base_disk_search">
+          <query>$tok_srch_filter$ $tok_space_filter$ $tok_fspace_filter$
+| table $tok_field_list$
+| sort -FreeSpacePct,Name,host</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="FreeSpacePct">
+          <colorPalette type="list">[#DC4E41,#F1813F,#F8BE34,#53A051]</colorPalette>
+          <scale type="threshold">10,30,50</scale>
+        </format>
+        <format type="number" field="FreeSpacePct">
+          <option name="precision">0</option>
+          <option name="unit">%</option>
+        </format>
+        <format type="color" field="FreeSpaceGB">
+          <colorPalette type="minMidMax" maxColor="#53A051" midColor="#F8BE34" minColor="#DC4E41"></colorPalette>
+          <scale type="minMidMax" midValue="50"></scale>
+        </format>
+        <format type="number" field="FreeSpaceGB">
+          <option name="unit">GB</option>
+        </format>
+        <format type="number" field="Minimum_FreeSpaceGB">
+          <option name="unit">GB</option>
+        </format>
+        <format type="color" field="Minimum_FreeSpaceGB">
+          <colorPalette type="minMidMax" maxColor="#53A051" midColor="#F8BE34" minColor="#DC4E41"></colorPalette>
+          <scale type="minMidMax" midValue="50"></scale>
+        </format>
+        <format type="number" field="TotalSpaceGB">
+          <option name="precision">0</option>
+          <option name="unit">GB</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+</form>

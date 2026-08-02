@@ -1,0 +1,330 @@
+<nav search_view="search" color="#94B6E1">
+  <view name="ms_ad_obj_overview" default="true" /> 	
+  <collection label="Configuration Dashboards">
+  	<view name="ad_objects__configuration__getting_data_in" />
+	<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Baseline%2520Data%2520-%2520Overall" >Verify All Baseline Data</a>
+	<view name="ms_ad_obj_build_ad_lookup_lists__main" />
+  	<collection label="AD Object - Field Information">
+  		<view name="ms_ad_obj_lookup_fields_reference" />
+  	</collection>	
+  	<collection label="AD Object - App Health">
+  		<view name="ms_ad_obj_app_health_overview" />
+    	<view name="ms_ad_obj_app_health_sched_searches" />
+    	<view name="ms_ad_obj_app_knowledge_browser" />
+      	<saved name="AD Objects - Config - KVstore - Configuration" />
+      	<collection label="Reports">
+          <saved source="unclassified" match="AD Objects - App Health" />
+      	</collection>
+  	</collection>
+    <collection label="Advance Configuration">
+      <view name="ms_ad_obj_cfg_split_kvs" />
+    </collection>
+	<collection label="Ad Hoc - Baseline building Searches">
+      <title>Warning: Only Execute the reports in this section if you want to rebuild the lookup for the Specific AD Object.</title>
+        <collection label="Build or Rebuild All Lookups - Single Step">
+	        <view name="ms_ad_obj_build_ad_lookup_lists__main" />
+	    </collection>
+	    <collection label="Build or Rebuild Lookups - Individually">
+	 		<collection label="AD Domain Selector">
+    	    	<saved name="AD_Obj_Domain_Update" />
+  			</collection>
+	    	<collection label="Rebuild Searches">
+	    		<saved name="AD_Obj_Group_ReBuild" />
+	    		<saved name="AD_Obj_User_ReBuild" />
+	    		<saved name="AD_Obj_Computer_ReBuild" />
+	    		<saved name="AD_Obj_OU_ReBuild" />
+	    		<saved name="AD_Obj_GPO_ReBuild" />
+	    		<saved name="AD_Obj_GPO_OU_Update" />
+	    		<saved name="AD_Obj_Admin_Audit_ReBuild" />
+	    	</collection>
+			<collection label="Update Searches">
+	    		<saved name="AD_Obj_Group_Update" />
+	    		<saved name="AD_Obj_User_Update" />
+	    		<saved name="AD_Obj_Computer_Update" />
+	    		<saved name="AD_Obj_OU_Update" />
+	    		<saved name="AD_Obj_GPO_Update" />
+	    		<saved name="AD_Obj_GPO_OU_Link_Update" />
+	    		<saved name="AD_Obj_Admin_Audit_Update" />
+			</collection>
+			<collection label="Migrate Searches">
+	    		<saved name="AD_Obj_Group_Migrate" />
+	    		<saved name="AD_Obj_User_Migrate" />
+	    		<saved name="AD_Obj_Computer_Migrate" />
+	    		<saved name="AD_Obj_OU_Migrate" />
+	    		<saved name="AD_Obj_GPO_Migrate" />
+	    		<saved name="AD_Obj_GPO_OU_Update" />
+	    		<saved name="AD_Obj_Admin_Audit_Migrate" />
+			</collection>
+  	</collection> 
+  </collection> 
+	</collection>
+  <collection label="Admin Audit">
+  	<collection label="Change Management">
+  		<view name="ms_ad_obj_admin_audit_changes_lookup" />  	
+      	<view name="ms_ad_obj_admin_audit_change_overview" />
+  		<view name="ms_ad_obj_admin_audit_changes" />
+  		<view name="ms_ad_obj_change_history__analysis" />
+  		<collection label="Reports">  
+	    	<collection label="User Changes">        
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Users" >All User Change Events</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Users" >Created Users</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Users" >Deleted Users</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Users" >Undeleted Users</a>         	
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Users" >Moved Users</a>         	
+       		</collection>   		 	
+	    	<collection label="Group Changes">        
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group" >All Group Change Events</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Group" >Created Group</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Group" >Deleted Group</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Group" >Undeleted Group</a>         	
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Group" >Moved Group</a>  
+				<saved source="unclassified" match="AD Objects - Audit - Critical Groups - Events" />
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group%2520Membership" >All Group Membership Change Events</a>         	
+       		</collection>  
+	    	<collection label="Computer Changes">        
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Computers" >All Computer Change Events</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Computers" >Created Computer</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Computers" >Deleted Computer</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Computers" >Undeleted Computer</a>         	
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Computers" >Moved Computer</a>         	
+       		</collection>   
+	   		 <collection label="GPO Changes">        
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group%2520Policies" >All GPO Change Events</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Group%2520Policies" >Created GPO</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Group%2520Policies" >Deleted GPO</a>
+       		</collection>   
+	    	<collection label="OU Changes">        
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520OU" >All OU Change Events</a>
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520OU" >Created OU</a>         		
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Modified%2520-%2520OU" >Modified OU</a>     
+         		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520OU" >Moved OU</a>   
+       		</collection>         		     		      		     	
+		</collection>
+  	</collection>
+  	<collection label="Login Analysis">  		
+  		<view name="ms_ad_obj_admin_login_ratio" />        
+  		<view name="ms_ad_obj_admin_login_user" />    
+  		<view name="ms_ad_obj_ad_user_by_group_logons" /> 
+        <view name="ms_ad_obj_ad_user_by_ou_logons" />
+      	<view name="ms_ad_obj_admin_login_sessions" />
+  		<collection label="Reports">
+  			<saved source="unclassified" match="AD Objects - Audit - Login -" />
+  		</collection>
+  	</collection>
+    <collection label="Correlation Analysis">
+  		<view name="ms_ad_obj_group_sub_search__builder" /> 
+        <view name="ms_ad_obj_ou_sub_search__builder" />
+    	<view name="ms_ad_obj_ad_user_by_group_logons" /> 
+        <view name="ms_ad_obj_ad_user_by_ou_logons" />
+		<view name="ms_ad_obj_admin_user_tracking" />
+      	<saved source="all" match="SubSearch" />      
+    </collection>
+  	<collection label="Other Tools">
+		<view name="ms_ad_obj_analyze_fields" />
+      	<view name="ms_ad_obj_admin_splunk_index_compression" />
+  	</collection>  	
+  	<collection label="Audit Critical Objects">
+		<a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Critical%2520Objects%2520-%2520Lookup" >Critical AD Objects Lookup</a>
+        <saved  source="all" match="AD Objects - Audit - Critical " />
+  	</collection>
+  	<collection label="Machine Learning - Risk">
+		<view name="ms_ad_obj_ml_risk_overview" />
+		<view name="ms_ad_obj_ai_assistant" />
+  		<collection label="Feature Engineering">
+			<saved source="all" match="AD Objects - ML Feature - " />
+  		</collection>
+  		<collection label="Models and Model Ops">
+			<saved source="all" match="AD_Obj_ML_" />
+  		</collection>
+  	</collection>
+  </collection>
+  <collection label="Windows">
+    <collection label="Event Log Analysis">
+      <view name="ms_ad_obj_windows_events_analysis" />
+      <collection label="Reports">
+          <saved source="all" match="AD Objects - EventLog" />
+      </collection>
+    </collection>
+    <collection label="Applications">
+      <view name="ms_ad_obj_win_app_crashes" />
+      <view name="ms_ad_obj_win_app_installs" />
+      <view name="ms_ad_obj_windows_app_perf" />
+    </collection>
+    <collection label="Performance">
+      <view name="ms_ad_obj_windows_performance" />
+      <view name="ms_ad_obj_windows_app_perf" />
+      <collection label="Reports">
+      	<saved source="all" match="AD Objects - Windows Performance " />
+      </collection>
+    </collection>
+    <collection label="WinHostMon">
+      <view name="ms_ad_obj_win_hostmon_disk" />
+      <view name="ms_ad_obj_win_hostmon_process" />
+      <view name="ms_ad_obj_win_hostmon_service" />
+    </collection>
+    <collection label="WinNetMon">
+      <view name="ms_ad_obj_win_netmon_activity" />
+      <view name="ms_ad_obj_win_netmon_tops" />
+    </collection>
+    <collection label="WinPrintMon">
+      <view name="ms_ad_obj_win_printmon_oview" />
+    </collection>
+    <collection label="Registry">
+		<saved source="all" match="AD Objects - Windows Registry" />
+    </collection>
+    <collection label="File Auditing">
+      <view name="ms_ad_obj_file_audit_analysis" />
+      <view name="ms_ad_obj_file_acl_analysis" />
+      <collection label="Reports">
+      	<saved source="all" match="AD Objects - File " />
+      </collection>
+    </collection>
+  </collection>
+  <collection label="Active Directory">
+  	<collection label="User Objects">
+      <collection label="Dashboards">
+          <view name="ms_ad_obj_lookup_users" />  	
+          <view name="ms_ad_obj_user_settings_dashboard" />
+          <view name="ms_ad_obj_ad_audit_user" /> 
+          <view name="ms_ad_obj_ad_user_reports" /> 
+          <view name="ms_ad_obj_ad_user_by_group_logons" />
+          <view name="ms_ad_obj_ad_user_chg" />
+     </collection>
+      <collection label="Reports">
+        <collection label="admon - User Objects">        
+          <saved name="AD Objects - View User AD Objects Lookup" />
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520User%2520Sync%2520Or%2520Update" >User admon Sync or Update</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520User%2520Delete" >User admon Delete</a>
+         </collection>
+         <collection label="User Lookup">      
+              <saved source="all" match="- User Lookup -" />
+          </collection>
+          <collection label="User Changes">        
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Users" >All User Change Events</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Users" >Created Users</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Users" >Deleted Users</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Users" >Undeleted Users</a>         	
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Users" >Moved Users</a>         	
+         </collection> 
+      </collection>    
+    </collection>
+    <collection label="Group Objects">
+      <collection label="Dashboards">
+          <view name="ms_ad_obj_lookup_group" />
+          <view name="ms_ad_obj_group_member_dashboard" />
+          <view name="ms_ad_obj_group_sub_search__builder" />          
+          <view name="ms_ad_obj_ad_audit_group" /> 
+          <view name="ms_ad_obj_group_changes" /> 
+          <view name="ms_ad_obj_ad_group_reports" /> 
+          <view name="ms_ad_obj_ad_user_by_group_logons" />      
+      </collection>
+      <collection label="Reports">
+          <collection label="admon - Group Objects">
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Group%2520AD%2520Objects%2520Lookup" >Group AD Object Lookup</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Group%2520Sync%2520Or%2520Update" >Group admon Sync or Update</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Group%2520Delete" >Group admon Delete</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520DL%2520Group%2520AD%2520Objects%2520Lookup" >DL Group AD Object Lookup</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520DL%2520Group%2520Sync%2520Or%2520Update" >DL Group admon Sync or Update</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520DL%2520Group%2520Delete" >DL Group admon Delete</a>
+          </collection>  
+          <collection label="Group Lookup">       
+              <saved source="all" match="- Group Lookup -" />
+          	  <saved name="AD Objects - User Lookup - Group List" />
+          	  <saved name="AD Objects - Computer Lookup - Group List" />
+          </collection>
+          <collection label="Group Changes">        
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group" >All Group Change Events</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Group" >Created Group</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Group" >Deleted Group</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Group" >Undeleted Group</a>         	
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Group" >Moved Group</a> 
+              <saved source="all" match="AD Objects - Audit - Critical Groups - Events" />       
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group%2520Membership" >All Group Membership Change Events</a>         	
+         </collection>    		 		
+      </collection>	
+    </collection>  
+    <collection label="Computer Objects">
+      <collection label="Dashboards">
+          <view name="ms_ad_obj_lookup_computer" />  	
+          <view name="ms_ad_obj_computers_active" />
+          <view name="ms_ad_obj_ad_audit_computer" />   
+          <view name="ms_ad_obj_ad_computer_reports" />
+          <view name="ms_ad_obj_ad_computer_chg" />
+      </collection>
+      <collection label="Reports">
+        <collection label="admon - Computer Objects">
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Computer%2520AD%2520Objects%2520Lookup" >Computer AD Object Lookup</a>
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Computer%2520Sync%2520Or%2520Update" >Computer admon Sync or Update</a>
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Computer%2520Delete" >Computer admon Delete</a>
+        </collection>         	
+          <collection label="Computer Lookup">       
+              <saved source="all" match="- Computer Lookup -" />	 
+          </collection>
+          <collection label="Computer Changes">        
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Computers" >All Computer Change Events</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Computers" >Created Computer</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Computers" >Deleted Computer</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Undeleted%2520-%2520Computers" >Undeleted Computer</a>         	
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520Computers" >Moved Computer</a>         	
+         </collection>     	
+      </collection>
+    </collection>
+    <collection label="OU Objects">
+      <collection label="Dashboards">
+          <view name="ms_ad_obj_lookup_ou" />
+          <view name="ms_ad_obj_ad_audit_ou" />  
+          <view name="ms_ad_obj_ad_ou_reports" />
+          <view name="ms_ad_obj_ad_ou_chg" />
+          <view name="ms_ad_obj_ad_user_by_ou_logons" />
+      </collection>
+      <collection label="Reports">
+        <saved source="AD Objects - OU - GPO Linked" />
+        <collection label="admon - OU Objects">
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520OU%2520AD%2520Objects%2520Lookup" >OU AD Object Lookup</a>
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520OU%2520Sync%2520Or%2520Update" >OU admon Sync or Update</a>
+           <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520OU%2520Delete" >OU admon Delete</a>
+        </collection>      	
+          <collection label="OU Lookup">       
+              <saved source="all" match="- OU Lookup -" /> 
+          </collection>
+          <collection label="OU Changes">        
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520OU" >All OU Change Events</a>
+                  <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520OU" >Created OU</a>         		
+                  <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Modified%2520-%2520OU" >Modified OU</a>     
+                  <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Moved%2520-%2520OU" >Moved OU</a>            	
+         </collection>   		
+      </collection>
+    </collection>    
+    <collection label="Group Policy Objects">
+      <collection label="Dashboards">
+          <view name="ms_ad_obj_lookup_gpo" />  	
+          <view name="ms_ad_obj_ad_chg_gpo" />
+          <view name="ms_ad_obj_ad_audit_gpo" /> 
+          <view name="ms_ad_obj_ad_gpo_reports" />       	           
+      </collection>
+      <collection label="Reports">
+          <collection label="admon - GPO Objects">
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520GPO%2520AD%2520Objects%2520Lookup" >GPO AD Object Lookup</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520GPO%2520Sync%2520Or%2520Update" >GPO admon Sync or Update</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520GPO%2520Delete" >GPO admon Delete</a>
+          </collection>           		
+          <collection label="GPO Lookup">       
+              <saved source="all" match="- GPO Lookup -" /> 
+          </collection>
+          <collection label="GPO Changes">        
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520Group%2520Policies" >All GPO Change Events</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Created%2520-%2520Group%2520Policies" >Created GPO</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Deleted%2520-%2520Group%2520Policies" >Deleted GPO</a>
+              <a href="/app/ms_windows_ad_objects/%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Audit%2520-%2520Changes%2520-%2520GPO%2520-%2520By%2520Admin%2520Day%2520Summary" >Changed GPO Summary by Day</a>
+         </collection> 		
+      </collection>
+    </collection>  
+  </collection>  
+  <collection label="Core Splunk Views">
+  	<view name="search" />
+  	<view name="data_models" />
+  	<view name="reports" />
+  	<view name="alerts" />
+  	<view name="dashboards" />
+  </collection>  
+</nav>

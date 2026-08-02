@@ -1,0 +1,536 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Windows Performance</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_cpu_count">0</set>
+    <set token="tok_mem_count">0</set>
+    <set token="tok_pdisk_count">0</set>
+    <set token="tok_ldisk_count">0</set>
+    <set token="tok_net_count">0</set>
+    <set token="tok_sys_count">0</set>
+    <set token="tok_proc_count">0</set>
+  </init>
+  <search id="base_perfmon_search">
+    <query>`ms__obj_win_perfmon_index` (object="Processor" OR object="Memory" OR object="PhysicalDisk" OR object="LogicalDisk" OR object="Network Interface" OR object="System")
+| fields _time,host,object,counter,instance,Value
+| stats sparkline(avg(Value)) as Trend avg(Value) as Average, max(Value) as Peak, latest(Value) as Current, latest(_time) as "Last Updated" by host,counter,instance,object 
+| convert ctime("Last Updated") 
+| sort - Current 
+| eval Average=round(Average, 2) 
+| eval Peak=round(Peak, 2) 
+| eval Current=round(Current, 2)
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+    <earliest>$PageTime.earliest$</earliest>
+    <latest>$PageTime.latest$</latest>
+  </search>
+  <search id="base_perfmon_search_process">
+    <query>`ms__obj_win_perfmon_index` $PerfmonHost$ object="Process"
+| fields _time,host,object,counter,instance,Value
+| stats sparkline(avg(Value)) as Trend avg(Value) as Average, max(Value) as Peak, latest(Value) as Current, latest(_time) as "Last Updated" by host,counter,instance,object 
+| convert ctime("Last Updated") 
+| sort - Current 
+| eval Average=round(Average, 2) 
+| eval Peak=round(Peak, 2)
+| eval Current=round(Current, 2)
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+    <earliest>$PageTime.earliest$</earliest>
+    <latest>$PageTime.latest$</latest>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_processor">
+    <query>search object="Processor" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_memory">
+    <query>search object="Memory" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_pdisk">
+    <query>search object="PhysicalDisk" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_ldisk">
+    <query>search object="LogicalDisk" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_network">
+    <query>search object="Network Interface" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search" id="sub_perfmon_system">
+    <query>search object="System" $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <search base="base_perfmon_search_process" id="sub_perfmon_process">
+    <query>search $PerfmonHostWildcard$ $PerfmonHost$ 
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="multiselect" token="PerfmonHost" searchWhenChanged="true">
+      <label>Perfmon Hosts</label>
+      <choice value="*">All</choice>
+      <search base="base_perfmon_search">
+        <query>stats count by host | sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <prefix>(</prefix>
+      <suffix>)</suffix>
+      <valuePrefix>host="</valuePrefix>
+      <valueSuffix>"</valueSuffix>
+      <delimiter> OR  </delimiter>
+    </input>
+    <input id="input_host_filter_list" type="text" token="tok_host_filter_bs" searchWhenChanged="true">
+      <label>Filter Host</label>
+      <default></default>
+      <initialValue></initialValue>
+      <change>
+        <condition value="">
+          <set token="PerfmonHostWildcard"></set>
+        </condition>
+        <condition>
+          <set token="PerfmonHostWildcard">| where match(host,"$value$")</set>
+        </condition>
+      </change>
+    </input>
+    <input type="time" token="PageTime" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-4h@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">CPU Metrics <b>($tok_cpu_count$)</b>
+            </a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Memory Metrics <b>($tok_mem_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">PhysicalDisk Metrics <b>($tok_pdisk_count$)</b>
+            </a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a id="tab_login_id" href="#tab_dash_rep" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">LogicalDisk Metrics <b>($tok_ldisk_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_5$">
+            <a id="tab_group_changes_id" href="#tab_walk" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Network Metrics <b>($tok_net_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_6$">
+			<a id="tab_user_changes_id" href="#tab_knowledge" class="toggle-tab" data-token-json="{&quot;tok_tab_6&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">System Metrics <b>($tok_sys_count$)</b>
+            </a>
+          </li>    
+          <li class="$tok_tab_7$">
+            <a id="tab_comp_changes_id" href="#tab_assist" class="toggle-tab" data-token-json="{&quot;tok_tab_7&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Process Metrics <b>($tok_proc_count$)</b>
+            </a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <input type="dropdown" token="CPUInstance" searchWhenChanged="true">
+        <label>Instance</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_processor">
+          <query>search counter="$CPUCounter$"| fields instance
+| stats count by instance
+| table instance 
+| sort instance</query>
+        </search>
+        <fieldForLabel>instance</fieldForLabel>
+        <fieldForValue>instance</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="CPUCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_processor">
+          <query>search instance="$CPUInstance$"| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_cpu_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <default>*</default>
+        <initialValue>*</initialValue>
+      </input>
+      <table>
+        <title>CPU Metrics</title>
+        <search base="sub_perfmon_processor">
+          <query>search counter="$CPUCounter$" instance="$CPUInstance$"
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Current"></format>
+        <format type="number" field="Peak"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <input type="dropdown" token="MemoryCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_memory">
+          <query>| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_mem_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <default>*</default>
+        <initialValue>*</initialValue>
+      </input>
+      <table>
+        <title>Memory Metrics</title>
+        <search base="sub_perfmon_memory">
+          <query>search counter="$MemoryCounter$"
+| table host,counter,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel>
+      <input type="dropdown" token="PhysicalDiskInstance" searchWhenChanged="true">
+        <label>Instance</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_pdisk">
+          <query>search counter="$PhysicalDiskCounter$"| fields instance
+| stats count by instance
+| table instance 
+| sort instance</query>
+        </search>
+        <fieldForLabel>instance</fieldForLabel>
+        <fieldForValue>instance</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="PhysicalDiskCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_pdisk">
+          <query>search instance="$PhysicalDiskInstance$"| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_pdisk_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <table>
+        <title>PhysicalDisk Metrics</title>
+        <search base="sub_perfmon_pdisk">
+          <query>search counter="$PhysicalDiskCounter$" instance="$PhysicalDiskInstance$"
+| table host,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel>
+      <input type="dropdown" token="LogicalDiskInstance" searchWhenChanged="true">
+        <label>Instance</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_ldisk">
+          <query>search counter="$LogicalDiskCounter$"| fields instance
+| stats count by instance
+| table instance 
+| sort instance</query>
+        </search>
+        <fieldForLabel>instance</fieldForLabel>
+        <fieldForValue>instance</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="LogicalDiskCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_ldisk">
+          <query>search instance="$LogicalDiskInstance$"| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_ldisk_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <table>
+        <title>LogicalDisk Metrics</title>
+        <search base="sub_perfmon_ldisk">
+          <query>search counter="$LogicalDiskCounter$" instance="$LogicalDiskInstance$"
+| table host,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_5$">
+    <panel>
+      <input type="dropdown" token="NetworkInterfaceInstance" searchWhenChanged="true">
+        <label>Instance</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_network">
+          <query>search counter="$NetworkInterfaceCounter$"| fields instance
+| stats count by instance
+| table instance 
+| sort instance</query>
+        </search>
+        <fieldForLabel>instance</fieldForLabel>
+        <fieldForValue>instance</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="NetworkInterfaceCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_network">
+          <query>search instance="$NetworkInterfaceInstance$"| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_net_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <table>
+        <title>Network Metrics</title>
+        <search base="sub_perfmon_network">
+          <query>search counter="$NetworkInterfaceCounter$" instance="$NetworkInterfaceInstance$"
+| table host,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_6$">
+    <panel>
+      <input type="dropdown" token="SystemCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_system">
+          <query>fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_sys_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <table>
+        <title>System Metrics</title>
+        <search base="sub_perfmon_system">
+          <query>search counter="$SystemCounter$"
+| table host,counter,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_7$">
+    <panel>
+      <input type="dropdown" token="ProcessInstance" searchWhenChanged="true">
+        <label>Instance</label>
+        <choice value="*">All</choice>
+        <search base="sub_perfmon_process">
+          <query>search counter="$ProcessCounter$"
+| fields instance
+| stats count by instance
+| table instance 
+| sort instance</query>
+        </search>
+        <fieldForLabel>instance</fieldForLabel>
+        <fieldForValue>instance</fieldForValue>
+        <initialValue>*</initialValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="ProcessCounter" searchWhenChanged="true">
+        <label>Counter</label>
+        <search base="sub_perfmon_process">
+          <query>search instance="$ProcessInstance$"
+| fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_proc_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <selectFirstChoice>true</selectFirstChoice>
+      </input>
+      <table>
+        <title>Process Metrics</title>
+        <search base="sub_perfmon_process">
+          <query>search counter="$ProcessCounter$" instance="$ProcessInstance$"
+| table host,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#FFFFFF" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F8BE34" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+      </table>
+    </panel>
+  </row>
+</form>

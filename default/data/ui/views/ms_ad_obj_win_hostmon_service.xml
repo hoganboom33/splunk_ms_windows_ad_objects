@@ -1,0 +1,582 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - WinHostMon - Service</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_dd_evt_raw_count">Pending Input</set>
+    <set token="tok_dd_evt_host_count">Pending Input</set>
+    <set token="tok_dd_pfm_count">Pending Input</set>
+    <set token="tok_no_dd">True</set>
+  </init>
+  <search id="base_service_search">
+    <query>`ms_obj_winhostmon_base` Type=Service
+| fields _raw,host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status,ProcessId
+| fillnull value="NA" DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status,ProcessId
+| stats max(_time) AS Last_Time,latest(_raw) AS last_evt by host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status,ProcessId
+| eval Last_Update=strftime(Last_Time,"%m/%d/%y %I:%M:%S %P")  
+| table host, Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status,ProcessId,Last_Update,last_evt</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <progress>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_tabs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_tabs">True</set>
+        <unset token="tok_show_no_winhost_svc_msg"></unset>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_tabs"></unset>
+        <set token="tok_show_no_winhost_svc_msg">True</set>
+        <set token="tok_dd_pfm_done">True</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_raw_drilldown">
+    <query>"$tok_service_dd$" sourcetype!="WinHostMon"| table sourcetype,host,_raw</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <progress>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_service_dd_evt"></unset>
+        <set token="tok_dd_evt_raw_count">Searching...</set>
+        <set token="tok_dd_evt_host_count">Searching...</set>
+      </condition>
+      <condition>
+        <set token="tok_show_service_dd_evt">True</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_show_service_dd_evt_msg">True</set>
+        <unset token="tok_dd_evt_done"></unset>
+        <unset token="tok_dd_evt_running"></unset>
+        <eval token="tok_dd_evt_raw_count">0</eval>
+      </condition>
+      <condition>
+        <unset token="tok_show_service_dd_evt_msg"></unset>
+        <set token="tok_dd_evt_done">True</set>
+        <eval token="tok_dd_evt_raw_count">$job.resultCount$</eval>
+        <unset token="tok_dd_evt_running"></unset>
+      </condition>
+    </done>
+  </search>
+  <search base="base_raw_drilldown" id="sub_evt_host_dd">
+    <query>fields host
+| stats count by host
+| table host,count</query>
+    <progress>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_dd_evt_host_count">0</set>
+      </condition>
+      <condition>
+        <eval token="tok_dd_evt_host_count">$job.resultCount$</eval>
+      </condition>
+    </progress>
+  </search>
+  <search id="base_perfmon_process_drilldown">
+    <query>`ms__obj_win_perfmon_index` object="Process" [| makeresults | eval instance=replace("$tok_service_dd$","\.\w{0,4}$","") | table instance]
+| fields _time,host,object,counter,instance,Value
+| stats sparkline(avg(Value)) as Trend avg(Value) as Average, max(Value) as Peak, latest(Value) as Current, latest(_time) as "Last Updated" by host,counter,instance,object 
+| convert ctime("Last Updated") 
+| sort - Current 
+| eval Average=round(Average, 2) 
+| eval Peak=round(Peak, 2) 
+| eval Current=round(Current, 2)
+| table host,object,counter,instance,Trend,Average,Peak,Current,"Last Updated"</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <progress>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_service_dd_pfm"></unset>
+        <set token="tok_dd_pfm_count">0</set>
+        <set token="tok_dd_pfm_count">Searching...</set>
+      </condition>
+      <condition>
+        <set token="tok_show_service_dd_pfm">True</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_show_service_dd_pfm_msg">True</set>
+        <unset token="tok_dd_pfm_running"></unset>
+        <unset token="tok_dd_pfm_done"></unset>
+      </condition>
+      <condition>
+        <unset token="tok_show_service_dd_pfm_msg"></unset>
+        <unset token="tok_dd_pfm_running"></unset>
+        <set token="tok_dd_pfm_done"></set>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="HostMonitoringHost" searchWhenChanged="true">
+      <label>Host</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search">
+        <query>fields host, Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search Name="$tok_service$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$"  State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats count by host
+| sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_service_bs" searchWhenChanged="true">
+      <label>Service</label>
+      <choice value="all">All</choice>
+      <search base="base_service_search">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$"  State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats count by Name
+| sort Name</query>
+      </search>
+      <fieldForLabel>Name</fieldForLabel>
+      <fieldForValue>Name</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <change>
+        <condition value="all">
+          <set token="tok_service">*</set>
+          <set token="tok_no_dd">True</set>
+          <set token="tok_dd_evt_raw_count">Pending Input</set>
+          <set token="tok_dd_evt_host_count">Pending Input</set>
+          <set token="tok_dd_pfm_count">Pending Input</set>
+          <set token="tok_service_dd_label">Pending Input</set>
+          <unset token="tok_service_dd"></unset>
+          <unset token="tok_show_drilldown"></unset>
+          <unset token="tok_dd_pfm_running"></unset>
+          <unset token="tok_dd_evt_running"></unset>
+          <unset token="tok_dd_pfm_done"></unset>
+          <unset token="tok_dd_evt_done"></unset>
+          <unset token="tok_show_dd_details"></unset>
+        </condition>
+        <condition>
+          <set token="tok_service">$value$</set>
+          <set token="tok_service_dd">$value$</set>
+          <set token="tok_service_dd_label">$value$</set>
+          <set token="tok_show_drilldown">True</set>
+          <set token="tok_dd_pfm_running">True</set>
+          <set token="tok_dd_evt_running">True</set>
+          <set token="tok_dd_evt_raw_count">Searching...</set>
+          <set token="tok_dd_evt_host_count">Searching...</set>
+          <set token="tok_dd_pfm_count">Searching...</set>
+          <set token="tok_show_dd_details">True</set>
+          <unset token="tok_no_dd"></unset>
+          <unset token="tok_dd_pfm_done"></unset>
+          <unset token="tok_dd_evt_done"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_svc_type" searchWhenChanged="true">
+      <label>ServiceType</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Name="$tok_service$" Path="$tok_svc_path$" StartMode="$tok_svc_startm$"  State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats count by ServiceType
+| sort ServiceType</query>
+      </search>
+      <fieldForLabel>ServiceType</fieldForLabel>
+      <fieldForValue>ServiceType</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_svc_path" searchWhenChanged="true">
+      <label>Path</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search" id="sub_cmd_line">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Name="$tok_service$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$"  State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats count by Path
+| eval Path_label=Path
+| rex mode=sed field=Path "s/\\\/\\\\\\\/g"
+| sort Path</query>
+      </search>
+      <fieldForLabel>Path_label</fieldForLabel>
+      <fieldForValue>Path</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_svc_startm" searchWhenChanged="true">
+      <label>StartMode</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Name="$tok_service$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$"  State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats count by StartMode
+| sort StartMode</query>
+      </search>
+      <fieldForLabel>StartMode</fieldForLabel>
+      <fieldForValue>StartMode</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_svc_state" searchWhenChanged="true">
+      <label>State</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Name="$tok_service$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$" Status="$tok_svc_status$"
+| stats count by State
+| sort State</query>
+      </search>
+      <fieldForLabel>State</fieldForLabel>
+      <fieldForValue>State</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_svc_status" searchWhenChanged="true">
+      <label>Status</label>
+      <choice value="*">All</choice>
+      <search base="base_service_search">
+        <query>fields host,Name,DisplayName,Description,Path,ServiceType,StartMode,Started,State,Status
+| search host="$HostMonitoringHost$" Name="$tok_service$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$" State="$tok_svc_state$" 
+| stats count by Status
+| sort Status</query>
+      </search>
+      <fieldForLabel>Status</fieldForLabel>
+      <fieldForValue>Status</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <change>
+        <unset token="tok_show_drilldown"></unset>
+      </change>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-4h@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row id="tabs_row" depends="$tok_show_tabs$">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Service List
+            </a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Service Details
+            </a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Event Count Statistics <b>($tok_dd_evt_host_count$)</b>
+            </a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a id="tab_login_id" href="#tab_dash_rep" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Raw Events <b>($tok_dd_evt_raw_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_5$">
+            <a id="tab_login_id" href="#tab_dash_rep" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Performance Metrics <b>($tok_dd_pfm_count$)</b>
+            </a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_1$">
+    <panel>
+      <table>
+        <title>Service List</title>
+        <search base="base_service_search">
+          <query>search host="$HostMonitoringHost$" Name="$tok_service$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$" State="$tok_svc_state$" Status="$tok_svc_status$"
+| table host, Name,DisplayName,Path,ServiceType,StartMode,Started,State,Status,ProcessId,Last_Update
+| rename Name AS Service</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Status">
+          <colorPalette type="map">{"OK":#53A051,"ERROR":#DC4E41,"WARNING":#F1813F}</colorPalette>
+        </format>
+        <format type="color" field="State">
+          <colorPalette type="map">{"Disabled":#708794,"Stopped":#F8BE34,"Running":#53A051,"Starting":#F1813F,"Stopping":#F1813F}</colorPalette>
+        </format>
+        <drilldown>
+          <set token="tok_service_dd">$row.Service$</set>
+          <set token="tok_service_dd_label">$row.Service$</set>
+          <set token="tok_show_drilldown">True</set>
+          <set token="tok_dd_pfm_running">True</set>
+          <set token="tok_dd_evt_running">True</set>
+          <unset token="tok_dd_pfm_done"></unset>
+          <unset token="tok_dd_evt_done"></unset>
+          <unset token="tok_no_dd"></unset>
+        </drilldown>
+      </table>
+      <html>
+        <center>
+         <h4>
+            <i class="icon-clock" style="font-size:25px;color:blue"/>
+            <i style="font-size:15px;color:blue">
+          <b> Click a Service from the table above or select a Service from the dropdown to see drilldown details.</b>
+            </i>
+          </h4>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_no_winhost_svc_msg$">
+    <panel>
+      <html>
+        <center>
+         <i class="icon-error" style="font-size:25px;color:red"> </i>
+          <b style="font-size:25px !important;">Warning No WinHostMon - Service Data Available</b>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$">
+    <panel>
+      <html depends="$tok_no_dd$" rejects="$tok_tab_1$">
+        <center>
+         <h4>
+            <i class="icon-info-circle" style="font-size:15px;color:green">
+          <b> Click a Service from the tab </b>
+            </i>(<i style="font-color:red;color:red;font-size:15px;">Process List</i>
+            <i style="font-size:15px;color:green">
+          <b>) or select a Service from the dropdown to see drilldown details.</b>
+            </i>
+          </h4>
+        </center>
+      </html>
+      <html depends="$tok_dd_evt_running$" rejects="$tok_tab_1$,$tok_tab_2$,$tok_tab_5$">
+        <center>
+         <i class="icon-clock" style="font-size:25px;color:blue"> </i>
+          <b style="font-size:20px !important;">Please Wait. Executing Correllated Event Drilldown Search for Service ($tok_service_dd_label$)</b>
+        </center>
+      </html>
+      <html depends="$tok_dd_pfm_running$,$tok_tab_5$">
+        <center>
+         <i class="icon-clock" style="font-size:25px;color:blue"> </i>
+          <b style="font-size:20px !important;">Please Wait. Executing Performance Metrics Drilldown Search for Service ($tok_service_dd_label$)</b>
+        </center>
+      </html>
+      <html depends="$tok_dd_evt_done$,$tok_tab_3$">
+        <center>
+         <i class="icon-check-circle" style="font-size:25px;color:blue"> </i>
+          <b style="font-size:20px !important;">Correllated Event Counts - Drilldown Details - Service ($tok_service_dd_label$)</b>
+        </center>
+      </html>
+      <html depends="$tok_dd_evt_done$,$tok_tab_4$">
+        <center>
+         <i class="icon-check-circle" style="font-size:25px;color:blue"> </i>
+          <b style="font-size:20px !important;">Correllated Event Raw Data - Drilldown Details - Service ($tok_service_dd_label$)</b>
+        </center>
+      </html>
+      <html depends="$tok_dd_pfm_done$,$tok_tab_5$">
+        <center>
+         <i class="icon-check-circle" style="font-size:25px;color:blue"> </i>
+          <b style="font-size:20px !important;">Performance Metrics - Drilldown Details - Service ($tok_service_dd_label$)</b>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_2$">
+    <panel>
+      <table depends="$tok_show_dd_details$">
+        <title>Service Details:</title>
+        <search base="base_service_search">
+          <query>search Name="$tok_service_dd$" host="$HostMonitoringHost$" Path="$tok_svc_path$" ServiceType="$tok_svc_type$" StartMode="$tok_svc_startm$" State="$tok_svc_state$" Status="$tok_svc_status$"
+| stats values(last_evt) AS "Last Service Details" by host
+| table host,"Last Service Details"</query>
+          <done>
+            <condition>
+              <set token="tok_show_dd_details">True</set>
+            </condition>
+          </done>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_3$">
+    <panel id="pan_dd_evt_cnt">
+      <table depends="$tok_show_service_dd_evt$">
+        <title>Sourcetype by host with matching Service Name ($tok_service_dd$)</title>
+        <search base="base_raw_drilldown">
+          <query>fields + sourcetype,host
+| stats values(sourcetype) AS sourcetypes, count by host</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <chart depends="$tok_show_service_dd_evt$">
+        <title>Counts by Sourcetype with matching Service Name ($tok_service_dd$)</title>
+        <search base="base_raw_drilldown">
+          <query>fields + sourcetype,host
+| stats count by sourcetype</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart depends="$tok_show_service_dd_evt$">
+        <title>Counts by host with matching Service Name ($tok_service_dd$)</title>
+        <search base="sub_evt_host_drilldown"></search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+      </chart>
+    </panel>
+    <panel depends="$tok_show_service_dd_evt_msg$">
+      <html>
+        <center>
+          <h4>
+            <i class="icon-warning" style="font-size:25px;color:orange;"/>
+            <b>No Drilldown Event Data Found for Service ( $tok_service_dd$ )</b>
+          </h4>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_4$">
+    <panel>
+      <event depends="$tok_show_service_dd_evt$">
+        <title>Raw Events - Selected Service ($tok_service_dd$)</title>
+        <search base="base_raw_drilldown"></search>
+        <option name="count">5</option>
+        <option name="list.drilldown">none</option>
+      </event>
+      <html depends="$tok_show_service_dd_evt_msg$">
+        <center>
+          <h4>
+            <i class="icon-warning" style="font-size:25px;color:orange;"/>
+            <b>No Drilldown Event Data Found - $tok_service_dd_label$</b>
+            <br /> <i style="font-size:15px;color:orange;">Click the Search Icon ( <i class="icon-search" style="font-size:20px;color:black;"/> ) for the below table to investigate missing Event Data for the selected Service ($tok_service_dd$)</i>
+          </h4>
+        </center>
+      </html>
+      <table depends="$tok_show_service_dd_evt_msg$">
+        <search>
+          <query>"$tok_service_dd$" sourcetype!="WinHostMon" host="$HostMonitoringHost$"</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="count">1</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_5$">
+    <panel id="pan_dd_pfm_metrics">
+      <input type="dropdown" token="ProcessCounter" searchWhenChanged="true" depends="$tok_show_service_dd_pfm$">
+        <label>Counter</label>
+        <search base="base_perfmon_process_drilldown">
+          <query>fields counter
+| stats count by counter
+| table counter 
+| sort counter</query>
+          <progress>
+            <condition>
+              <eval token="tok_dd_pfm_count">$job.resultCount$</eval>
+            </condition>
+          </progress>
+        </search>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <selectFirstChoice>true</selectFirstChoice>
+      </input>
+      <table depends="$tok_show_service_dd_pfm$">
+        <title>Perfmon Process Metrics - Service $tok_service_dd_label$</title>
+        <search base="base_perfmon_process_drilldown">
+          <query>search counter="$ProcessCounter$"
+| table host,counter,Trend,Average,Peak,Current
+| sort host, count -Current</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+      <chart depends="$tok_show_service_dd_pfm$">
+        <title>Perfmon Average Value Over Time - Service ( $tok_service_dd_label$ ) - Counter ( $ProcessCounter$ )</title>
+        <search>
+          <query>`ms__obj_win_perfmon_index` counter="$ProcessCounter$" object="Process" [| makeresults | eval search=replace("$tok_service_dd$","\.\w{0,4}$","") | table search | format] host="$HostMonitoringHost$"
+          | timechart avg(Value) AS Average_Value by host</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.nullValueMode">zero</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <html depends="$tok_show_service_dd_pfm_msg$">
+        <center>
+          <h4>
+            <i class="icon-warning" style="font-size:25px;color:orange;"/>
+            <b>No Drilldown Perfmon object=Process instance="$tok_service_dd$" Data Found.</b>
+            <br /> <i style="font-size:15px;color:orange;">Click the Search Icon ( <i class="icon-search" style="font-size:20px;color:black;"/> ) for the below table to investigate missing Perfmon Process Data for the selected Service ($tok_service_dd$)</i>
+          </h4>
+        </center>
+      </html>
+      <table depends="$tok_show_service_dd_pfm_msg$">
+        <search>
+          <query>`ms__obj_win_perfmon_index` object="Process" [| makeresults | eval search=replace("$tok_service_dd$","\.\w{0,4}$","") | table search | format] host="$HostMonitoringHost$"</query>
+           <earliest>$Time.earliest$</earliest>
+            <latest>$Time.latest$</latest>
+        </search>
+        <option name="count">1</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

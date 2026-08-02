@@ -1,0 +1,1948 @@
+<form script="ms_ad_obj_quick_nav.js,ms_ad_obj_update_input.js,ms_ad_obj_config_h.js" stylesheet="ms_ad_obj_gs_cfg.css" version="1.1">
+  <label>Configuration - Getting Data In</label>
+  <init>
+    <set token="tok_dom_health_trigger">0</set>
+    <set token="tok_dom_lkup_trigger">0</set>
+    <set token="tok_ad_sync_trigger">0</set>
+    <set token="tok_cur_part">0</set>
+    <set token="tok_next_part">1</set>
+    <set token="tok_prev_part">0</set>
+    <set token="tok_part_0_state">active</set>
+    <set token="tok_part_0_compl">completed</set>
+    <set token="tok_part_0_start">True</set>
+    <set token="tok_t_nav_0_btn_next_st">enabled</set>
+    <set token="tok_t_nav_2_btn_next_st">enabled</set>
+    <set token="tok_t_nav_3_btn_next_st">enabled</set>
+    <set token="tok_t_nav_4_btn_next_st">enabled</set>
+    <set token="tok_t_nav_5_btn_next_st">hidden</set>
+    <set token="prep_task_step_title">prep_task_step_title_y</set>
+    <set token="tok_show_build_inputs">True</set>
+    <set token="tok_status_user_build">Pending</set>
+    <set token="tok_status_computer_build">Pending</set>
+    <set token="tok_status_group_build">Pending</set>
+    <set token="tok_status_ou_build">Pending</set>
+    <set token="tok_status_gpo_build">Pending</set>
+    <set token="tok_status_gpo_ou_link">Pending</set>
+    <set token="tok_status_admin_audit_build">Pending</set>
+    <set token="tok_count_domain_build">0</set>
+    <set token="tok_count_user_build">0</set>
+    <set token="tok_count_computer_build">0</set>
+    <set token="tok_count_group_build">0</set>
+    <set token="tok_count_ou_build">0</set>
+    <set token="tok_count_gpo_build">0</set>
+    <set token="tok_count_gpo_ou_link">0</set>
+    <set token="tok_count_admin_audit_build">0</set>
+    <set token="tok_msg_user_build">Pending</set>
+    <set token="tok_msg_computer_build">Pending</set>
+    <set token="tok_msg_group_build">Pending</set>
+    <set token="tok_msg_ou_build">Pending</set>
+    <set token="tok_msg_gpo_build">Pending</set>
+    <set token="tok_msg_gpo_ou_link">Pending</set>
+    <set token="tok_msg_admin_audit_build">Pending</set>
+    <set token="tok_build_individual_computer">display:none;</set>
+    <set token="tok_build_individual_group">display:none;</set>
+    <set token="tok_build_individual_ou">display:none;</set>
+    <set token="tok_build_individual_gpo">display:none;</set>
+    <set token="tok_build_individual_gpo_link">display:none;</set>
+    <set token="tok_build_individual_admin_audit">display:none;</set>
+    <set token="tok_show_cancel_button">display:none;</set>
+    <set token="tok_dom_host"></set>
+    <set token="tok_dom_dns_name"></set>
+    <set token="tok_dom_netbios_name"></set>
+    <set token="tok_dom_forest"></set>
+    <set token="tok_dom_site"></set>
+    <set token="tok_add_dm_btn_ena">false</set>
+    <set token="tok_time_helper_results">display:none;</set>
+    <unset token="tok_dd_result_lookup"></unset>
+    <unset token="tok_show_cat_results"></unset>
+    <unset token="tok_show_details_results"></unset>
+    <unset token="tok_exec_user_build"></unset>
+    <unset token="tok_exec_computer_build"></unset>
+    <unset token="tok_exec_group_build"></unset>
+    <unset token="tok_exec_ou_build"></unset>
+    <unset token="tok_exec_gpo_build"></unset>
+    <unset token="tok_exec_gpo_ou_link"></unset>
+    <unset token="tok_exec_admin_audit_build"></unset>
+    <unset token="tok_show_reload"></unset>
+    <unset token="tok_show_man_domain_update"></unset>
+    <unset token="tok_show_man_domain_updatea"></unset>    
+  </init>
+  <!-- Get Configuration - Default or previously set -->
+  <search id="bs_prev_cfg">
+    <query>| inputlookup ms_ad_obj_cfg_gs
+</query>
+    <progress>
+          <set token="form.tok_build_type">$result.form_tok_build_type$</set>
+          <set token="tok_build_type">$result.form_tok_build_type$</set>
+          <set token="tok_h_load_details">$result.tok_h_load_details$</set>
+          <set token="tok_h_state_completed">$result.tok_h_state_completed$</set>
+          <set token="tok_h_state_input_1">$result.tok_h_state_input_1$</set>
+          <set token="tok_h_state_input_10">$result.tok_h_state_input_10$</set>
+          <set token="tok_h_state_input_10_s">$result.tok_h_state_input_10_s$</set>
+          <set token="tok_h_state_input_11">$result.tok_h_state_input_11$</set>
+          <set token="tok_h_state_input_12">$result.tok_h_state_input_12$</set>
+          <set token="tok_h_state_input_2">$result.tok_h_state_input_2$</set>
+          <set token="tok_h_state_input_2_s">$result.tok_h_state_input_2_s$</set>
+          <set token="tok_h_state_input_3">$result.tok_h_state_input_3$</set>
+          <set token="tok_h_state_input_4">$result.tok_h_state_input_4$</set>
+          <set token="tok_h_state_input_4_s">$result.tok_h_state_input_4_s$</set>
+          <set token="tok_h_state_input_5">$result.tok_h_state_input_5$</set>
+          <set token="tok_h_state_input_6">$result.tok_h_state_input_6$</set>
+          <set token="tok_h_state_input_6_s">$result.tok_h_state_input_6_s$</set>
+          <set token="tok_h_state_input_7">$result.tok_h_state_input_7$</set>
+          <set token="tok_h_state_input_7_hold">$result.tok_h_state_input_7_hold$</set>
+          <set token="tok_h_state_input_8">$result.tok_h_state_input_8$</set>
+          <set token="tok_h_state_input_8_hold">$result.tok_h_state_input_8_hold$</set>
+          <set token="tok_h_state_input_9">$result.tok_h_state_input_9$</set>
+          <set token="tok_h_state_input_9_hold">$result.tok_h_state_input_9_hold$</set>
+          <set token="tok_h_state_input_9_s">$result.tok_h_state_input_9_s$</set>
+          <set token="tok_inp_hold_diff_sys">$result.tok_inp_hold_diff_sys$</set>
+          <set token="tok_inp_splk_hf_label">$result.tok_inp_splk_hf_label$</set>
+          <set token="tok_input_10_a_i">$result.tok_input_10_a_i$</set>
+          <set token="tok_input_10_b_i">$result.tok_input_10_b_i$</set>
+          <set token="tok_input_11_a_i">$result.tok_input_11_a_i$</set>
+          <set token="tok_input_11_b_i">$result.tok_input_11_b_i$</set>
+          <set token="tok_input_12_a_i">$result.tok_input_12_a_i$</set>
+          <set token="tok_input_12_b_i">$result.tok_input_12_b_i$</set>
+          <set token="tok_input_1_a_i">$result.tok_input_1_a_i$</set>
+          <set token="tok_input_1_b_i">$result.tok_input_1_b_i$</set>
+          <set token="tok_input_2_a_i">$result.tok_input_2_a_i$</set>
+          <set token="tok_input_2_b_i">$result.tok_input_2_b_i$</set>
+          <set token="tok_input_3_a_i">$result.tok_input_3_a_i$</set>
+          <set token="tok_input_3_b_i">$result.tok_input_3_b_i$</set>
+          <set token="tok_input_4_a_i">$result.tok_input_4_a_i$</set>
+          <set token="tok_input_4_b_i">$result.tok_input_4_b_i$</set>
+          <set token="tok_input_5_a_i">$result.tok_input_5_a_i$</set>
+          <set token="tok_input_5_b_i">$result.tok_input_5_b_i$</set>
+          <set token="tok_input_6_a_i">$result.tok_input_6_a_i$</set>
+          <set token="tok_input_6_b_i">$result.tok_input_6_b_i$</set>
+          <set token="tok_input_7_a_i">$result.tok_input_7_a_i$</set>
+          <set token="tok_input_7_b_i">$result.tok_input_7_b_i$</set>
+          <set token="tok_input_8_a_i">$result.tok_input_8_a_i$</set>
+          <set token="tok_input_8_b_i">$result.tok_input_8_b_i$</set>
+          <set token="tok_input_9_a_i">$result.tok_input_9_a_i$</set>
+          <set token="tok_input_9_b_i">$result.tok_input_9_b_i$</set>
+          <set token="tok_t_nav_1_btn_next_st">$result.tok_t_nav_1_btn_next_st$</set>
+          <eval token="tok_obj_depl_msg">if($result.tok_obj_depl_msg$="empty",NULL,$result.tok_obj_depl_msg$)</eval>
+          <eval token="tok_obj_depl_msg_val">if($result.tok_obj_depl_msg$="empty","empty",$result.tok_obj_depl_msg$)</eval>
+          <set token="tok_obj_dl_soft_uf">$result.tok_obj_dl_soft_uf$</set>
+          <set token="tok_obj_dl_ta_cc">$result.tok_obj_dl_ta_cc$</set>
+          <set token="tok_obj_env_type">$result.tok_obj_env_type$</set>
+          <set token="tok_obj_env_type_arch">$result.tok_obj_env_type_arch$</set>
+          <set token="tok_obj_inp_core_ds_same">$result.tok_obj_inp_core_ds_same$</set>
+          <set token="tok_obj_inp_ds_hf_same">$result.tok_obj_inp_ds_hf_same$</set>
+          <set token="tok_obj_inst_ds">$result.tok_obj_inst_ds$</set>
+          <set token="tok_obj_inst_ds_wta">$result.tok_obj_inst_ds_wta$</set>
+          <set token="tok_obj_inst_hf">$result.tok_obj_inst_hf$</set>
+          <set token="tok_obj_inst_hf_cc">$result.tok_obj_inst_hf_cc$</set>
+          <set token="tok_obj_inst_hf_wta">$result.tok_obj_inst_hf_wta$</set>
+          <set token="tok_obj_inst_uf">$result.tok_obj_inst_uf$</set>
+          <set token="tok_obj_inst_uf_wta">$result.tok_obj_inst_uf_wta$</set>
+          <set token="tok_obj_upg_app">$result.tok_obj_upg_app$</set>
+          <set token="tok_obj_use_ds">$result.tok_obj_use_ds$</set>
+          <set token="tok_obj_use_hf">$result.tok_obj_use_hf$</set>
+          <set token="tok_state_completed">$result.tok_state_completed$</set>
+          <set token="tok_state_lbl">$result.tok_state_lbl$</set>
+          <set token="tok_auto_chk_lbl">$result.tok_auto_chk_lbl$</set>
+          <set token="tok_state_lbl_icon">$result.tok_state_lbl_icon$</set>
+          <set token="tok_state_lbl_color">$result.tok_state_lbl_color$</set>
+          <set token="tok_macro_base_url">$result.tok_macro_base_url$</set>
+    </progress>
+    <done>
+      <set token="tok_get_first_cfg_chk">True</set>
+    </done>
+  </search>
+  <!-- First Start - Config EnvType Check  - Enterprise-->
+  <search base="bs_prev_cfg" id="set_ent_vals">
+    <query>eval holder="$env:is_enterprise$",trigger="$tok_get_first_cfg_chk$"
+| search holder="true" last_config="Skip"
+| eval user_nm="$env:user$"
+</query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+          <set token="splk_type">Not Enterprise</set>
+        </condition>
+        <condition>
+          <set token="tok_macro_base_url">/manager/ms_windows_ad_objects/$result.user_nm$/macros</set>
+          <set token="tok_obj_env_type">ent</set>
+          <set token="tok_obj_dl_ta_cc">dl_ta_cc_n</set>
+          <set token="tok_inp_splk_hf_label">Heavy</set>
+          <set token="tok_h_state_input_2">Completed</set>
+          <set token="tok_h_state_input_2_s">Next</set>
+          <set token="tok_h_state_input_3">Next</set>
+          <set token="tok_h_state_input_4">Pending</set>
+          <set token="tok_h_state_input_4_s">Pending</set>
+          <set token="tok_input_2_a_i"></set>        
+          <set token="tok_input_2_b_i">chosen</set>
+          <set token="tok_new_cfg">true</set>
+      </condition>
+      </done>
+  </search>
+  <!-- First Start - Config EnvType Check  - Cloud-->  
+  <search base="bs_prev_cfg" id="set_cloud_vals">
+    <query>eval holder="$env:is_cloud$",trigger="$tok_get_first_cfg_chk$"
+| search holder="true"  last_config="Skip"
+</query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+          <set token="splk_type">Not Cloud</set>
+        </condition>
+        <condition>
+          <set token="tok_macro_base_url">/manager/ms_windows_ad_objects/data/macros</set>
+          <set token="tok_obj_env_type">cloud</set>
+          <set token="tok_obj_env_type_arch">obj_none</set>
+          <set token="tok_inp_splk_hf_label">Heavy/Gateway</set>
+          <set token="tok_obj_inp_core_ds_same">obj_inp_core_ds_same_n</set>
+          <set token="tok_h_state_input_2">Completed</set>
+          <set token="tok_h_state_input_2_s">Completed</set>
+          <set token="tok_h_state_input_3">Skip</set>
+          <set token="tok_h_state_input_4">Next</set>
+          <set token="tok_h_state_input_4_s">Next</set>
+          <set token="tok_h_state_input_7">Skip</set>
+          <set token="tok_h_state_input_7_hold">Skip</set>
+          <set token="tok_h_state_input_8_hold">Next</set>
+          <set token="tok_h_state_input_9_hold">Skip</set>
+          <set token="tok_input_2_a_i">chosen</set>        
+          <set token="tok_input_2_b_i"></set>
+          <set token="tok_new_cfg">true</set>
+        </condition>
+      </done>
+  </search>
+  <!-- Save Configuration or Update Configuration -->
+  <search id="bs_upd_env_cfg">
+    <query>| `ms_obj_cfg_gs_update("$form.tok_build_type$","$tok_h_load_details$","$tok_h_state_completed$","$tok_h_state_input_1$","$tok_h_state_input_10$","$tok_h_state_input_10_s$","$tok_h_state_input_11$","$tok_h_state_input_12$","$tok_h_state_input_2$","$tok_h_state_input_2_s$","$tok_h_state_input_3$","$tok_h_state_input_4$","$tok_h_state_input_4_s$","$tok_h_state_input_5$","$tok_h_state_input_6$","$tok_h_state_input_6_s$","$tok_h_state_input_7$","$tok_h_state_input_7_hold$","$tok_h_state_input_8$","$tok_h_state_input_8_hold$","$tok_h_state_input_9$","$tok_h_state_input_9_hold$","$tok_h_state_input_9_s$","$tok_inp_hold_diff_sys$","$tok_inp_splk_hf_label$","$tok_input_10_a_i$","$tok_input_10_b_i$","$tok_input_11_a_i$","$tok_input_11_b_i$","$tok_input_12_a_i$","$tok_input_12_b_i$","$tok_input_1_a_i$","$tok_input_1_b_i$","$tok_input_2_a_i$","$tok_input_2_b_i$","$tok_input_3_a_i$","$tok_input_3_b_i$","$tok_input_4_a_i$","$tok_input_4_b_i$","$tok_input_5_a_i$","$tok_input_5_b_i$","$tok_input_6_a_i$","$tok_input_6_b_i$","$tok_input_7_a_i$","$tok_input_7_b_i$","$tok_input_8_a_i$","$tok_input_8_b_i$","$tok_input_9_a_i$","$tok_input_9_b_i$","$tok_obj_depl_msg_val$","$tok_obj_dl_soft_uf$","$tok_obj_dl_ta_cc$","$tok_obj_env_type$","$tok_obj_env_type_arch$","$tok_obj_inp_core_ds_same$","$tok_obj_inp_ds_hf_same$","$tok_obj_inst_ds$","$tok_obj_inst_ds_wta$","$tok_obj_inst_hf$","$tok_obj_inst_hf_cc$","$tok_obj_inst_hf_wta$","$tok_obj_inst_uf$","$tok_obj_inst_uf_wta$","$tok_obj_upg_app$","$tok_obj_use_ds$","$tok_obj_use_hf$","$tok_state_completed$","$tok_state_lbl$","$tok_macro_base_url$","$tok_upd_cfg_def$")`</query>
+  </search>
+  <!-- Check Macro Settings -->
+  <search id="bs_mac_chk_res">
+    <query>| `ms_obj_cfg_macro_chk_h("$tok_check_mac_trigger$")`</query>
+  </search>  
+  <search id="hdr_top_filt">
+    <query>
+| makeresults
+| eval obj_env_type="$tok_obj_env_type$"
+| eval obj_env_type_arch="$tok_obj_env_type_arch$"
+| eval hdr_d_top_ta_cc=if("$tok_obj_upg_app$"="obj_upg_app_n" AND obj_env_type=="cloud" AND "$tok_obj_use_hf$"="obj_use_hf_n" AND "$tok_obj_inp_ds_hf_same$"="obj_inp_ds_hf_same_n","hdr_d_top_ta_cc_y","hdr_d_top_ta_cc_n")
+| eval hdr_p_top_ds=if("$tok_obj_upg_app$"="obj_upg_app_n" AND ("$tok_obj_use_ds$"="obj_use_ds_y" OR "$tok_obj_inp_ds_hf_same$"="obj_inp_ds_hf_same_y"),"hdr_p_top_ds_y","hdr_p_top_ds_n")
+| eval hdr_p_top_dl=if("$tok_obj_upg_app$"="obj_upg_app_n","hdr_p_top_dl_y","hdr_p_top_dl_n")
+| eval obj_dl_ent=if(("$tok_obj_inst_hf$"="obj_inst_hf_y" OR "$tok_obj_inst_ds$"="obj_inst_ds_y"),"obj_dl_ent_y","obj_dl_ent_n")
+| eval obj_dl_soft=if(obj_dl_ent=="obj_dl_ent_y" OR "$tok_obj_inst_uf$"="obj_inst_uf_y","obj_dl_soft_y","obj_dl_soft_n")
+| eval obj_dl_ta_wta=if("$tok_obj_inst_hf_wta$"="obj_inst_hf_wta_n" AND "$tok_obj_inst_uf$"="obj_inst_uf_n" AND "$tok_obj_inst_uf_wta$"="obj_inst_uf_wta_n" AND "$tok_obj_use_ds$"="obj_use_ds_y" AND "$tok_obj_inst_ds$"="obj_inst_ds_n" AND "$tok_obj_inst_hf$"="obj_inst_hf_n","obj_dl_ta_wta_n","obj_dl_ta_wta_y")
+| eval obj_dl_ta_cc=if("$tok_obj_env_type$"="ent","obj_dl_ta_cc_n",if(("$tok_obj_inst_ds$"="obj_inst_ds_y" OR "$tok_obj_inst_hf$"="obj_inst_hf_y"),"obj_dl_ta_cc_y",if("$tok_obj_inst_uf$"="obj_inst_uf_y","obj_dl_ta_cc_y","obj_dl_ta_cc_n")))
+| eval obj_inst_core_ta_wta=if("$tok_obj_upg_app$"="obj_upg_app_n" AND obj_dl_ta_wta="obj_dl_ta_wta_n","obj_inst_core_ta_wta_n","obj_inst_core_ta_wta_y")
+| eval obj_depl=if(hdr_d_top_ta_cc=="hdr_d_top_ta_cc_y" OR "$tok_obj_inst_uf$"="obj_inst_uf_y" OR "$tok_obj_use_ds$"="obj_use_ds_n","obj_depl_y","obj_depl_n")
+    </query>
+    <done>
+      <set token="tok_hdr_d_top_ta_cc">$result.hdr_d_top_ta_cc$</set>
+      <set token="tok_hdr_p_top_ds">$result.hdr_p_top_ds$</set>
+      <set token="tok_hdr_p_top_dl">$result.hdr_p_top_dl$</set>
+      <set token="tok_obj_depl">$result.obj_depl$</set>
+      <eval token="tok_obj_depl_lpanel">if($result.obj_depl$="obj_depl_n",NULL,"obj_depl_y")</eval>
+      <eval token="tok_obj_depl_msg">if($result.obj_depl$="obj_depl_n","obj_depl_n",NULL)</eval>
+      <eval token="tok_obj_depl_msg_val">if($result.obj_depl$="obj_depl_n","obj_depl_n","empty")</eval>
+      <set token="tok_obj_dl_ent">$result.obj_dl_ent$</set>
+      <set token="tok_obj_dl_soft">$result.obj_dl_soft$</set>
+      <set token="tok_obj_dl_ta_cc">$result.obj_dl_ta_cc$</set>
+      <set token="tok_obj_dl_ta_wta">$result.obj_dl_ta_wta$</set>
+      <set token="tok_obj_inst_core_ta_wta">$result.obj_inst_core_ta_wta$</set>
+      <set token="tok_auto_chk_lbl">Defined Scope</set>
+    </done>
+  </search>
+  <!-- Pre-Check Searches -->
+  <search id="base_chk_ms_obj_state">
+    <query>| inputlookup AD_Domain_Selector
+| eval trigger="$tok_new_cfg$"
+| head 2</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_srch_trigger_rerun">0</set>
+        <set token="tok_nxt_btn_state">disabled</set>
+        <set token="tok_chk_pre_upg">chk_pre_upg_n</set>
+        <set token="tok_auto_chk_lbl">Pending Scope Definition:</set>
+        <set token="tok_obj_upg_app">obj_upg_app_n</set>
+        <set token="tok_h_state_input_1">Completed</set>
+        <set token="tok_h_state_completed">pending</set>
+        <set token="tok_input_1_a_i"></set>
+        <set token="tok_input_1_b_i">chosen</set>
+        <set token="tok_upd_cfg_def">pre_check_prev_vers_n</set>
+      </condition>
+      <condition>
+        <set token="tok_srch_trigger_rerun">0</set>
+        <set token="tok_nxt_btn_state">disabled</set>
+        <set token="tok_chk_pre_upg">chk_pre_upg_y</set>
+        <set token="form.tok_build_type">build_all</set>
+        <set token="tok_auto_chk_lbl">Upgrade Pre-Check</set>
+        <set token="tok_obj_depl">obj_depl_n</set>
+        <set token="tok_enable_next">enable</set>
+        <set token="tok_h_load_details">ms_ad_obj_gs_prep.html</set>
+        <set token="tok_obj_upg_app">obj_upg_app_y</set>
+        <set token="tok_obj_env_type_arch">none</set>
+        <set token="tok_obj_env_type">none</set>
+        <set token="tok_obj_use_ds">none</set>
+        <set token="tok_obj_inst_ds">none</set>
+        <set token="tok_obj_inst_hf">no</set>
+        <set token="tok_obj_inst_hf_wta">no</set>
+        <set token="tok_obj_use_hf">no</set>
+        <set token="tok_obj_inst_uf">no</set>
+        <set token="tok_obj_inst_uf_wta">no</set>
+        <set token="tok_h_state_input_1">Completed</set>
+        <set token="tok_h_state_input_2">Not_Required</set>
+        <set token="tok_h_state_input_2_s">Not_Required</set>
+        <set token="tok_h_state_input_3">Skip</set>
+        <set token="tok_h_state_input_4">Not_Required</set>
+        <set token="tok_h_state_input_4_s">Not_Required</set>
+        <set token="tok_h_state_input_5">Skip</set>
+        <set token="tok_h_state_input_6">Not_Required</set>
+        <set token="tok_h_state_input_6_s">Not_Required</set>
+        <set token="tok_h_state_input_7">Skip</set>
+        <set token="tok_h_state_input_8">Skip</set>
+        <set token="tok_h_state_input_9">Skip</set>
+        <set token="tok_h_state_input_10_s">Not_Required</set>
+        <set token="tok_h_state_input_10">Not_Required</set>
+        <set token="tok_h_state_input_11">Skip</set>
+        <set token="tok_h_state_input_12">Skip</set>
+        <set token="tok_state_completed">Pre-Check - It appears you are upgrading the MS Windows AD Objects application, if not then select Yes on the first question in the left panel.:</set>
+        <set token="tok_h_state_completed">completed</set>
+        <set token="tok_input_1_a_i">chosen</set>
+        <set token="tok_input_1_b_i"></set>
+        <set token="tok_upd_cfg_def">pre_check_prev_vers_y</set>
+      </condition>
+    </done>
+  </search>
+  <search id="domain_health_check">
+    <query>`ms__obj_win_ad_index` eventtype="ms_ad_obj_msad-dc-health"
+| eval tok_srch_trigger_rerun_val="$tok_dom_health_trigger$"
+| head 2
+    </query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_missing</set>
+        <set token="tok_chk_d_dom_health_lbl">Warning: MSAD Health data is missing.</set>
+        <set token="tok_chk_d_dom_health_msg">Review below troubleshooting steps for checking required macro index definitions and enabling the MSAD Health data collection input on a Domain Controller or Click the Manually Domain Input to manually input the Domain values. Note: You can ignore if you the above Status is "Ok: AD_Obj_Domain Lookup has data".</set>
+        <set token="tok_load_chk_data_src">ms_ad_obj_gs_chk_data_src.html</set>
+        <set token="tok_load_chk_data_det">ms_ad_obj_gs_chk_data_det.html</set>
+        <set token="tok_chk_d_main">chk_d_y</set>
+        <set token="tok_chk_d_ko">chk_d_ko_y</set>
+    	<set token="tok_chk_d_dom_health">chk_d_dom_health_y</set>
+    	<set token="tok_chk_d_man_domain">chk_d_man_domain_y</set>
+      </condition>
+      <condition>
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_ok</set>
+        <set token="tok_chk_d_dom_health_lbl">OK: MSAD Health data is available</set>
+        <set token="tok_chk_d_dom_health_msg">MSAD Health Data is being indexed, and will be used to update AD_Obj_Domain lookup.</set>
+    	  <set token="tok_chk_d_dom_health">chk_d_dom_health_n</set>
+    	  <set token="tok_chk_d_man_domain">chk_d_man_domain_n</set>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Domain Lookup Build Workflow -->
+  <search id="first_domain_build">
+    <query>| inputlookup AD_Obj_Domain
+| eval tok_srch_trigger_rerun_val="$tok_dom_lkup_trigger$"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_sec_domain_attempt">AD_Domain_Selector</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup has data</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup has data, so if the other data checks are ok then click Next to proceed to the Building Lookup tasks.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set>
+        <set token="tok_post_exec_add_d">TRUE</set>
+        <unset token="tok_sec_domain_attempt"></unset>
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="second_domain_build" depends="$tok_sec_domain_attempt$">
+    <query>| inputlookup $tok_sec_domain_attempt$</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_fourth_domain_attempt">`ms_obj_admon_bld_domain`</set>
+        <unset token="tok_third_domain_attempt"></unset>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_third_domain_attempt">ms_obj_admon_migrate_out</set>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="third_domain_build" depends="$tok_third_domain_attempt$">
+    <query>|`$tok_third_domain_attempt$(domain,Domain)`</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_fourth_domain_attempt">`ms_obj_admon_bld_domain`</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup migration completed.</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup now has data populated by the previous versions lookup AD_Domain_Selector, so if the other data checks are ok then click Next to proceed to the Building Lookup tasks.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set>
+        <unset token="tok_fourth_domain_attempt"></unset>
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="fourth_domain_build" depends="$tok_fourth_domain_attempt$">
+    <query>$tok_fourth_domain_attempt$</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_count_domain_build">0</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_missing</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Critical: AD_Obj_Domain Lookup is missing data</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup has not been populated. This is required before proceeding to the next step. Review the below troubleshooting steps and then click the Rerun Autocheck button to attempt to build again.  The AD_Obj_Domain lookup has to be populated before attempting to build the other AD_Obj_... lookups.  Note: You can also manually populate this lookup using the below manual entry form.</set>
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_missing</set>
+        <set token="tok_chk_d_dom_health_lbl">Warning: MSAD Health data is missing</set>
+        <set token="tok_chk_d_dom_health_msg">MSAD Health data is not being collected, so the AD_Obj_Domain Lookup was not populated. Review the below troubleshooting steps and then click the Rerun Autocheck button to attempt to build again. Note: You can also manually populate this lookup using the below manual entry form.</set>
+        <set token="tok_chk_d_main">chk_d_y</set>
+    	  <set token="tok_chk_d_ko">chk_d_ko_y</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup has been built</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup now has data populated by the MSAD Health collected data, so if the other data checks are ok then click Next to proceed to the Building Lookup task.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set> 
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Get Last admon Sync Time --> 
+  <search id="base_admon_check">
+    <query>`ms_obj_admon_get_begin_sync_t_val`
+| eval auto_earliest=strptime(Recommended_Sync_Start_Day,"%m/%d/%y")
+| eval tok_srch_trigger_rerun_val="$tok_ad_sync_trigger$"
+  	</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_ok_sync_msg"></unset>
+        <set token="tok_chk_d_res_admon">chk_d_res_admon_y</set>
+        <set token="tok_chk_d_ko">chk_d_ko_y</set>
+        <set token="tok_chk_d_admon_sync_cls">chk_admon_sync_missing</set>
+        <set token="tok_chk_d_admon_sync_lbl">Warning: admon Baseline (Sync) data is missing</set>
+        <set token="tok_chk_d_admon_sync_msg">The baseline admon (ie admonEventType=Sync) has not been collected, macro pointing to sourcetype ActiveDirectory is incorrect. If you collected it more than a year ago, it is recommended to recollect it now.  Click the "Resetting admon Baseline" button below and follow the steps.</set>
+      </condition>
+      <condition>
+        <set token="tok_chk_d_res_admon">chk_d_res_admon_n</set>
+        <set token="tok_chk_d_admon_sync_cls">chk_admon_sync_ok</set>
+        <set token="tok_chk_d_admon_sync_lbl">OK: admon Baseline (Sync) data is available</set>
+        <set token="tok_chk_d_admon_sync_msg">The baseline admon (ie admonEventType=Sync) is available, starting from $result.Last_Sync_Day$.</set>
+        <set token="tok_ts_admon_sync_f_day">$result.Recommended_Sync_Start_Day$</set>
+        <set token="tok_ts_admon_sync_l_day">$result.Last_Sync_Day$</set>
+        <set token="tok_ts_admon_sync_l_day_show">True</set>
+        <set token="form.tok_time_sync.earliest">$result.auto_earliest$</set>
+        <set token="tok_time_sync.earliest">$result.auto_earliest$</set>
+        <set token="tok_show_ok_sync_msg">admon Last Sync Data ($result.Recommended_Sync_Start_Day$) - total Sync Events ($result.Sync_Count$)</set>
+      </condition>
+    </done>
+    <earliest>0</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Check Domain and admon Sync Status -->
+  <search id="base_set_dom_warn">
+    <query>| makeresults
+| eval async="$tok_chk_d_admon_sync_cls$"
+| eval domlkp="$tok_chk_d_dom_lkp_cls$"
+| eval warn=if(async=="chk_admon_sync_missing" OR domlkp=="chk_dm_lkp_missing","TRUE","FALSE")
+| search warn="TRUE"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_domain_warn"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_domain_warn">TRUE</set>        
+      </condition>
+    </done>
+  </search>
+  <!-- Manual Add Domain -->
+	<search id="base_m_add_domain">
+	  <query>| makeresults
+| eval trigger="$tok_add_domain_trigger$" 
+| eval host = "$tok_upd_dm_host$"
+| eval DomainDNSName = "$tok_upd_dm_dns$"
+| eval DomainNetBIOSName = "$tok_upd_dm_netbios$"
+| eval domain = DomainNetBIOSName
+| eval ForestName = "$tok_upd_dm_forest$"
+| eval Site = "$tok_upd_dm_site$"
+| eval time=now()
+| eval multi_lkps_enabled="f"
+| eval kv_suffix=lower(DomainNetBIOSName)
+| eval dc_val=lower(DomainDNSName)
+| eval user_lookup="AD_Obj_User",group_lookup="AD_Obj_Group",computer_lookup="AD_Obj_Computer"
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,time,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+| eval _key=host
+| outputlookup AD_Obj_Domain append=true</query>
+	  <earliest>-24h@h</earliest>
+	  <latest>now</latest>
+	  <progress>
+  		<set token="tok_n_dm_host">$result.host$</set>
+  		<set token="tok_n_dm_forest">$result.ForestName$</set>
+  		<set token="tok_n_dm_dns">$result.DomainDNSName$</set>
+  		<set token="tok_n_dm_netbios">$result.DomainNetBIOSName$</set>
+  		<set token="tok_n_dm_site">$result.Site$</set>
+	  </progress>
+	  <done>
+	    <unset token="tok_add_domain_trigger"></unset>
+	  	<set token="tok_show_add_dom_tbl">$result.time$</set>
+	  	<set token="tok_post_exec_add_d">$result.time$</set>
+	  	<set token="tok_reset_dom_man_inputs">$result.time$</set>
+	  </done>
+	</search>  
+  <!-- Object Builder Searches -->
+  <search id="check_uac_table">
+    <query>| inputlookup AD_Obj_UAC | head 5</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="load_new_uac_table">ms_obj_UAC_new</set>
+      </condition>
+      <condition>
+        <unset token="load_new_uac_table"></unset>
+      </condition>
+    </done>
+  </search>
+  <search id="upd_obj_lookup_uac">
+    <query>| `$load_new_uac_table$`</query>
+  </search>
+  <search id="base_obj_uac_upd">
+    <query>| $tok_start_uac_flg$
+| eval uac_u_vals="$tok_uac_u$"
+| eval uac_c_vals="$tok_uac_c$"
+| eval userAccountControl=case(uac_u_vals="0" AND uac_c_vals="0","NA",uac_u_vals="0",uac_c_vals,uac_c_vals="0",uac_u_vals,uac_u_vals!="0" AND uac_c_vals!="0",uac_u_vals.",".uac_c_vals)
+| makemv delim="," userAccountControl
+| mvexpand userAccountControl
+| table userAccountControl
+| join type=left userAccountControl [|inputlookup AD_Obj_UAC | table userAccountControl,uac_bin_map,uac_details]
+| WHERE (isnull(uac_details) OR uac_details="") AND userAccountControl!="NA"
+| table userAccountControl
+| `ms_obj_uac_to_details`
+| table userAccountControl,uac_bin_map,uac_details
+| eval _key=userAccountControl
+| outputlookup AD_Obj_UAC append=true</query>
+  </search>
+  <search id="base_build_type">
+    <query>| makeresults
+| eval type_value="build_all,build_individual"
+| makemv delim="," type_value
+| mvexpand type_value
+| eval srt_order=if(type_value=="build_all",1,2)
+| eval type_label=if(type_value="build_all","New Build - All","New Build - Individual")
+| append [| inputlookup AD_OU_LDAP_list | fields | stats count | eval type_label=if(count&gt;0,"Migrate Previous",NULL),type_value=if(count&gt;0,"build_migrate",NULL),srt_order=0 | table type_label,type_value,srt_order]
+| sort srt_order
+| where isnotnull(type_value)
+| table srt_order,type_value,type_label</query>
+  </search>
+  <!-- # Time Range Helper Search - Will get the first Sync Time and counts of Sync Events by Day.  Will assist with determining what time to use for the Sync Events -->
+  <search id="base_time_helper"><query>`$tok_exec_time_helper$`</query>
+    <progress>
+      <set token="tok_time_helper_msg">Running - Please Wait.</set>
+      <set token="tok_time_helper_results"></set>
+      <set token="tok_time_helper_f_time">Pending</set>
+      <set token="tok_time_helper_l_time">Pending</set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_time_helper_msg">Warning: No Sync admon Events Found.  Make sure you have followed the steps for getting the admon baseline data in, and have permission to the index specified in the macro ms__obj_win_ad_index.</set>
+        <set token="tok_time_helper_f_time">Not Found</set>
+        <set token="tok_time_helper_l_time">Not Found</set>
+        <set token="tok_time_helper_r_table">True</set>
+      </condition>
+      <condition>
+        <set token="tok_time_helper_msg">Review Results - Settings (2. Select Admon Sync Time)</set>
+        <set token="tok_time_helper_f_time">$result.Recommended_Start_Sync_Day$</set>
+        <set token="tok_time_helper_l_time">$result.Last_Sync_Day$</set>
+        <set token="tok_time_helper_r_table">True</set>
+      </condition>
+    </done>
+    <earliest>-180d@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="upd_cfg_state">
+    <query>| `ms_obj_config_st_upd($tok_result_btn_run$)`</query>
+  </search>
+  <!-- # Base Building Searches -->
+  <search id="build_status_results">
+  	<query>| makeresults
+| eval flag_status=if("$tok_count_user_build$"="0" OR "$tok_count_computer_build$"="0" OR "$tok_count_group_build$"="0" OR "$tok_count_ou_build$"="0" OR "$tok_count_gpo_build$"="0" OR "$tok_count_gpo_ou_link$"="0" OR "$tok_count_admin_audit_build$"="0","1","0")
+| eval completed_trigger="$tok_result_btn_run$"
+| eval flag_ok=if(flag_status=="1","0","1")
+| eval flag_warn=if(flag_status=="1","1","0")
+| table flag_ok,flag_warn</query>
+	<done>
+		<condition>  
+		  <unset token="tok_show_build_inputs"></unset>
+		  <unset token="tok_show_build_all_msg"></unset>
+			<eval token="tok_show_build_all_success_msg">if($result.flag_ok$=="0",NULL,"True")</eval>
+			<eval token="tok_show_build_all_incmpl_msg">if($result.flag_warn$=="0",NULL,"True")</eval>
+			<set token="tok_result_btn_run">completed</set>
+		</condition>
+	</done>
+  </search>
+  <search id="base_user_build" depends="$tok_exec_user_build$">
+    <query>$tok_exec_user_build$
+| stats count,values(userAccountControl) AS uac_e_val
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"
+| table count,flg_compl,uac_e_val,build_type</query>
+    <progress>
+      <eval token="tok_count_user_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_user_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_uac_u">0</set>
+        <set token="tok_status_user_build">Warning</set>
+        <set token="tok_count_user_build">0</set>
+        <set token="tok_msg_user_build">Warning: No User admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_computer_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(computer,Computer)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(computer,Computer)`",NULL))</eval>
+        <eval token="tok_status_computer_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_computer_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_computer">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_user_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_uac_u">if($result.flg_compl$="T",$result.uac_e_val$,0)</eval>
+        <eval token="tok_exec_computer_build">if($result.build_type$="build_all","`ms_obj_admon_bld_init_out(computer,Computer)`",if($result.build_type$="build_migrate","|`ms_obj_admon_migrate_out(computer,Computer)`",NULL))</eval>
+        <eval token="tok_status_computer_build">if($result.build_type$="build_all","Running",if($result.build_type$="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_computer_build">if($result.build_type$="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_msg_user_build">if($result.flg_compl$="T","Initial Build: AD_Obj_User Lookup - Completed","Warning: No User admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_user_build">if($result.flg_compl$="T","Success","Warning")</eval>
+        <eval token="tok_build_individual_computer">if($result.build_type$="build_individual"," ","display:none;")</eval>
+        <set token="tok_count_user_build">$result.count$</set>
+        <set token="tok_show_user_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>   
+  <search id="base_computer_build" depends="$tok_exec_computer_build$">
+    <query>$tok_exec_computer_build$
+| stats count,values(userAccountControl) AS uac_e_val
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"
+| table count,flg_compl,uac_e_val,build_type</query>
+    <progress>
+      <eval token="tok_count_computer_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_computer_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_uac_c">0</set>
+        <set token="tok_start_uac_flg">makeresults</set>
+        <set token="tok_status_computer_build">Warning</set>
+        <set token="tok_count_computer_build">0</set>
+        <set token="tok_msg_computer_build">Warning: No Computer admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_group_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(group,Group)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(group,Group)`",NULL))</eval>
+        <eval token="tok_status_group_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_group_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_group">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_computer_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_uac_c">if($result.flg_compl$="T",$result.uac_e_val$,0)</eval>
+        <set token="tok_start_uac_flg">makeresults</set>
+        <eval token="tok_exec_group_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(group,Group)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(group,Group)`",NULL))</eval>
+        <eval token="tok_status_group_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_group_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_group">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_computer_build">if($result.flg_compl$=="T","Initial Build: AD_Computer Lookup - Completed","Warning: No Computer admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_computer_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_computer_build">$result.count$</set>
+        <set token="tok_show_computer_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_group_build" depends="$tok_exec_group_build$">
+    <query>$tok_exec_group_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_group_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_group_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_group_build">Warning</set>
+        <set token="tok_count_group_build">0</set>
+        <set token="tok_msg_group_build">Warning: No Group admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_ou_build">if($result.build_type$=="build_all","ms_obj_admon_bld_init_out(ou,OU)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(ou,OU)`",NULL))</eval>
+        <eval token="tok_status_ou_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_ou_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_ou">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_group_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_exec_ou_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(ou,OU)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(ou,OU)`",NULL))</eval>
+        <eval token="tok_status_ou_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_ou_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_ou">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_count_group_build">$result.count$</set>
+        <eval token="tok_msg_group_build">if($result.flg_compl$=="T","Initial Build: AD_Obj_Group Lookup - Completed","Warning: No Group admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_group_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_show_group_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_ou_build" depends="$tok_exec_ou_build$">
+    <query>$tok_exec_ou_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_ou_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_ou_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_ou_build">Warning</set>
+        <set token="tok_count_ou_build">0</set>
+        <set token="tok_msg_ou_build">Warning: No OU admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_gpo_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(gpo,GPO)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(gpo,GPO)`",NULL))</eval>
+        <eval token="tok_status_gpo_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_gpo_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_gpo">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_ou_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_exec_gpo_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out(gpo,GPO)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(gpo,GPO)`",NULL))</eval>
+        <eval token="tok_status_gpo_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_gpo_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_gpo">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_ou_build">if($result.flg_compl$=="T","Initial Build: AD_OU Lookup - Completed","Warning: No OU admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_ou_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_ou_build">$result.count$</set>
+        <set token="tok_show_ou_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_gpo_build" depends="$tok_exec_gpo_build$">
+    <query>$tok_exec_gpo_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F")</query>
+    <progress>
+      <eval token="tok_count_gpo_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_gpo_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_gpo_build">Warning</set>
+        <set token="tok_count_gpo_build">0</set>
+        <set token="tok_msg_gpo_build">Warning: No GPO admon events found - Change Sync Time Period</set>
+        <set token="tok_exec_gpo_ou_link">ms_ad_admon_upd_gpo_wou</set>
+        <set token="tok_exec_ou_gpo_link">ms_ad_admon_upd_ou_wgpo</set>
+        <set token="tok_status_gpo_ou_link">Running</set>
+        <set token="tok_msg_gpo_ou_link">Executing... Please Wait...</set>
+        <set token="tok_show_gpo_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <set token="tok_exec_gpo_ou_link">ms_ad_admon_upd_gpo_wou</set>
+        <set token="tok_exec_ou_gpo_link">ms_ad_admon_upd_ou_wgpo</set>
+        <set token="tok_status_gpo_ou_link">Running</set>
+        <set token="tok_msg_gpo_ou_link">Executing... Please Wait...</set>
+        <eval token="tok_msg_gpo_build">if($result.flg_compl$=="T","Initial Build: AD_GPO Lookup - Completed","Warning: No GPO admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_gpo_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_gpo_build">$result.count$</set>
+        <set token="tok_show_gpo_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_gpo_ou_link" depends="$tok_exec_gpo_ou_link$">
+    <query>| `$tok_exec_gpo_ou_link$`
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_gpo_ou_link">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_gpo_ou_link">Warning</set>
+        <set token="tok_count_gpo_ou_link">0</set>
+        <set token="tok_msg_gpo_ou_link">Warning: No GPO&lt;-&gt;OU Links found in AD_Obj_GPO and AD_Obj_OU Lookups</set>
+        <eval token="tok_exec_admin_audit_build">if($result.build_type$=="build_all","`ms_obj_winevt_init_admin_audit`",if($result.build_type$=="build_migrate","| `ms_obj_winevt_migrate_admin_audit`",NULL))</eval>
+        <eval token="tok_status_admin_audit_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_admin_audit">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+      </condition>
+      <condition>
+        <eval token="tok_exec_admin_audit_build">if($result.build_type$=="build_all","`ms_obj_winevt_init_admin_audit`",if($result.build_type$=="build_migrate","| `ms_obj_winevt_migrate_admin_audit`",NULL))</eval>
+        <eval token="tok_status_admin_audit_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_admin_audit">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_gpo_ou_link">if($result.flg_compl$=="T","Initial Build: AD_Obj_GPO&lt;-&gt;AD_Obj_OU Links - Completed","Warning - No GPO and OU Links Found - Change Time Period")</eval>
+        <eval token="tok_status_gpo_ou_link">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_gpo_ou_link">$result.count$</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_build_admin_audit">
+    <query>$tok_exec_admin_audit_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_admin_audit_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_admin_audit_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_admin_audit_build">Warning</set>
+        <set token="tok_count_admin_audit_build">0</set>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_migrate","Migrate: No Data - AD_Obj_Admin_Audit_list - Lookup","No Windows Change Events Found - Change Time Period"</eval>
+        <set token="tok_result_btn_run">completed</set>
+        <set token="tok_show_admin_audit_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_msg_admin_audit_build">if($result.flg_compl$=="T","Initial Build: AD_Obj_Admin_Audit Lookup - Completed","Warning: No Windows Change Events Found - Change Time Period")</eval>
+        <eval token="tok_status_admin_audit_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_result_btn_run">completed</set>
+        <set token="tok_count_admin_audit_build">$result.count$</set>
+        <set token="tok_show_admin_audit_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_admin.earliest$</earliest>
+    <latest>$tok_time_admin.latest$</latest>
+  </search>
+  <search id="base_build_clear_state">
+  	<query>| makeresults
+| eval state="$tok_build_clear_flag$"
+| search state="clear"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+    </condition>  
+    <condition>
+        <unset token="tok_exec_user_build"></unset>
+        <set token="tok_msg_user_build">Pending</set>
+        <set token="tok_status_user_build">Pending</set>
+        <unset token="tok_exec_computer_build"></unset>
+        <set token="tok_msg_computer_build">Pending</set>
+        <set token="tok_status_computer_build">Pending</set>
+        <unset token="tok_exec_group_build"></unset>
+        <set token="tok_msg_group_build">Pending</set>
+        <set token="tok_status_group_build">Pending</set>
+        <unset token="tok_exec_ou_build"></unset>
+        <set token="tok_msg_ou_build">Pending</set>
+        <set token="tok_status_ou_build">Pending</set>
+        <unset token="tok_exec_gpo_build"></unset>
+        <set token="tok_msg_gpo_build">Pending</set>
+        <set token="tok_status_gpo_build">Pending</set>     
+        <unset token="tok_exec_gpo_ou_link"></unset>
+        <set token="tok_msg_gpo_ou_link">Pending</set>
+        <set token="tok_status_gpo_ou_link">Pending</set> 
+        <unset token="tok_exec_admin_audit_build"></unset>
+        <set token="tok_msg_admin_audit_build">Pending</set>
+        <set token="tok_status_admin_audit_build">Pending</set>
+        <unset token="tok_show_build_all_msg"></unset>
+    </condition>
+    </done>
+  </search>
+  <!--- Endo Object Lookup Building Searches -->
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel id="pan_top_wizard">
+      <html>
+        <center>
+          <div id="ms_obj_top_step_wizard" class="shared-controls-stepwizardcontrol control-default step-wizard" data-view="views/shared/controls/StepWizardControl" data-name="stateStep">
+            <center>
+                <div class="box">	
+                  <table>
+                    <tr>
+            			<td>
+            				<div class="topstep-container" data-value="part_0_box" id="nav_top_part_cont_0">
+                          <div> 
+                            <span class="topstep-label">
+                              <div class="bg-svg tut-top-svg-0">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="0" id="nav_top_dir_part_0_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_op_inteligent.png" style="height: 40px;width: 40px;" title="Introductions"/>
+                                <!--/a-->
+                              </div>
+                              <span class="multicolortext">
+                              <b>Introduction</b>
+                            </span>
+                          </span>
+                            </div> 
+                          </div>
+            					</td>                      
+                      <td>
+                        <div class="topstep-container" data-value="part_1_box" id="nav_top_part_cont_1">
+                          <div>
+                            <span class="topstep-label">
+                              <div class="bg-svg tut-top-svg-1">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="1" id="nav_top_dir_part_1_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_edit_input.png" style="height: 40px;width: 40px;top: -25px;" title="Defining Scope"/>
+                                <!--/a-->
+                                </div>
+                              <span class="multicolortext">
+                              <b>1. Define Scope</b>
+                            </span>
+                            </span>
+                          </div>  
+                        </div>
+                      </td>
+                      <td>
+                        <div class="topstep-container" data-value="part_2_box" id="nav_top_part_cont_2">                    
+                        	<div>
+                            <span class="topstep-label">
+                             <div class="bg-svg tut-top-svg-2">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="2" id="nav_top_dir_part_2_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_priority_list.png" style="height: 40px;width: 40px;top: -25px;" title="Preparation"/>
+                                <!--/a-->
+                               </div>
+                             <span class="multicolortext">
+                              <b>2. Preparation</b>
+                            </span>
+                            </span>
+                          </div>
+            					  </div> 
+            					</td>
+            					<td>
+            					  <div class="topstep-container" data-value="part_3_box" id="nav_top_part_cont_3">
+                          <div> 
+                            <span class="topstep-label">
+                              <div class="bg-svg tut-top-svg-3">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="3" id="nav_top_dir_part_3_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_splk_forwarder.png" style="height: 40px;width: 40px;top: -25px;" title="Deployment"/>
+                                <!--/a-->
+                              </div>
+                              <span class="multicolortext">
+                              <b>3. Deployment</b>
+                            </span>
+                          </span>
+                            </div> 
+                          </div>
+            					</td>
+            					<td>
+            					  <div class="topstep-container" data-value="part_4_box" id="nav_top_part_cont_4">
+                          <div> 
+                            <span class="topstep-label">
+                              <div class="bg-svg tut-top-svg-4">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="4" id="nav_top_dir_part_4_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;top: -25px;" title="Completion Steps"/>
+                                <!--/a-->
+                              </div>
+                              <span class="multicolortext">
+                              <b>4. Check Data</b>
+                            </span>
+                          </span>
+                            </div> 
+                          </div>
+            					</td>
+            					<td>
+            					  <div class="topstep-container" data-value="part_5_box" id="nav_top_part_cont_5">
+                          <div> 
+                            <span class="topstep-label">
+                              <div class="bg-svg tut-top-svg-5">
+                                <!--a href="#" data-obj-top-nav="DirPart" data-obj-top-nav-max="5" data-obj-top-nav-val="5" id="nav_top_dir_part_5_link"-->
+                                  <img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;top: -25px;" title="Completion Steps"/>
+                                <!--/a-->
+                              </div>
+                              <span class="multicolortext">
+                              <b>5. Build Lookups</b>
+                            </span>
+                          </span>
+                            </div> 
+                          </div>
+            					</td>
+            					<td><!--data-obj-top-nav-val="$tok_next_part$"-->
+                        <div class="nav-buttons" style="padding-bottom:2px;padding-left:5px;">
+                          <button class="btn sp-btn-gradient" data-obj-top-nav="PrevPart" data-obj-top-nav-max="5" data-obj-nav-top-type="prev" id="nav_top_prev_btn">
+                            <i class="icon-chevron-left"/>Prev
+                          </button>
+                          <button class="btn sp-btn-gradient" data-obj-top-nav="NextPart" data-obj-top-nav-max="5" data-obj-nav-top-type="next"  id="nav_top_next_btn">Next
+                            <i class="icon-chevron-right"/>
+                          </button>	
+                        </div>
+                      </td>
+                    </tr> 
+                  </table>
+                </div>	
+              <div class="clearfix"/>
+            </center>
+          </div>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row id="nav_part_r_0" depends="$tok_part_0_start$">
+    <panel id="pan_p_0_single">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_intro.html"/>
+    </panel>
+  </row>
+  <row id="nav_part_r_1">
+    <panel id="pan_scope_left">
+      <html>
+        <div class="left-head-box">
+	        <h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding:10;">
+		        <i class="icon-$tok_state_lbl_icon$" style="font-size:20px !important;color:$tok_state_lbl_color$;"></i> <i style="color:$tok_state_lbl_color$;"> Scope Definition</i>: Select your environment and deployment plans.
+	        </h1>
+        </div>
+        <div class="right-body-box">
+        <div id="link-switch-view">
+            <table style="padding:4px;border: 4px solid #e20082;padding: 2px;margin: 2px;width:98%;">
+              <tr style="padding:3px;border: 3px solid #000000;padding: 2px;margin: 2px;" class="row_hdr">
+                <th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">#</th>
+                <th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;width:70px;">State</th>
+                <th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">Question</th>
+                <th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;width:280px;">Choice</th>
+              </tr>
+              <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_1$">
+                <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">1</td>
+                <td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                    <b>$tok_h_state_input_1$</b>
+                  </td>
+                <!-- class="colquestion $tok_h_state_input_1$"-->
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                    <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_1_mod_hold_pop"/>    <b style="margin-left:5px;"> Are you upgrading the <i>MS Windows AD Objects</i> application from a PRE-4.0.3 Version?</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="colquestion $tok_h_state_input_1$">
+                    <center>
+                      <span class="input_btn_grp">
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_1$ $tok_input_1_a_i$" data-token-json="{&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_obj_upg_app&quot;:&quot;obj_upg_app_y&quot;,&quot;form.tok_build_type&quot;:&quot;build_migrate&quot;,&quot;tok_obj_env_type_arch&quot;:&quot;none&quot;,&quot;tok_obj_env_type&quot;:&quot;none&quot;,&quot;tok_obj_use_ds&quot;:&quot;&quot;,&quot;tok_obj_inst_ds&quot;:&quot;&quot;,&quot;tok_obj_inst_hf&quot;:&quot;&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;no&quot;,&quot;tok_obj_use_hf&quot;:&quot;no&quot;,&quot;tok_obj_inst_uf&quot;:&quot;no&quot;,&quot;tok_obj_inst_uf_wta&quot;:&quot;no&quot;,&quot;tok_h_state_input_1&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_2&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_3&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_4&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_5&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_6&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_7&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_8&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_9&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_10&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_11&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_12&quot;:&quot;Skip&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_1_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_1_b_i&quot;:&quot;&quot;,&quot;tok_obj_depl_msg&quot;:&quot;True&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured1_a&quot;}" style="width:50% !important;">Yes</a>
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_1$ $tok_input_1_b_i$" data-token-json="{&quot;tok_obj_upg_app&quot;:&quot;obj_upg_app_n&quot;,&quot;tok_h_state_input_1&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_2&quot;:&quot;Next&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_3&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_4&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_5&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_6&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_7&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_8&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_9&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_10&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_11&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_12&quot;:&quot;Skip&quot;,&quot;tok_input_1_a_i&quot;:&quot;&quot;,&quot;tok_input_1_b_i&quot;:&quot;chosen&quot;,&quot;tok_obj_depl_msg&quot;:&quot;undefined&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured1_b&quot;}" style="width:50% !important;">No</a>
+                      </span>
+                    </center>
+                  </td>
+              </tr>
+              <tr style="padding:2px;border-top: 4px solid #e20082;margin: 2px;" class="rowval $tok_h_state_input_2$">
+                <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;" rowspan="2">2</td>
+                <td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="substate $tok_h_state_input_2_s$">
+                    <b>$tok_h_state_input_2_s$</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                  <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_2_mod_hold_pop"/>    <b style="margin-left:5px;">Verify your Splunk Environment Type?</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="colquestion $tok_h_state_input_2$">
+                    <center>
+                      <span class="input_btn_grp">
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_2$ $tok_input_2_a_i$" data-token-json="{&quot;tok_obj_env_type&quot;:&quot;cloud&quot;,&quot;tok_obj_env_type_arch&quot;:&quot;obj_none&quot;,&quot;tok_inp_splk_hf_label&quot;:&quot;Heavy/Gateway&quot;,&quot;tok_obj_inp_core_ds_same&quot;:&quot;obj_inp_core_ds_same_n&quot;,&quot;tok_h_state_input_2&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_3&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_4&quot;:&quot;Next&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_7&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_7_hold&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_8_hold&quot;:&quot;Next&quot;,&quot;tok_h_state_input_9_hold&quot;:&quot;Skip&quot;,&quot;tok_input_2_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_2_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured2_a&quot;}" style="width:50% !important;"> Splunk Cloud</a>
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_2$ $tok_input_2_b_i$" data-token-json="{&quot;tok_obj_env_type&quot;:&quot;ent&quot;,&quot;tok_obj_dl_ta_cc&quot;:&quot;dl_ta_cc_n&quot;,&quot;tok_inp_splk_hf_label&quot;:&quot;Heavy&quot;,&quot;tok_h_state_input_2&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_3&quot;:&quot;Next&quot;,&quot;tok_h_state_input_4&quot;:&quot;Pending&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Pending&quot;,&quot;tok_input_2_a_i&quot;:&quot;&quot;,&quot;tok_input_2_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured2_b&quot;}" style="width:50% !important;"> Splunk Enterprise</a>
+                      </span>
+                    </center>
+                  </td>
+              </tr>
+              <tr>
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:10 2 10 2;margin: 10 2 10 2;" class="rowval $tok_h_state_input_3$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">2.1</td>
+                      <!--td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                          <b>$tok_h_state_input_3$</b>
+                        </td-->
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_2_1_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Are all the Splunk Enterprise Components (Search Head/Indexer) on a Single instance or Distributed Systems?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_3$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_3$ $tok_input_3_a_i$" data-token-json="{&quot;tok_obj_env_type_arch&quot;:&quot;obj_single&quot;,&quot;tok_inp_hold_diff_sys&quot;:&quot;Next&quot;,&quot;tok_h_state_input_3&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_4&quot;:&quot;Next&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_7_hold&quot;:&quot;Next&quot;,&quot;tok_h_state_input_8_hold&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_9_hold&quot;:&quot;Skip&quot;,&quot;tok_input_3_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_3_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured3_a&quot;}" style="width:50% !important;"> Single Instance</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_3$ $tok_input_3_b_i$" data-token-json="{&quot;tok_obj_env_type_arch&quot;:&quot;obj_dist&quot;,&quot;tok_obj_inp_core_ds_same&quot;:&quot;obj_inp_core_ds_same_n&quot;,&quot;tok_h_state_input_2_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_3&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_4&quot;:&quot;Next&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_7&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_7_hold&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_8_hold&quot;:&quot;Next&quot;,&quot;tok_h_state_input_9_hold&quot;:&quot;Skip&quot;,&quot;tok_input_3_a_i&quot;:&quot;&quot;,&quot;tok_input_3_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured3_b&quot;}" style="width:50% !important;"> Distributed</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr>                
+                  </table>
+                </td>
+              </tr>
+              <tr style="padding:2px;border-top: 4px solid #e20082;margin: 2px;" class="rowval $tok_h_state_input_4$">
+                <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;" rowspan="2">3</td>
+                <td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="substate $tok_h_state_input_4_s$">
+                    <b>$tok_h_state_input_4_s$</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                  <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_3_mod_hold_pop"/>  <b style="margin-left:5px;">Is the Splunk Universal Forwarder already installed on all the target Windows systems?</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="colquestion $tok_h_state_input_4$">
+                    <center>
+                      <span class="input_btn_grp">
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_4$ $tok_input_4_a_i$" data-token-json="{&quot;tok_obj_inst_uf&quot;:&quot;obj_inst_uf_n&quot;,&quot;tok_obj_dl_soft_uf&quot;:&quot;dl_soft_uf_n&quot;,&quot;tok_h_state_input_4&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_5&quot;:&quot;Next&quot;,&quot;tok_input_4_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_4_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured4_a&quot;}" style="width:50% !important;">Yes</a>
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_4$ $tok_input_4_b_i$" data-token-json="{&quot;tok_obj_inst_uf&quot;:&quot;obj_inst_uf_y&quot;,&quot;tok_obj_inst_uf_wta&quot;:&quot;obj_inst_uf_wta_n&quot;,&quot;tok_obj_dl_soft_uf&quot;:&quot;dl_soft_uf_y&quot;,&quot;tok_h_state_input_4&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_5&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_6&quot;:&quot;Next&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_input_4_a_i&quot;:&quot;&quot;,&quot;tok_input_4_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured4_b&quot;}" style="width:50% !important;">No</a>
+                      </span>
+                    </center>
+                  </td>
+              </tr>
+              <tr style="margin: 2px;">
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_5$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">3.1</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_3_1_mod_hold_pop"/>  <b style="margin-left:5px;">Has the Splunk_TA_windows application been deployed to the target Windows systems?</b>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_5$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_5$ $tok_input_5_a_i$" data-token-json="{&quot;tok_obj_inst_uf_wta&quot;:&quot;obj_inst_uf_wta_n&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_5&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6&quot;:&quot;Next&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_input_5_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_5_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured5_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_5$ $tok_input_5_b_i$" data-token-json="{&quot;tok_obj_inst_uf_wta&quot;:&quot;obj_inst_uf_wta_y&quot;,&quot;tok_h_state_input_4_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_5&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6&quot;:&quot;Next&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_input_5_a_i&quot;:&quot;&quot;,&quot;tok_input_5_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured5_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr>                
+                  </table>
+                </td>
+              </tr>          
+              <tr style="padding:2px;border-top: 4px solid #e20082;margin: 2px;" class="rowval $tok_h_state_input_6$">
+                <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;" rowspan="4">4</td>
+                <td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="substate $tok_h_state_input_6_s$">
+                    <b>$tok_h_state_input_6_s$</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                  <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_4_mod_hold_pop"/>    <b style="margin-left:5px;">Will you be using Splunk's Deployment Server or Manually deploying the Windows TA's to the target systems?</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:250px;" class="colquestion $tok_h_state_input_6$">
+                    <center>
+                      <span class="input_btn_grp">
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_6$ $tok_input_6_a_i$" data-token-json="{&quot;tok_obj_use_ds&quot;:&quot;obj_use_ds_y&quot;,&quot;tok_h_state_input_6&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_7&quot;:&quot;$tok_h_state_input_7_hold$&quot;,&quot;tok_h_state_input_8&quot;:&quot;$tok_h_state_input_8_hold$&quot;,&quot;tok_h_state_input_9&quot;:&quot;$tok_h_state_input_9_hold$&quot;,&quot;tok_input_6_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_6_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured6_a&quot;}" style="width:50% !important;">Deployment Server</a>
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_6$ $tok_input_6_b_i$" data-token-json="{&quot;tok_obj_use_ds&quot;:&quot;obj_use_ds_n&quot;,&quot;tok_obj_inst_ds&quot;:&quot;obj_inst_ds_n&quot;,&quot;tok_obj_inp_ds_hf_same&quot;:&quot;obj_inp_ds_hf_same_n&quot;,&quot;tok_obj_inp_core_ds_same&quot;:&quot;obj_inp_core_ds_same_n&quot;,&quot;tok_h_state_input_6&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_7&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_8&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_9&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_10&quot;:&quot;Next&quot;,&quot;tok_input_6_a_i&quot;:&quot;&quot;,&quot;tok_input_6_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured6_b&quot;}" style="width:50% !important;">Manual</a>
+                      </span>
+                    </center>
+                  </td>
+              </tr>
+              <tr style="margin: 2px;">
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_7$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">4.1</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_4_1_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Is your Single Splunk instance also going to be your Deployment Server?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_7$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_7$ $tok_input_7_a_i$" data-token-json="{&quot;tok_obj_inp_core_ds_same&quot;:&quot;obj_inp_core_ds_same_y&quot;,&quot;tok_obj_inst_ds&quot;:&quot;obj_inst_ds_n&quot;,&quot;tok_obj_inp_ds_hf_same&quot;:&quot;obj_inp_ds_hf_same_n&quot;,&quot;tok_h_state_input_7&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_8&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_9&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_10&quot;:&quot;Next&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Completed&quot;,&quot;tok_input_7_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_7_b_i&quot;:&quot;&quot;,&quot;tok_input_8_a_i&quot;:&quot;&quot;,&quot;tok_input_8_b_i&quot;:&quot;&quot;,&quot;tok_input_9_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_9_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured7_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_7$ $tok_input_7_b_i$" data-token-json="{&quot;tok_obj_inp_core_ds_same&quot;:&quot;obj_inp_core_ds_same_n&quot;,&quot;tok_h_state_input_7&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_8&quot;:&quot;Next&quot;,&quot;tok_input_7_a_i&quot;:&quot;&quot;,&quot;tok_input_7_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured7_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr>                
+                  </table>
+                </td>
+              </tr>          
+              <tr style="margin: 2px;">
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_8$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">4.1</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_4_2_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Is the Deployment Server already installed in your environment?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_8$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_8$ $tok_input_8_a_i$" data-token-json="{&quot;tok_obj_inst_ds&quot;:&quot;obj_inst_ds_n&quot;,&quot;tok_h_state_input_8&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_9&quot;:&quot;Next&quot;,&quot;tok_input_8_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_8_b_i&quot;:&quot;&quot;,&quot;tok_obj_inst_ds_wta&quot;:&quot;obj_inst_ds_wta_n&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured8_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_8$ $tok_input_8_b_i$" data-token-json="{&quot;tok_obj_inst_ds&quot;:&quot;obj_inst_ds_y&quot;,&quot;tok_obj_inst_ds_wta&quot;:&quot;obj_inst_ds_wta_y&quot;,&quot;tok_obj_inst_cc&quot;:&quot;obj_inst_ds_cc_y&quot;,&quot;tok_h_state_input_8&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_9&quot;:&quot;Next&quot;,&quot;tok_input_8_a_i&quot;:&quot;&quot;,&quot;tok_input_8_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured8_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr>                
+                  </table>
+                </td>
+              </tr> 
+              <tr style="margin: 2px;">
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_9$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">4.3</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_4_3_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Is your Deployment Server ALSO going to be your Splunk Heavy Forwarder?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_9$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_9$ $tok_input_9_a_i$" data-token-json="{&quot;tok_obj_inp_ds_hf_same&quot;:&quot;obj_inp_ds_hf_same_y&quot;,&quot;tok_obj_use_hf&quot;:&quot;obj_use_hf_n&quot;,&quot;tok_obj_inst_hf&quot;:&quot;obj_inst_hf_n&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;obj_inst_hf_wta_n&quot;,&quot;tok_h_state_input_9&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Not_Required&quot;,&quot;tok_h_state_input_11&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_12&quot;:&quot;Skip&quot;,&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_9_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_9_b_i&quot;:&quot;&quot;,&quot;tok_nxt_btn_state&quot;:&quot;enabled&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured9_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_9$ $tok_input_9_b_i$" data-token-json="{&quot;tok_obj_inp_ds_hf_same&quot;:&quot;obj_inp_ds_hf_same_n&quot;,&quot;tok_h_state_input_9&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_6_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10&quot;:&quot;Next&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Next&quot;,&quot;tok_input_9_a_i&quot;:&quot;&quot;,&quot;tok_input_9_b_i&quot;:&quot;chosen&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured9_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr>                
+                  </table>
+                </td>
+              </tr> 
+              <tr style="padding:2px;border-top: 4px solid #e20082;margin: 2px;" class="rowval $tok_h_state_input_10$">
+                <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;" rowspan="2">5</td>
+                <td style="text-align:center;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                    <b>$tok_h_state_input_10_s$</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+                  <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_5_mod_hold_pop"/>    <b style="margin-left:5px;">Will you be using a Splunk $tok_inp_splk_hf_label$ Forwarder to send the Windows data to your Splunk Instance?</b>
+                  </td>
+                <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;" class="colquestion $tok_h_state_input_10$">
+                    <center>
+                      <span class="input_btn_grp">
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_10$ $tok_input_10_a_i$" data-token-json="{&quot;tok_obj_use_hf&quot;:&quot;obj_use_hf_y&quot;,&quot;tok_h_state_input_10&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_11&quot;:&quot;Next&quot;,&quot;tok_input_10_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_10_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured10_a&quot;}" style="width:50% !important;">Yes</a>
+                        <a href="#" class="btn btn-mini webstlink $tok_h_state_input_10$ $tok_input_10_b_i$" data-token-json="{&quot;tok_obj_use_hf&quot;:&quot;obj_use_hf_n&quot;,&quot;tok_obj_inst_hf&quot;:&quot;obj_inst_hf_n&quot;,&quot;tok_obj_inst_hf_cc&quot;:&quot;obj_inst_hf_cc_n&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;obj_inst_hf_wta_n&quot;,&quot;tok_h_state_input_10&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_11&quot;:&quot;Skip&quot;,&quot;tok_h_state_input_12&quot;:&quot;Skip&quot;,&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_10_a_i&quot;:&quot;&quot;,&quot;tok_input_10_b_i&quot;:&quot;chosen&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured10_b&quot;}" style="width:50% !important;"> No</a>
+                      </span>
+                    </center>
+                  </td>
+              </tr> 
+              <tr style="margin: 2px;">
+                <td colspan="3">
+                  <table style="width:100%">
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_11$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">5.1</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_5_1_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Is the Splunk $tok_inp_splk_hf_label$ Forwarder already installed in your environment?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_11$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_11$ $tok_input_11_a_i$" data-token-json="{&quot;tok_obj_inst_hf&quot;:&quot;obj_inst_hf_n&quot;,&quot;tok_h_state_input_11&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_9_s&quot;:&quot;Next&quot;,&quot;tok_h_state_input_12&quot;:&quot;Next&quot;,&quot;tok_input_11_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_11_b_i&quot;:&quot;&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;disabled&quot;,&quot;tok_state_lbl&quot;:&quot;Pending&quot;,&quot;tok_state_lbl_icon&quot;:&quot;clock&quot;,&quot;tok_state_lbl_color&quot;:&quot;#F1813F&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured11_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_11$ $tok_input_11_b_i$" data-token-json="{&quot;tok_h_state_input_10&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Completed&quot;,&quot;tok_obj_inst_hf&quot;:&quot;obj_inst_hf_y&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;obj_inst_hf_wta_y&quot;,&quot;tok_obj_inst_hf_cc&quot;:&quot;obj_inst_hf_cc_y&quot;,&quot;tok_h_state_input_11&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_9_s&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_12&quot;:&quot;Skip&quot;,&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_11_a_i&quot;:&quot;&quot;,&quot;tok_input_11_b_i&quot;:&quot;chosen&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured11_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr> 
+                    <tr style="padding:2px;margin: 2px;" class="rowval $tok_h_state_input_12$ subrow">
+                      <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;width:69px;">5.2</td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;font-size:12px;">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" data-t-mod-id="gs_quest_5_2_mod_hold_pop"/>  <i>
+                          <b style="margin-left:5px;">Is the Splunk_TA_windows already installed on Splunk $tok_inp_splk_hf_label$ Forwarder?</b>
+                        </i>
+                        </td>
+                      <td style="padding:2px;border: 1px solid #f99d1c;margin: 2px;width:278px;" class="colquestion $tok_h_state_input_12$">
+                          <center>
+                            <span class="input_btn_grp">
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_12$ $tok_input_12_a_i$" data-token-json="{&quot;tok_h_state_input_10&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Completed&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;obj_inst_hf_wta_n&quot;,&quot;tok_h_state_input_12&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_9_s&quot;:&quot;Completed&quot;,&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_12_a_i&quot;:&quot;chosen&quot;,&quot;tok_input_12_b_i&quot;:&quot;&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured12_a&quot;}" style="width:50% !important;">Yes</a>
+                              <a href="#" class="btn btn-mini webstlink $tok_h_state_input_12$ $tok_input_12_b_i$" data-token-json="{&quot;tok_h_state_input_10&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_10_s&quot;:&quot;Completed&quot;,&quot;tok_obj_inst_hf_wta&quot;:&quot;obj_inst_hf_wta_y&quot;,&quot;tok_h_state_input_12&quot;:&quot;Completed&quot;,&quot;tok_h_state_input_9_s&quot;:&quot;Completed&quot;,&quot;tok_h_load_details&quot;:&quot;ms_ad_obj_gs_prep.html&quot;,&quot;tok_state_completed&quot;:&quot;Completed All Required Scope Definitions, below are the configuration step categories based off of your selections:&quot;,&quot;tok_h_state_completed&quot;:&quot;completed&quot;,&quot;tok_t_nav_btn_next_st&quot;:&quot;enabled&quot;,&quot;tok_input_12_a_i&quot;:&quot;&quot;,&quot;tok_input_12_b_i&quot;:&quot;chosen&quot;,&quot;tok_state_lbl&quot;:&quot;Completed&quot;,&quot;tok_state_lbl_icon&quot;:&quot;check&quot;,&quot;tok_state_lbl_color&quot;:&quot;#49B849&quot;,&quot;tok_upd_cfg_def&quot;:&quot;configured12_b&quot;}" style="width:50% !important;">No</a>
+                            </span>
+                          </center>
+                        </td>
+                    </tr> 
+                  </table>
+                </td>
+              </tr>        
+            </table>
+          </div>
+        </div>
+      </html>
+    </panel>
+    <panel id="pan_scope_right">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_scope_tasks_hold.html" rejects="$tok_h_state_completed$"/>
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_scope_tasks.html" depends="$tok_h_state_completed$"/>
+    </panel>
+  </row>
+  <row id="nav_part_r_2">
+    <panel id="pan_p_left_2">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_prep_task_src.html"/>
+    </panel>
+    <panel id="pan_p_right_2_0">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_prep_task_hold.html" rejects="$tok_view_steps_p_id$"/>
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_prep_task_det.html" depends="$tok_view_steps_p_id$"/>
+    </panel>
+  </row>
+  <row id="nav_part_r_3">
+    <panel id="pan_p_right_3_0" depends="$tok_obj_depl_lpanel$">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_depl_task_src.html"/>
+    </panel>
+    <panel id="pan_p_right_3_1" depends="$tok_obj_depl_lpanel$">
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_depl_task_det.html" depends="$tok_view_steps_d_id$"/>
+    </panel>
+    <panel id="pan_p_single_3_1" depends="$tok_obj_depl_msg$">
+      <html>
+			  <div class="tmp_depl_msg obj_depl_na">
+			    <div class="left-head-box">
+	          <div class="tmp_depl_msg obj_depl_na">
+		          <h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding:10;">
+                <i class="icon-check" style="font-size:15px !important;color:#49B849;"/>
+                <i> No Deployment Task Steps are Required</i>:</h1>
+	          </div>
+          </div>
+          <center>
+            <div class="left-body-box">
+            	  <ul class="note_lst">
+              		<li class="mrk_arrow_r">
+                <div class="li_content">Based off of <b>$tok_auto_chk_lbl$</b>, there are no Deployment Steps needed.</div>
+              </li>
+              		<li>
+                <div class="li_content">
+                  <i class="icon-check" style="font-size:15px !important;color:#49B849;"/>Click on the <b>Next</b> button at the top to proceed to the next Part <b>Check Data</b>
+                </div>
+              </li>
+            	  </ul>
+            </div>   
+          </center>
+          </div>
+      </html>
+    </panel>
+  </row>
+  <row id="nav_part_r_4">
+    <panel id="pan_p_t_single_4">
+        <html>
+          <table style="padding:4px;border: 4px solid #e20082;padding: 2px;margin: 2px;width:98%;">
+            <tr style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;">
+            	<th colspan="3">
+            		<center>
+            			<h2><b>Check Data</b> - <i>Click <a href="#" class="btn btn-mini" data-rerun-multi="t" data-rerun-srch="tok_check_mac_trigger,tok_dom_health_trigger,tok_dom_lkup_trigger,tok_ad_sync_trigger">Rerun All Autochecks</a> to rerun the validation searches after changes.</i></h2>
+            			<h4>Use the below table to check that your environment is ready for the next task of Building the AD Object Lookup tables.</h4>
+            		</center>
+            	</th>
+            </tr>
+            <tr style="padding:2px;border: 3px solid #e20082;padding: 2px;margin: 2px;">
+              <td style="text-align:center;padding:2px;border: 2px solid #e20082;padding: 2px;margin: 2px;" colspan="2">Status</td>
+              <td style="text-align:center;padding:2px;border: 2px solid #e20082;padding: 2px;margin: 2px;">Message</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"><i class="chk_data $tok_chk_d_dom_lkp_cls$"></i></td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"> 
+                	<img class="run_spin run_spin_dom_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+                	<b class="chk_data $tok_chk_d_dom_lkp_cls$">$tok_chk_d_dom_lkp_lbl$</b>  <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_dom_lkup_trigger">Rerun Check</a>
+            	</td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_dom_lkp_msg$</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"><i class="chk_data $tok_chk_d_dom_health_cls$"></i></td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_dom_health_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+              	<b class="chk_data $tok_chk_d_dom_health_cls$">$tok_chk_d_dom_health_lbl$</b>  <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_dom_health_trigger">Rerun Check</a>
+              </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_dom_health_msg$</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"><i class="chk_data $tok_chk_d_admon_sync_cls$"></i></td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_sync_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+              	<b class="chk_data $tok_chk_d_admon_sync_cls$">$tok_chk_d_admon_sync_lbl$</b> <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_ad_sync_trigger">Rerun Check</a>
+              </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_admon_sync_msg$</td>
+            </tr>            
+      		<tr>
+      			<td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"><b class="ma_st_ci $tok_macro_all_state$"></b></td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_mac_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> 
+              	<div class="mac_chk_all_msg"></div> 
+              	 <ul style="list-style-type:none;">
+              	  <li><a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_check_mac_trigger">Rerun Check</a></li>
+              	  <li><a href="$tok_macro_base_url$?ns=ms_windows_ad_objects&amp;pwnr=-&amp;app_only=1&amp;search=index%3D&amp;count=25" class="btn btn-mini" target="_blank">Open Macro Settings</a></li>
+              	</ul>
+              </td>
+      		  <td>
+				<div class="mac_chk_h_tbl"></div>
+      		  </td>
+      		  </tr>
+      			<tr>
+      			  <td style="padding:5px;border: 3px solid #f99d1c;margin: 2px;" colspan="3"></td>
+      			</tr>
+      			<tr style="padding:5px;border: 2px solid #f99d1c;margin: 2px;">
+      			    <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;" colspan="3">
+      			    	<center>
+						  <table style="width:100%;padding:5px;border: 4px solid #f99d1c;margin: 2px;">
+						    <tr>
+						    	<td  style="padding:5px;border: 3px solid #f99d1c;margin: 2px;" colspan="7"><center><h3>Troubleshooting Bar:</h3></center></td>
+						    </tr>
+							<tr>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<a class="btn btn-mini pop" data-t-mod-id="chk_d_task_res_admon_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}"><i class="icon-question-circle" style="font-size:20px;color:#e20082;"></i> Resetting admon Baseline</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<a class="btn btn-mini pop" data-t-mod-id="chk_d_task_ko_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i> Macro Settings Check</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<div><a class="btn btn-mini" data-t-mod-id="chk_d_task_crt_idx_$tok_obj_env_type$_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i> Reviewing Indexes</a></div>
+							  </td> 
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="chk_d_task_dom_health_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i> MSAD Health Input</a>
+							  </td>	
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i> Manual Domain Input</a>
+							  </td>	
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="gs_prep_task_input_pop_win" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}"><i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" /> Base OS Pre-Defined Inputs</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="gs_prep_task_input_pop_ad" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}"><i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;" /> AD Pre-Defined Inputs</a>
+							  </td>							  					     
+							</tr>
+						  </table>
+						</center>
+      			    </td>
+      			</tr>
+          </table>
+        </html>   
+    </panel>
+  </row>
+  <row id="nav_part_r_5">
+    <panel id="pan_bld_dm_msg" depends="$tok_show_build_msgs$">
+      <html depends="$tok_show_build_all_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h1>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <img id="img_init_spin" style="height:30px;width:30px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>
+                <br/>
+                <i style="font-size:20px!important;color:#DC4E41 !important;padding-right:10px;"> <br/>Please Wait. $tok_show_build_all_msg$ All the lookups...</i>
+              </span>
+            </h1>
+          </center>
+        </div>
+      </html>
+      <html depends="$tok_show_build_all_success_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h2>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <i class="icon-check-circle" style="height:35px;color:#40A540;"/>
+                <i style="font-size:18px!important;color:#DC4E41 !important;padding-right:10px;"> Lookup Build Process Successfully Completed</i>
+             </span>
+            </h2>
+          </center>
+                <ul>
+                	<li><div class="li_content">Click the <i class="icon-visible" style="height:20px;color:#007ABD;"></i> in the Action column to view lookup results</div></li>
+                	<li><div class="li_content">Click the <i class="icon-search" style="height:20px;color:#40A540;"></i> in the Action column to review base search.</div></li>
+                	<li><div class="li_content">You can Now Exit the <b>Getting Started Dashboard</b> or <a class="btn btn-mini" href="ms_ad_obj_overview" target="_blank">Click Here</a> to open the Overview Dashboard.</div></li>
+            </ul>
+        </div>
+      </html>
+      <html depends="$tok_show_build_all_incmpl_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h2>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <i class="icon-warning" style="height:35px;color:#DC4E41;"/>
+                <i style="font-size:18px!important;color:#DC4E41 !important;padding-right:10px;"> Warning: Build process cancelled or not all of the Lookups were successfully built</i>
+             </span>
+            </h2>
+          </center>
+          <h4> Review the below options and troubleshooting steps for more information on successfully building the required lookups.</h4>
+                <ul class="note_lst">
+                	<li><div class="li_content">Click <a class="btn btn-mini Reset" data-token-json="{&quot;tok_show_build_msgs&quot;: &quot;tok_show_build_table&quot;,&quot;tok_show_build_msgs&quot;: &quot;undefined&quot;,&quot;tok_build_clear_flag&quot;: &quot;clear&quot;,&quot;tok_show_build_inputs&quot;:&quot;True&quot;}"><i class="icon-two-arrows-cycle" style="font-size:20px;color:#007ABD;"></i></a>: Reset above Inputsefresh the settings and try expanding the Sync or Admin Audit Time Period</div></li>
+                	<li><div class="li_content">Click <a class="btn btn-mini pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_ko_pop"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i></a>: Troubleshooting Roles and Knowledge Objects.</div></li>
+                	<li><div class="li_content">Click <a class="btn btn-mini pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_res_admon_pop"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i></a>: Refreshing admon Baseline data with current values.</div></li>
+            	</ul>
+        </div>
+      </html>
+    </panel>
+    <panel id="pan_bld_dm_inp" depends="$tok_show_build_inputs$">
+      <input type="radio" token="tok_build_type" depends="$tok_show_build_inputs$">
+        <label>1. Select Build Type</label>
+        <default>build_all</default>
+        <initialValue>build_all</initialValue>
+        <fieldForLabel>type_label</fieldForLabel>
+        <fieldForValue>type_value</fieldForValue>
+        <search base="base_build_type"></search>
+        <change>
+          <condition value="build_all">
+            <set token="tok_build_all"></set>
+            <set token="tok_build_individual">display:none;</set>
+            <set token="tok_build_migrate">display:none;</set>
+            <set token="tok_show_time_helper_info"></set>
+            <set token="tok_show_time_fields">True</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <unset token="tok_show_build_indv_msg"></unset>
+          </condition>
+          <condition value="build_individual">
+            <set token="tok_build_individual"></set>
+            <set token="tok_build_all">display:none;</set>
+            <set token="tok_build_migrate">display:none;</set>
+            <set token="tok_show_time_helper_info"></set>
+            <set token="tok_show_time_fields">True</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <set token="tok_show_build_indv_msg">true</set>
+          </condition>
+          <condition value="build_migrate">
+            <set token="tok_build_migrate"></set>
+            <set token="tok_build_all">display:none;</set>
+            <set token="tok_build_individual">display:none;</set>
+            <set token="tok_show_time_helper_info">display:none;</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <unset token="tok_show_build_indv_msg"></unset>
+            <unset token="tok_show_time_fields"></unset>
+            <unset token="tok_time_helper_r_table"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="tok_time_sync" depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <label>2. Select Admon Sync Time</label>
+        <default>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+        	<set token="tok_build_clear_flag">clear</set>
+        </change>
+      </input>
+      <input type="time" token="tok_time_admin" searchWhenChanged="false" depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <label>3. Select Admin Audit Time Range</label>
+        <default>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+        	<set token="tok_build_clear_flag">clear</set>
+        </change>
+      </input>
+      <html depends="$tok_show_ok_sync_msg$">
+         <center>
+          <h4><i class="icon-check" style="font-size:15px !important;color:#49B849;" > $tok_show_ok_sync_msg$</i></h4>
+        </center>       
+      </html>
+      <html depends="$tok_show_build_indv_msg$">
+        <center>
+          <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_ms_ad_obj_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          <h4>Complete building the individual lookups using the table and action buttons in the right column.</h4>
+        </center>
+      </html>
+      <html><div class="run_spin run_spin_sync_chk hidden"><img style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Checking for admon Sync Date...</div></html>
+      <html depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <div style="$tok_show_time_helper_info$">
+          <details ontoggle="mydetfunction()">
+			<summary class="ms_obj_summary_steps"><i class="icon-question" style="color:#e20082;font-size:16px;"/> Help and Tips:</summary>
+			<p>
+				<ul class="note_lst">		
+					<li class="mrk_greater">
+                  		<i class="icon-bulb" style="color:#f99d1c;font-size:15px;"/>  <b>Setting the <i>2. Select Admon Sync Time</i> input:</b>:
+						<ol class="nbr_ts_list">
+						  <li class="nbr_ts_step"><div class="li_content">Click <a class="btn btn-mini sp-btn-gradient" data-token-json="{&quot;tok_exec_time_helper&quot;: &quot;ms_obj_admon_get_begin_sync_t_val&quot;}">Use Sync Time Helper</a> to help you determine what beginning start date to enter above for <b>2. Select Admon Sync Start Time</b>.</div></li>
+						  <li class="nbr_ts_step"><div class="li_content">It is important that you get the last time the <b>admon baseline</b> was collected, to ensure that all of the AD Objects (User/Group/Computer/OU/GPO) are added to the lookup.</div></li>
+						  <li class="nbr_ts_step"><div class="li_content">Set the TimeSelector <i>Date Range - - Begin From - - Date Value</i> with value in the <b>Recommended_Sync_Start_Day</b> Column and set the End Date for today.</div></li>
+						</ol>
+					</li>
+					<li class="mrk_arrow_r"><div class="li_content">Click <a class="btn pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_res_admon_pop"><i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"></i></a> to view steps for Refreshing admon Baseline data with current values if no Sync data is found.</div></li>
+          		  </ul>
+          		</p>
+          	</details>
+			<details ontoggle="mydetfunction()">
+				<summary class="vj_summary_step_details">
+					<i class="icon-info" style="color:red;font-size:15x;"/> <b><i>Large AD Environments Tip:</i></b>
+				</summary>						      
+				<ul class="note_lst">
+					<li class="mrk_note">
+						<div class="li_content">
+							<i>If you have a large AD Object count environment, and the building process is taking too long, it is recommended follow the steps outlined in the <b>Steps for Recollecting admon Base Line Data</b> to recollect the <i>"Baseline" admon data</i> for the individual Splunk Forwarder that is collecting admon data.</i>
+						</div>
+					</li>
+					<li><div class="li_content">This will allow you to select a shorter time range for picking up the Sync data used to build the Lookups.</div></li>
+					<li class="mrk_arrow_r"><div class="li_content">For Advance Users, you can also split out the User, Group, and Computer lookups into separate lookups for each domain.   <a class="btn btn-mini" href="ms_ad_obj_cfg_split_kvs" target="_blank">Click Here</a> to review the configuration steps for performing this.  </div></li>
+				</ul>
+			</details>
+        </div>
+		<div style="$tok_time_helper_results$">
+			<table style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 3px;">
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;" colspan="2"><h4>Time Helper Results</h4></td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">Message:</td>
+					<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_msg$</i></td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">First Time for Sync Data:</td>
+					<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_f_time$</i></td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">Last Time for Sync Data:</td>
+					<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_l_time$</i></td>
+				</tr>
+			</table>
+			<h4>Use the table below for seeing the Sync history</h4>
+		</div>
+      </html>
+      <table depends="$tok_time_helper_r_table$,$tok_show_build_inputs$,$tok_show_time_fields$">
+        <title>Sync History</title>
+        <search base="base_time_helper">
+          <query>table Recommended_Sync_Start_Day,Sync_Count
+| sort -Sync_Count</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel id="pan_bld_dm_table" depends="$tok_show_build_table$">
+      <html depends="$tok_show_domain_warn$"><center><h3><i class="icon-warning" style="font-size:25px !important;color:red;"> Warning - Review the troubleshooting steps below before attempting to build the lookups. Required data is missing or unavailable. </i></h3></center></html>
+      <html>
+        <center>
+          <h1>
+            <a class="btn sp-btn-gradient" style="$tok_build_all$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_all&quot;,&quot;tok_exec_user_build&quot;: &quot;`ms_obj_admon_bld_init_out(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_all_msg&quot;: &quot;Building&quot;,&quot;tok_show_build_inputs&quot;: &quot;undefined&quot;,&quot;tok_show_user_build_cancel&quot;: &quot;&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_build_all">Click to Build All AD Lookups
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_individual$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_indv&quot;,&quot;tok_exec_user_build&quot;: &quot;`ms_obj_admon_bld_init_out(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual&quot;: &quot;display:none;.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_indv_msg&quot;: &quot;True&quot;,&quot;tok_show_user_build_cancel&quot;: &quot; &quot;,&quot;tok_show_user_build_cancel&quot;: &quot;&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_build_all">Click to Build AD_Obj_User Lookup First
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_migrate$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_migrate&quot;,&quot;tok_exec_user_build&quot;: &quot;|`ms_obj_admon_migrate_out(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Migrating&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_migrate&quot;: &quot;display:none;.&quot;,&quot;tok_build_individual&quot;: &quot;display:none;.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_inputs&quot;: &quot;undefined&quot;,&quot;tok_show_build_all_msg&quot;: &quot;Migrating&quot;,&quot;tok_show_user_build_cancel&quot;: &quot; &quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_migrate_all">Click to Migrate All AD Lookups
+              <i class="icon-rotate"/>
+            </a>
+          </h1>
+        <table style="width:98%;border: 4px solid #e20082;padding: 2px;margin: 2px;overflow: auto !important;">
+          <tr style="border: 3px solid #f99d1c;height: 40px;">
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Lookup</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Build Status</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Object Count</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Status Message</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Actions</th>
+          </tr>
+          <tr class="build Success" style="height: 35px;">
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:16px;font-weight:500;">AD_Obj_Domain</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build Success"> (Success)</i>
+              </td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_domain_build$</td>    
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">Initial Build: AD_Obj_Domain Lookup - Completed.</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <a class="btn sp-btn-gradient build build completed Success" style="height:25px !important;" data-token-json="{&quot;tok_dd_result_lookup&quot;:&quot;AD_Obj_Domain&quot;}"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+              </td>
+          </tr>          
+          <tr class="build $tok_status_user_build$" style="height: 35px;">
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Users</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_user_build$"> ($tok_status_user_build$)</i>
+              </td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_user_build$</td>    
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_user_build$</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_user_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_User&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_user_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_user%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_user%2Cbuild%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_user%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+               <a class="btn build Cancel $tok_status_user_build$" style="$tok_show_user_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_user_build&quot;:&quot;undefined&quot;,&quot;tok_status_user_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_user_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_user_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_computer&quot;:&quot;&quot;,&quot;tok_show_user_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                  
+              </td>
+          </tr>
+          <tr class="build $tok_status_computer_build$" style="height: 35px;">
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Computers</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_computer_build$"> ($tok_status_computer_build$)</i>
+              </td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <a class="btn sp-btn-gradient build $tok_status_computer_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_Computer&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_computer_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_computer%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_computer%2Cbuild%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_computer%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_computer$height:25px !important;" data-token-json="{&quot;tok_exec_computer_build&quot;:&quot;`ms_obj_admon_bld_init_out(computer,Computer)`&quot;,&quot;tok_status_computer_build&quot;: &quot;Running&quot;,&quot;tok_msg_computer_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_computer&quot;: &quot;display:none;.&quot;,&quot;tok_show_computer_build_cancel&quot;: &quot;&quot;}">Build Computer Lookup</a>
+               <a class="btn build Cancel $tok_status_computer_build$" style="$tok_show_computer_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_computer_build&quot;:&quot;undefined&quot;,&quot;tok_status_computer_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_computer_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_computer_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_group&quot;:&quot;&quot;,&quot;tok_show_computer_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>  
+              </td>            
+          </tr>          
+          <tr class="build $tok_status_group_build$" style="height: 35px;">
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Group</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_group_build$"> ($tok_status_group_build$)</i>
+              </td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_group_build$</td> 
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_group_build$</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_group_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_User&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_group_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_group%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_group%2Cbuild%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_group%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_group$height:25px !important;" data-token-json="{&quot;tok_exec_group_build&quot;:&quot;`ms_obj_admon_bld_init_out(group,Group)`&quot;,&quot;tok_status_group_build&quot;: &quot;Running&quot;,&quot;tok_msg_group_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_group&quot;: &quot;display:none;.&quot;,&quot;tok_show_group_build_cancel&quot;: &quot;&quot;}">Build Group Lookup</a>
+                 <a class="btn build Cancel $tok_status_group_build$" style="$tok_show_group_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_group_build&quot;:&quot;undefined&quot;,&quot;tok_status_group_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_group_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_group_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_ou&quot;:&quot;&quot;,&quot;tok_show_group_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                      
+              </td>
+          </tr>
+          <tr class="build $tok_status_ou_build$" style="height: 35px;">
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:16px;font-weight:500;">AD_Obj_OU</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_ou_build$"> ($tok_status_ou_build$)</i>
+              </td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_ou_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_OU&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_ou_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_ou%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_ou%2Cbuild%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_ou%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_ou$height:25px !important;" data-token-json="{&quot;tok_exec_ou_build&quot;: &quot;`ms_obj_admon_bld_init_out(ou,OU)`&quot;,&quot;tok_status_ou_build&quot;: &quot;Running&quot;,&quot;tok_msg_ou_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_ou&quot;: &quot;display:none;.&quot;,&quot;tok_show_ou_build_cancel&quot;: &quot;&quot;}">Build OU Lookup</a>
+                 <a class="btn build Cancel $tok_status_ou_build$" style="$tok_show_ou_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_ou_build&quot;: &quot;undefined&quot;,&quot;tok_status_ou_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_ou_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_ou_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_gpo&quot;:&quot;&quot;,&quot;tok_show_ou_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                  
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_build$" style="height: 35px;">
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_GPO</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_gpo_build$"> ($tok_status_gpo_build$)</i>
+              </td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_gpo_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_GPO&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_gpo%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_gpo%2Cbuild%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_gpo%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_gpo$height:25px !important;" data-token-json="{&quot;tok_exec_gpo_build&quot;: &quot;`ms_obj_admon_bld_init_out(gpo,GPO)`&quot;,&quot;tok_status_gpo_build&quot;: &quot;Running&quot;,&quot;tok_msg_gpo_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_gpo&quot;: &quot;display:none;.&quot;,&quot;tok_show_gpo_build_cancel&quot;: &quot;&quot;}">Build GPO Lookup</a>
+                 <a class="btn build Cancel $tok_status_gpo_build$" style="$tok_show_gpo_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_status_gpo_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_gpo_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_gpo_build&quot;:&quot;0&quot;,&quot;tok_exec_gpo_build&quot;:&quot;undefined&quot;,&quot;tok_status_gpo_ou_link&quot;:&quot;Cancelled&quot;,&quot;tok_msg_gpo_ou_link&quot;:&quot;Cancelled&quot;,&quot;tok_count_gpo_ou_link&quot;:&quot;0;&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;&quot;,&quot;tok_show_gpo_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_ou_link$" style="height: 35px;">
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_GPO&lt;-&gt;AD_Obj_OU Links</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_gpo_ou_link$"> ($tok_status_gpo_ou_link$)</i>
+              </td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center">
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_OU | search gpo_link=*| table cn,dn,Linked_GPO&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" href="/app/ms_windows_ad_objects/search?q=%7C%20inputlookup%20AD_Obj_GPO%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20mvexpand%20gpo_link%0A%7C%20join%20gpo_link%20%5B%7C%20inputlookup%20AD_Obj_OU%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20fields%20dn%2Cgpo_link%0A%7C%20rename%20dn%20AS%20lc%0A%7C%20stats%20values%28lc%29%20AS%20lc%20by%20gpo_link%0A%7C%20eval%20lc%3Dmvjoin%28lc%2C%22%7C%22%29%0A%7C%20table%20gpo_link%2Clc%5D%0A%7C%20makemv%20delim%3D%22%7C%22%20lc&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"> GPO</i></a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" href="/app/ms_windows_ad_objects/search?q=%7C%20inputlookup%20AD_Obj_OU%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20mvexpand%20gpo_link%0A%7C%20join%20gpo_link%20%5B%7C%20inputlookup%20AD_Obj_GPO%0A%7C%20fields%20gpo_link%2CdisplayName%0A%7C%20rename%20displayName%20AS%20Linked_GPO%0A%7C%20table%20gpo_link%2CLinked_GPO%5D%0A%7C%20stats%20values%28Linked_GPO%29%20AS%20Linked_GPO%2Cvalues%28%2A%29%20AS%20%2A%20by%20objectGUID%2Cdomain&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"> OU</i></a>
+              </td>
+          </tr>     
+          <tr class="build $tok_status_admin_audit_build$" style="height: 35px;">
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Admin_Audit</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_admin_audit_build$"> ($tok_status_admin_audit_build$)</i>
+              </td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                 <a class="btn build Cancel $tok_status_admin_audit_build$" style="$tok_show_admin_audit_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_status_admin_audit_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_admin_audit_build&quot;: &quot;Cancelled&quot;,&quot;tok_count_admin_audit_build&quot;: &quot;0&quot;,&quot;tok_exec_admin_audit_build&quot;: &quot;undefined&quot;,&quot;tok_show_build_inputs&quot;: &quot;True;.&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>
+                 <a class="btn sp-btn-gradient build $tok_status_admin_audit_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_Admin_Audit&quot;}" style="height:25px !important;"><i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"></i></a>
+                 <a class="btn sp-btn-gradient build $tok_status_admin_audit_build$" href="/app/ms_windows_ad_objects/search?q=search%20%60ms_obj_winevt_init_admin_audit%60&amp;earliest=$tok_time_admin.earliest$&amp;latest=$tok_time_admin.latest$" target="_blank" style="padding-left:10px;height:25px !important;"><i class="icon-search" style="height:18px;color:#FFFFFF;"></i></a>
+                 <a class="btn sp-btn-gradient" style="$tok_build_individual_admin_audit$height:25px !important;" data-token-json="{&quot;tok_exec_admin_audit_build&quot;:&quot;`ms_obj_winevt_init_admin_audit`&quot;,&quot;tok_status_admin_audit_build&quot;:&quot;Running&quot;,&quot;tok_msg_admin_audit_build&quot;:&quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;display:none;&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;display:none;&quot;,&quot;tok_show_admin_audit_cancel&quot;:&quot;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">Build Admin Audit Lookup</a>
+              </td>
+          </tr>  
+        </table>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_bld_dm_warn"  depends="$tok_show_domain_warn$">
+      <html src="info_pages/init_build/init_build_dom_warn.html"></html>
+    </panel>
+  </row>
+  <row id="nav_part_r_5_1">
+    <panel depends="$tok_dd_result_lookup$">
+      <html>
+        <center>
+          <h1>
+            <i class="icon-check-circle" style="font-size:35px !important;color:green;">Resulting Values in the $tok_dd_result_lookup$ KVstore Lookup</i>
+          </h1>
+        </center>
+      </html>
+      <table>
+        <search>
+          <query>| inputlookup $tok_dd_result_lookup$</query>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_add_domain" depends="$tok_show_man_domain_update$">  
+    <panel id="pan_p_single_5_2_a">
+      <title>Manually Add AD Domain Information into the AD_Obj_Domain lookup</title>
+      <input type="text" token="tok_upd_dm_host" id="upd_dm_host">
+        <label>DC Host Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_forest" id="upd_dm_forest">
+        <label>Forest FQDN</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_dns" id="upd_dm_dns">
+        <label>Domain FQDN (DNS)</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_netbios" id="upd_dm_netbios">
+        <label>Domain NetBIOS Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_site" id="upd_dm_site">
+        <label>Domain Site Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <html>
+        <hr/>
+        <center>
+          <h2>Fill Out the Boxes above, when all of the inputs have been populated, click the <i>Add Above Values</i> to add the Domain Details into the AD_Obj_Domain Lookup.</h2>
+          <h4>        
+            <a id="nbtn_upd_domain" aria-disabled="$tok_dm_btn$" class="btn btn-small sp-btn-gradient" data-token-json="{&quot;tok_add_domain_trigger&quot;:&quot;$tok_dom_host$&quot;}">Add Above Values</a>
+            </h4>
+          <hr/>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_p_single_5_2_b">
+      <html depends="$tok_n_dm_host$,$tok_post_exec_add_d$">
+        <h4>
+          <b>
+            <i>New Domain Information Just Added</i>
+          </b>
+        </h4>
+        <table style="padding-right: 0px;border: 4px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+          <tr>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">host</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">domain</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">DomainDNSName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">DomainNetBIOSName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">ForestName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">Site</th>
+          </tr>
+          <tr>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_host$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_netbios$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_dns$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_netbios$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_forest$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_site$</td>
+          </tr>
+        </table>
+        <hr/>
+      </html>
+      <table depends="$tok_show_add_dom_tbl$">
+        <title>Updated Full AD_Obj_Domain Lookup Table</title>
+        <search>
+          <query>| inputlookup AD_Obj_Domain
+| eval trigger="$tok_post_exec_add_d$"
+| sort -time
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,user_lookup,group_lookup,computer_lookup</query>
+          <done>
+            <set token="form.rem_tok_upd_dm_host"></set>
+            <set token="form.rem_tok_upd_dm_forest"></set>
+            <set token="form.rem_tok_upd_dm_site"></set>
+            <set token="form.rem_tok_upd_dm_dns"></set>
+            <set token="form.rem_tok_upd_dm_netbios"></set>
+            <unset token="rem_tok_upd_dm_host"></unset>
+            <unset token="rem_tok_upd_dm_forest"></unset>
+            <unset token="rem_tok_upd_dm_site"></unset>
+            <unset token="rem_tok_upd_dm_dns"></unset>
+            <unset token="rem_tok_upd_dm_netbios"></unset>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hidden$">
+    <panel>
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_pop.html"/>
+      <html>
+        <style>
+#nav_part_r_1 {display:none;}
+#nav_part_r_2 {display:none;}
+#nav_part_r_3 {display:none;}
+#nav_part_r_4 {display:none;}
+#nav_part_r_5 {display:none;}
+  /* Detail Steps */
+.step_details.$tok_step_details_link$ {display:inline;}
+/* Download Tasks */
+.hdr_p_top.hdr_p_top_dl.$tok_obj_upg_app$ {display:inline !important} 
+.p_task_steps_dl.$tok_obj_dl_ent$ {display:inline !important} 
+.p_task_steps_dl.$tok_obj_inst_uf$ {display:inline !important} 
+.p_task_steps_dl.$tok_obj_dl_ta_ex$ {display:inline !important} 
+.p_task_steps_dl.$tok_obj_upg_app$.obj_dl_ta_ex {display:inline !important} 
+.p_task_steps_dl.$tok_obj_dl_ta_cc$ {display:inline !important} 
+.p_task_steps_dl.$tok_obj_dl_ta_wta$ {display:inline !important}
+.p_task_steps_dl.$tok_obj_inst_ds$.$tok_obj_inst_hf$.$tok_obj_inp_ds_hf_same$ {display:inline !important}
+
+/* Core Tasks */
+.hdr_p_top.hdr_p_top_core.$tok_obj_upg_app$ {display:inline !important;}
+.hdr_p_steps_core.p_task_wta.$tok_obj_env_type$.$tok_obj_env_type_arch$.$tok_obj_inst_core_ta_wta$ {display:inline !important;}
+.hdr_p_steps_core.p_task_rport.$tok_obj_env_type$.$tok_obj_env_type_arch$.$tok_obj_inst_uf$ {display:inline !important;}
+.hdr_p_steps_core.p_task_crt_idx.$tok_obj_env_type$ {display:inline !important;}
+.hdr_p_steps_core.p_task_ko.$tok_obj_upg_app$ {display:inline !important;}
+
+/* Manual Deploy Tasks */
+.hdr_p_top.hdr_p_top_man.$tok_obj_upg_app$.$tok_obj_use_ds$ {display:inline !important;}
+.hdr_p_steps_man_ta.$tok_obj_use_ds$ {display:inline !important;}
+
+/* HWF Tasks */
+.hdr_p_top.hdr_p_top_hf.$tok_obj_upg_app$.$tok_obj_use_hf$.$tok_obj_inst_hf_wta$ {display:inline !important;}
+.hdr_p_steps_hf.p_task_obj_hf_inst.$tok_obj_inst_hf$ {display:inline !important;}
+.hdr_p_steps_hf.p_task_obj_hf_inst_cc.$tok_obj_env_type$.$tok_obj_inst_hf$ {display:inline !important;}
+.hdr_p_steps_hf.p_task_obj_hf_inst_wta.$tok_obj_inst_hf_wta$ {display:inline !important;}
+
+/* DS Dasks */
+.hdr_p_top.$tok_hdr_p_top_ds$.$tok_obj_upg_app$ {display:inline !important;}
+.hdr_p_steps_ds.$tok_hdr_p_top_ds$.p_task_ds_inst.$tok_obj_inst_ds$ {display:inline !important;}
+.hdr_p_steps_ds.$tok_hdr_p_top_ds$.p_task_ds_inst_rport.$tok_obj_inp_ds_hf_same$ {display:inline !important;}
+.hdr_p_steps_ds.$tok_hdr_p_top_ds$.p_task_ds_inst_cc.$tok_obj_env_type$.$tok_obj_inp_ds_hf_same$ {display:inline !important;}
+.hdr_p_steps_ds.$tok_hdr_p_top_ds$.p_task_ds_ex_ta {display:inline !important;}
+
+/* Upgrade Tasks */
+.hdr_u_top.$tok_obj_upg_app$ {display:inline !important;} 
+.hdr_u_steps.$tok_obj_upg_app$ {display:inline !important;}
+
+/* Description Filters */
+.p_task_ele_filt.$tok_obj_env_type$.$tok_obj_env_type_arch$  {display:inline!important;}
+.p_task_desc_dl.$tok_obj_dl_soft$ {display:inline!important;}
+.p_task_desc_core.$tok_obj_env_type$.$tok_obj_env_type_arch$ {display:inline !important;}
+.p_task_desc_ds.$tok_obj_inp_core_ds_same$ {display:inline !important;}
+.p_task_desc_ds.$tok_obj_inst_ds$ {display:inline !important;}
+.p_task_desc_hf.$tok_obj_inst_hf$ {display:inline !important;}
+.p_task_desc_man_ta.$tok_obj_inst_ds$ {display:inline !important;}
+
+/* Deployment Tasks */
+.hdr_d_top.$tok_obj_depl$.$tok_obj_inst_uf$ {display:inline !important;}
+.hdr_d_top.$tok_obj_depl$.$tok_obj_use_ds$ {display:inline !important;}
+.hdr_d_top.$tok_obj_depl$.$tok_hdr_d_top_ta_cc$ {display:inline !important;}
+.r_depl_msg.$tok_obj_depl$ {display:inline !important;}
+.depl_uf_inst_etype.$tok_obj_env_type$ {display:inline !important;}
+.depl_uf_inst_ele.$tok_obj_use_ds$.$tok_obj_inp_ds_hf_same$ {display:inline !important;}
+.depl_uf_inst_ele.$tok_obj_env_type$.$tok_obj_use_hf$.$tok_obj_inp_ds_hf_same$ {display:inline !important;}
+
+/*Sub View Steps */
+#$tok_view_steps_p_id$.prep_task_steps_dl {display:inline !important;}
+#$tok_view_steps_p_id$.p_t_steps_details {display:inline !important;}
+#$tok_view_steps_p_id$.u_t_steps_details {display:inline !important;}
+#$tok_view_steps_d_id$.d_t_steps_details {display:inline !important;}
+#$tok_hdr_depl_lbl_ele$ {display:inline !important;}
+#$tok_hdr_prep_lbl_ele$ {display:inline !important;}
+
+/* Check Data Tasks */
+.hdr_c_top.$tok_chk_d_ko$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_dom_health$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_man_domain$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_res_admon$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_crt_idx$.$tok_obj_env_type$ {display:inline !important;}
+
+.chk_step_filt.$tok_obj_use_ds$ {display:inline !important;}
+#$tok_view_steps_c_id$ {display:inline !important;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

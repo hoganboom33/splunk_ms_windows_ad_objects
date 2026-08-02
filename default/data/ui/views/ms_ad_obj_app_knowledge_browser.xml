@@ -1,0 +1,563 @@
+<form script="ms_ad_obj_html_token_setter.js,customized_chart_preload.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - App - Knowledge Browser</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_object_count">0</set>
+    <set token="tok_object_count_color">blue</set>
+    <set token="tok_lookup_count">0</set>
+    <set token="tok_lookup_count_color">blue</set>
+    <set token="tok_macro_count">0</set>
+    <set token="tok_macro_count_color">blue</set>
+    <set token="tok_eventtype_count">0</set>
+    <set token="tok_eventtype_count_color">blue</set>
+    <set token="tok_field_count">0</set>
+    <set token="tok_field_count_color">blue</set>
+  </init>
+  <search id="base_obj_count">
+    <query>| makeresults 
+| eval config="transforms,props,savedsearches,tags,eventtypes" 
+| makemv config delim="," 
+| mvexpand config 
+| map maxsearches=10 search="| rest /servicesNS/-/-/configs/conf-$$config$$ splunk_server=* | search eai:acl.app="$tok_app$"
+| fields eai:acl.app eai:userName eai:acl.sharing
+| eval config=\"$$config$$\"
+    | table eai:acl.app,eai:userName,eai:acl.sharing,config" 
+| append 
+    [| rest /servicesNS/-/-/data/ui/views splunk_server=* | search eai:acl.app="$tok_app$"
+    | fields eai:acl.sharing eai:userName eai:acl.app 
+    | eval config="dashboard" 
+    | table eai:acl.sharing,eai:userName,eai:acl.app,config] 
+| append 
+    [| rest /servicesNS/-/-/data/lookup-table-files splunk_server=* | search eai:acl.app="$tok_app$"
+    | fields eai:acl.sharing eai:userName eai:acl.app 
+    | eval config="lookups" 
+    | table eai:acl.sharing,eai:userName,eai:acl.app,config]
+| append 
+    [| rest /servicesNS/-/ms_windows_ad_objects/storage/collections/config splunk_server=* | search eai:acl.app="$tok_app$"
+    | fields eai:acl.sharing eai:userName eai:acl.app 
+    | eval config="knowledge store" 
+    | table eai:acl.sharing,eai:userName,eai:acl.app,config]
+| rename eai:acl.app AS app eai:userName AS user eai:acl.sharing AS sharing
+| eval private_count=if(sharing="user" OR user!="nobody",1,0)
+| stats count AS object_count,sum(private_count) AS private_count,values(user) AS users by config app
+| sort - object_count
+| eventstats sum(object_count) AS total_objects
+| eval _time=now()
+| fields - _time</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_object_count">0</set>
+        <set token="tok_object_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_object_count">$result.total_objects$</set>
+        <set token="tok_object_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_lookups">
+    <query>| rest /servicesNS/-/-/data/lookup-table-files splunk_server=* | search eai:acl.app="$tok_app$"
+| eval updated=if(match(updated,"^1969"),"Never",updated)
+| table title,author,eai:data,updated,disabled
+| join type=left title [| rest /servicesNS/-/-/saved/searches splunk_server="*" | fields eai:acl.app,search,title| search eai:acl.app="$tok_app$" | rename title AS search_title |rex field=search "outputlookup\s+(?P&lt;title&gt;\w+)"| search title="*"  |table search_title, title]
+| eval search_outputlookup=if(isnull(search_title),"","Outputlookup Search: (".search_title.")") </query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <sampleRatio>1</sampleRatio>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_lookup_count">0</set>
+        <set token="tok_lookup_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_lookup_count">$job.resultCount$</set>
+        <set token="tok_lookup_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_kvstore">
+    <query>| rest /servicesNS/-/ms_windows_ad_objects/storage/collections/config
+| search eai:acl.app="$tok_app$"
+| table eai:acl.app,title,replicate,accelerated_fields.*</query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <sampleRatio>1</sampleRatio>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_lookup_count">0</set>
+        <set token="tok_lookup_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_lookup_count">$job.resultCount$</set>
+        <set token="tok_lookup_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+   
+  <search id="base_macros">
+    <query>| rest /servicesNS/-/-/admin/macros count=0 splunk_server=local |search eai:appName="$tok_app$" $macro_text_token$
+| rex field=definition max_match=0 "(?:\`)(?&lt;emb_macro&gt;[^\`]+)\`"
+| rename eai:appName AS "App"
+| eval args=if(isnull(args),"None",args)
+| mvexpand emb_macro
+| rex field=emb_macro "(?:\()(?&lt;emb_macro_args&gt;[^\)]+)"
+| makemv delim="," emb_macro_args
+| eval emb_macro_a_cnt=mvcount(emb_macro_args)
+| eval emb_macro=if(isnull(emb_macro),"None",if(isnull(emb_macro_args),emb_macro,replace(emb_macro,"\(.*\)","")."(".emb_macro_a_cnt.")")),args=if(isnull(args),"None",args)
+| eval updated=if(match(updated,"1969"),"Default",updated)
+| eval emb_macro=if(match(emb_macro,"\$"),"",emb_macro)
+| stats values(emb_macro) AS emb_macro by title,args,updated,definition
+| eval Summary="Macro: ".title."|Arguments: ".args."|Embedded Macros: ".mvjoin(emb_macro,", ")."|Updated: ".updated
+| rename title as Macro | makemv delim="|" summary
+| table Summary,Macro,args,definition,updated,emb_macro</query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_macro_count">0</set>
+        <set token="tok_macro_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_macro_count">$job.resultCount$</set>
+        <set token="tok_macro_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_eventtypes">
+    <query>| rest /servicesNS/-/-/admin/eventtypes count=0 splunk_server=local | search eai:acl.app="$tok_app$" $eventtype_text_token$ |table title, eai:appName, search, tags,updated
+ | rex max_match=0 field=search "(?:eventtype(\=|\s+\=))(?&lt;emb_eventype&gt;[^(\s|\")]+)"
+ | eval updated=if(match(updated,"1969"),"Default",updated)</query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_eventtype_count">0</set>
+        <set token="tok_eventtype_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_eventtype_count">$job.resultCount$</set>
+        <set token="tok_eventtype_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_field_ext_calc">
+    <query>| rest /servicesNS/-/-/data/props/extractions 
+| table attribute, eai:acl.app,field.name, eai:acl.sharing, stanza, title, type, updated, value
+| append [| rest /servicesNS/-/-/data/props/calcfields | table attribute, eai:acl.app,field.name, eai:acl.sharing, stanza, title, type, updated, value]
+| search eai:acl.app="$tok_app$"
+| rename eai:acl.app AS app,eai:acl.sharing  AS app_sharing,field.name AS field_name  
+| eval updated=if(match(updated,"^1969-"),"Never",updated)
+| rex field=value max_match=0 "\(\?\&lt;(?&lt;field_extract&gt;[^\&gt;]+)"
+| eval field_name=if(type=="Inline",mvjoin(field_extract,"####"),field_name)
+| fillnull value=" " field_name
+| table attribute, app,field_name, app_sharing, stanza, title, type, updated, value</query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_field_count">0</set>
+        <set token="tok_field_count_color">red</set>
+      </condition>
+      <condition>
+        <set token="tok_field_count">$job.resultCount$</set>
+        <set token="tok_field_count_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="tok_app">
+      <label>Select Application Context</label>
+      <choice value="ms_windows_ad_objects">MS Windows AD Objects</choice>
+      <choice value="*">All</choice>
+      <default>ms_windows_ad_objects</default>
+      <initialValue>ms_windows_ad_objects</initialValue>
+      <fieldForLabel>label</fieldForLabel>
+      <fieldForValue>title</fieldForValue>
+      <search>
+        <query>| rest /servicesNS/nobody/system/apps/local
+| where NOT title="ms_windows_ad_objects"
+| table label, title</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_stat_ratio" id="tb_tok_tab_1" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Object Counts <b style="font-weight: bold !important;color:$tok_object_count_color$ !important;">($tok_object_count$)</b>
+            </a>
+          </li> 
+          <li class="$tok_tab_2$">
+            <a href="#tab_stat_ratio" id="tb_tok_tab_2" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Lookups <b style="font-weight: bold !important;color:$tok_lookup_count_color$ !important;">($tok_lookup_count$)</b>
+            </a>
+          </li>             
+          <li class="$tok_tab_3$" id="tb_tok_tab_3">
+            <a href="#tab_time_user" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Eventtypes <b style="font-weight: bold !important;color:$tok_eventtype_count_color$ !important;">($tok_eventtype_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_4$" id="tb_tok_tab_4">
+            <a href="#tab_fail_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Macros <b style="font-weight: bold !important;color:$tok_macro_count_color$ !important;">($tok_macro_count$)</b>
+            </a>
+          </li>      
+          <li class="$tok_tab_5$" id="tb_tok_tab_5">
+            <a href="#tab_suc_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Field Extractions <b style="font-weight: bold !important;color:$tok_field_count_color$ !important;">($tok_field_count$)</b>
+            </a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="tab_objects" depends="$tok_tab_1$">
+    <panel>
+      <title>Object Counts</title>
+      <table>
+        <search base="base_obj_count">
+          <query></query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_lookups" depends="$tok_tab_2$">
+    <panel id="lookup_pan">
+      <title>Lookup Tables</title>
+      <input type="dropdown" token="tok_lookup_filt">
+        <label>Select Lookup:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <search base="base_lookups">
+          <query>stats count by title | sort 0 title | table title</query>
+        </search>
+      </input>
+      <table>
+        <search base="base_lookups">
+          <query>|search title="$tok_lookup_filt$" |rename search_title as "Lookup Search Name"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel id="kvstore_pan">
+      <title>Lookup Tables</title>
+      <input type="dropdown" token="tok_kvstore_filt">
+        <label>Select KV Store:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <search base="base_kvstore">
+          <query>stats count by title | sort 0 title | table title</query>
+        </search>
+      </input>
+      <table>
+        <search base="base_kvstore">
+          <query>|search title="$tok_kvstore_filt$"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>    
+    
+  </row>
+  <row id="tab_eventtypes" depends="$tok_tab_3$">
+    <panel>
+      <title>Eventtypes</title>
+      <input type="radio" token="input_tok_eventtype_updated">
+        <label>Updated State:</label>
+        <choice value="all">All</choice>
+        <choice value="true">True</choice>
+        <choice value="false">False</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+           <set token="tok_eventtype_updated">| search updated="*"</set>
+          </condition>
+          <condition value="true">
+            <set token="tok_eventtype_updated">| search updated!="Default"</set>
+          </condition>
+          <condition>
+            <set token="tok_eventtype_updated">| search updated="Default"</set>
+          </condition>
+        </change>
+      </input>     
+      <input type="dropdown" token="input_eventtype_token" searchWhenChanged="true">
+        <label>Eventtype Name</label>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <choice value="all">All</choice>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <search base="base_eventtypes">
+          <query>table label, title</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="eventtype_token"></set>
+          </condition>
+          <condition>
+            <set token="eventtype_token">| search title="$value$"</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="input_eventtype_text_token">
+        <label>Eventtype Search Text</label>
+        <default></default>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)&gt;0">
+            <set token="eventtype_text_token">|WHERE match(search,"$value$")</set>
+          </condition>
+          <condition>
+            <set token="eventtype_text_token"></set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="inptok_emb_evemnttype_val" searchWhenChanged="true">
+        <label>Embedded Eventtypes</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <fieldForLabel>emb_eventype</fieldForLabel>
+        <fieldForValue>emb_eventype</fieldForValue>
+        <search base="base_eventtypes">
+          <query>stats values(emb_eventype) AS emb_eventype | mvexpand emb_eventype | sort emb_eventype</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_emb_evemnttype_val"></set>
+          </condition>
+          <condition>
+            <set token="tok_emb_evemnttype_val">| search emb_eventype="$value$"</set>
+          </condition>
+        </change>
+      </input>
+      <table>
+        <search base="base_eventtypes">
+          <query>$tok_emb_evemnttype_val$ $eventtype_token$ $tok_eventtype_updated$ $eventtype_text_token$|rename title as Eventtype</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_macros" depends="$tok_tab_4$">
+    <panel>
+      <title>Macros</title>
+      <input type="radio" token="input_tok_macro_updated">
+        <label>Updated State:</label>
+        <choice value="all">All</choice>
+        <choice value="true">True</choice>
+        <choice value="false">False</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+           <set token="tok_macro_updated">| search updated="*"</set>
+          </condition>
+          <condition value="true">
+            <set token="tok_macro_updated">| search updated!="Default"</set>
+          </condition>
+          <condition>
+            <set token="tok_macro_updated">| search updated="Default"</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="input_macro_name_token">
+        <label>Filter Macro Name:</label>
+        <default>all</default>
+        <choice value="all">All</choice>
+        <initialValue>all</initialValue>
+        <fieldForLabel>Macro</fieldForLabel>
+        <fieldForValue>Macro</fieldForValue>
+        <change>
+          <condition value="all">
+            <set token="macro_name_token">| search Macro="*"</set>
+          </condition>
+          <condition>
+            <set token="macro_name_token">| search Macro="$value$"</set>
+          </condition>
+        </change>
+        <search base="base_macros">
+          <query>stats count by Macro | sort Macro</query>
+        </search>
+      </input>
+      <input type="text" token="input_macro_text_token" searchWhenChanged="true">
+        <label>Filter Macro Text:</label>
+        <default></default>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)&gt;0">
+            <set token="macro_text_token">|WHERE match(definition,"$value$")</set>
+          </condition>
+          <condition>
+            <set token="macro_text_token"></set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="input_macro_name_token">
+        <label>Filter Embedded Macros:</label>
+        <default>all</default>
+        <choice value="all">All</choice>
+        <initialValue>all</initialValue>
+        <fieldForLabel>emb_macro</fieldForLabel>
+        <fieldForValue>emb_macro</fieldForValue>
+        <change>
+          <condition value="all">
+            <set token="macro_emb_token">| search emb_macro="*"</set>
+          </condition>
+          <condition>
+            <set token="macro_emb_token">| WHERE match(emb_macro,"$value$")</set>
+          </condition>
+        </change>
+        <search base="base_macros">
+          <query>stats count by emb_macro | sort emb_macro</query>
+        </search>
+      </input>
+      <table>
+        <search base="base_macros">
+          <query>$macro_name_token$ $macro_text_token$ $tok_macro_updated$| makemv delim="|" Summary| table Summary,definition,*</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+      <html>tok_macro_updated = $tok_macro_updated$</html>
+    </panel>
+  </row>
+  <row id="tab_fields" depends="$tok_tab_5$">
+    <panel>
+      <title>Field Extractions</title>
+      <input type="dropdown" token="tok_field_type">
+        <label>Select Type:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>type</fieldForLabel>
+        <fieldForValue>type</fieldForValue>
+        <search base="base_field_ext_calc">
+          <query>stats count by type | sort 0 type | table type</query>
+        </search>
+      </input>
+      <input type="dropdown" token="tok_field_stanza">
+        <label>Select Stanza:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>stanza</fieldForLabel>
+        <fieldForValue>stanza</fieldForValue>
+        <search base="base_field_ext_calc">
+          <query>search type="$tok_field_type$" value IN("$tok_field_value$")| stats count by stanza | sort 0 stanza | table stanza</query>
+        </search>
+      </input>
+      <input type="dropdown" token="tok_field_title">
+        <label>Select Title:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>title</fieldForLabel>
+        <fieldForValue>title</fieldForValue>
+        <search base="base_field_ext_calc">
+          <query>search value IN("$tok_field_value$") type="$tok_field_type$" stanza="$tok_field_stanza$"| stats count by title | sort 0 title | table title</query>
+        </search>
+      </input>
+      <input type="dropdown" token="tok_field_app_sharing">
+        <label>Select App Sharing:</label>
+        <choice value="*">All</choice>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>app_sharing</fieldForLabel>
+        <fieldForValue>app_sharing</fieldForValue>
+        <search base="base_field_ext_calc">
+          <query>search value IN("$tok_field_value$") title="$tok_field_title$" type="$tok_field_type$" stanza="$tok_field_stanza$"| stats count by app_sharing | sort 0 app_sharing | table app_sharing</query>
+        </search>
+      </input>
+      <input type="dropdown" token="input_tok_field_name">
+        <label>Select field:</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <fieldForLabel>field_name</fieldForLabel>
+        <fieldForValue>field_name</fieldForValue>
+        <search base="base_field_ext_calc">
+          <query>search value IN("$tok_field_value$") title="$tok_field_title$" type="$tok_field_type$" stanza="$tok_field_stanza$" | makemv delim="####" field_name | mvexpand field_name | stats count by field_name| sort 0 field_name | table field_name</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_field_name"></set>
+          </condition>
+          <condition>
+            <set token="tok_field_name">| WHERE match(field_name,"$value$")</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="tok_field_value" searchWhenChanged="true">
+        <label>Value Search</label>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <prefix>*</prefix>
+        <suffix>*</suffix>
+      </input>
+      <table>
+        <title>$tok_field_name$</title>
+        <search base="base_field_ext_calc">
+          <query>search value IN("$tok_field_value$") app_sharing="$tok_field_app_sharing$" type="$tok_field_type$" stanza="$tok_field_stanza$" title="$tok_field_title$"
+$tok_field_name$
+| makemv delim="####" field_name
+| sort title</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hiddenstyle$">
+    <panel>
+      <html>
+        <style>
+#lookup_pan,#kvstore_pan {width:99.2% !important;}          
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

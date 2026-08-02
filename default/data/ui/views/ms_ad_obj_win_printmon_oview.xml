@@ -1,0 +1,74 @@
+<form version="1.1">
+  <label>AD Objects - WinPrintMon - Overview</label>
+  <search id="base_printmon_search">
+    <query>eventtype=printmon_windows 
+| fields host, printer, status, operation, driver, print_processor, priority, port
+| table host, printer, status, operation, driver, print_processor, priority, port</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="Host" searchWhenChanged="true">
+      <label>Host</label>
+      <choice value="*">All</choice>
+      <search base="base_printmon_search">
+        <query>search printer="$Printer$" operation="$Operation$"
+| fields host 
+| stats count by host
+| sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="Printer" searchWhenChanged="true">
+      <label>Printer</label>
+      <choice value="*">All</choice>
+      <search base="base_printmon_search">
+        <query>| search host="$Host$" operation="$Operation$"
+| fields printer 
+| stats count by printer
+| sort printer</query>
+      </search>
+      <fieldForLabel>printer</fieldForLabel>
+      <fieldForValue>printer</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="Operation" searchWhenChanged="true">
+      <label>Operation</label>
+      <choice value="*">All</choice>
+      <search base="base_printmon_search" id="sub_operation">
+        <query>| search host="$Host$" printer="$Printer$"
+| fields operation 
+| stats count by operation
+| sort operation</query>
+      </search>
+      <fieldForLabel>operation</fieldForLabel>
+      <fieldForValue>operation</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Print Monitoring Browser</title>
+        <search base="base_printmon_search">
+          <query>search host="$Host$" printer="$Printer$" operation="$Operation$" | table host, printer, status, operation, driver, print_processor, priority, port</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+      </table>     
+    </panel>
+  </row>
+</form>

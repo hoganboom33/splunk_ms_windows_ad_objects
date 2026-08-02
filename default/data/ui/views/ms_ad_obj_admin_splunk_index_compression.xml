@@ -1,0 +1,137 @@
+<form version="1.1">
+  <label>AD Objects - Admin - Splunk Index Compression</label>
+  <search id="base_dbinspect">
+    <query>| dbinspect timeformat="%s" index="*"
+| fields index,endEpoch, startEpoch,sizeOnDiskMB, rawSize, eventCount,state</query>
+    <earliest>$tok_time.earliest$</earliest>
+    <latest>$tok_time.latest$</latest>
+    <done>
+      <set token="gbl_empty_hold"></set>
+    </done>
+  </search>
+  <fieldset submitButton="false" autoRun="false">
+    <input type="time" token="tok_time" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-7d@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="radio" token="tok_index_type" searchWhenChanged="true">
+      <label>Select Index Type</label>
+      <choice value="windows">Windows</choice>
+      <choice value="non_internal">Non-Internal Only</choice>
+      <choice value="internal">Internal Only</choice>
+      <choice value="all">All</choice>
+      <default>windows</default>
+      <initialValue>windows</initialValue>
+      <change>
+        <condition value="non_internal">
+          <set token="tok_idx_type_filt">|search NOT index="_*"|</set>
+        </condition>
+        <condition value="internal">
+          <set token="tok_idx_type_filt">|search index="_*"|</set>
+        </condition>
+        <condition value="windows">
+          <set token="tok_idx_type_filt">|search (index="msad" OR index="wineventlog" OR index="perfmon" OR index="windows" OR index="msexchange")|</set>
+        </condition>
+        <condition value="all">
+          <set token="tok_idx_type_filt"></set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="index" searchWhenChanged="true">
+      <label>index</label>
+      <choice value="all">All</choice>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_dbinspect">
+        <query>
+               $tok_idx_type_filt$ stats count by index | sort index | fields index
+        </query>
+      </search>
+      <fieldForLabel>index</fieldForLabel>
+      <fieldForValue>index</fieldForValue>
+      <change>
+        <condition value="all">
+          <set token="index_filter">$tok_idx_type_filt$</set>
+        </condition>
+        <condition>
+          <set token="index_filter">|search index="$value$"|</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <h1>Analyze a target Splunk Indexes current compression ratio</h1>
+        <p>Select Target Index to get the current compression ratio</p>
+	    <p>rawTotalinMB = Total Data Size Received for Index.</p>
+        <p>diskTotalinMB = Total currently stored on Disk.</p>          
+        <p>compression = Compression Percentage (Total Data Size On Disk/Total Data Size Received)</p>
+          <p>
+          <a href="http://docs.splunk.com/Documentation/Splunk/latest/Indexer/Configureindexstorage">Go hear for more information</a>
+        </p>          
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Overall Compression - Total Stored Compression Ratio for Selected Index and Time</title>
+        <search base="base_dbinspect">
+          <query>$index_filter$stats sum(rawSize) AS rawTotal, sum(sizeOnDiskMB) AS diskTotalinMB, sum(eventCount) AS Total_Events 
+| sort -rawTotal
+| eval rawTotalinMB=(rawTotal / 1024 / 1024) 
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, (diskTotalinMB / rawTotalinMB * 100), 0)
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, tostring(round((100 - compression),2)) + "%", "0 %")
+| eval rawTotalinMB=tostring((round(rawTotalinMB,2)), "commas")
+| eval diskTotalinMB=tostring((round(diskTotalinMB,2)), "commas")
+| eval Total_Events=tostring(Total_Events, "commas")
+| table Total_Events, rawTotalinMB, diskTotalinMB, compression</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Compression by State - Total Stored Compression Ratio for Selected Index, Bucket State, and Time</title>
+        <search base="base_dbinspect">
+          <query>$index_filter$stats sum(rawSize) AS rawTotal, sum(sizeOnDiskMB) AS diskTotalinMB, sum(eventCount) AS Total_Events by state
+| sort -rawTotal
+| eval rawTotalinMB=(rawTotal / 1024 / 1024)  
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, (diskTotalinMB / rawTotalinMB * 100), 0)
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, tostring(round((100 - compression),2)) + "%", "0 %")
+| eval rawTotalinMB=tostring((round(rawTotalinMB,2)), "commas")
+| eval diskTotalinMB=tostring((round(diskTotalinMB,2)), "commas")
+| eval Total_Events=tostring(Total_Events, "commas")
+| table state, Total_Events, rawTotalinMB, diskTotalinMB, compression</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Compression By Day - Total Stored Compression Ratio for Selected Index, and Time</title>
+        <search base="base_dbinspect">
+          <query>$index_filter$convert timeformat="%m/%d/%Y" ctime(endEpoch) as End_Date
+| convert timeformat="%m/%d/%Y" ctime(startEpoch) as Start_Date
+| stats sum(rawSize) AS rawTotal_MB, sum(sizeOnDiskMB) AS diskTotalinMB, sum(eventCount) AS Total_Events by index,Start_Date,End_Date
+| sort -rawTotal_MB
+| eval rawTotalinMB=round((rawTotal_MB / 1024 / 1024),2)
+| eval SizeOnDisk_MB=round(SizeOnDisk_MB,2)
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, (diskTotalinMB / rawTotalinMB * 100), 0)
+| eval compression=if(rawTotalinMB&gt;diskTotalinMB, tostring(round((100 - compression),2)) + "%", "0 %")
+| eval rawTotalinMB=tostring((round(rawTotalinMB,2)), "commas")
+| eval diskTotalinMB=tostring((round(diskTotalinMB,2)), "commas")
+| eval Total_Events=tostring(Total_Events, "commas")
+| table index,End_Date, Start_Date,Total_Events, diskTotalinMB, rawTotalinMB, compression</query>
+        </search>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+</form>

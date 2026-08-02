@@ -1,0 +1,1141 @@
+<form stylesheet="ms_ad_obj_login_by.css" version="1.1">
+  <label>AD Objects - User - Logins by OU</label>
+  <init>
+    <set token="max_limit">5000</set>
+    <set token="bypass_limit">500</set>
+    <set token="tok_bypass_min">300</set>
+		<set token="tok_results_max">600</set>
+		<set token="tok_results_count">0</set>
+		<set token="tok_results_count_color">orange</set>
+		<set token="tok_user_count">0</set>
+		<set token="tok_user_count_color">orange</set>
+    <unset token="tok_ou"></unset>
+    <unset token="show_inputs"></unset>
+    <unset token="show_ou_members"></unset>
+    <unset token="show_ou_users_warning"></unset>
+    <set token="form.input_tok_ou"></set>
+    <set token="tok_filt_src_field">sAMAccountName</set>
+  </init>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_ad_ou_objects">
+    <query>| inputlookup $tok_user_lkp$ WHERE domain="$tok_domain$"
+| fields dn_path,cn,sAMAccountName,userPrincipalName
+| where match(dn_path,"(?i)$tok_ou_filter$")
+| rename dn_path AS distinguishedName
+| stats count as user_count by distinguishedName
+| lookup AD_Obj_OU distinguishedName OUTPUT deletedDate
+| fillnull value="0" deletedDate
+| rex field=distinguishedName max_match=0 "(?i)(ou\=|cn\=)(?&lt;levels&gt;[^(\,|$)]+)"
+| eval displayName=if(deletedDate=0 OR isnull(deletedDate),"(".user_count.") ".mvjoin(levels," &gt; ")." ...","DELETED-(".user_count.") ".mvjoin(levels," &gt; ")." ...")
+| sort distinguishedName
+| table user_count,displayName,distinguishedName</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_user_count">0</set>
+        <set token="tok_user_count_color">red</set>
+        <set token="tok_results_count">0</set>
+        <set token="tok_results_count_color">red</set>
+        <set token="show_ou_warning">True</set>
+        <set token="tok_show_no_logon_s_info">none</set>
+        <set token="tok_show_no_ou_s_err"></set>
+        <unset token="tok_ou"></unset>
+        <unset token="show_inputs">True</unset>
+        <unset token="show_ou_users_warning"></unset>
+        <unset token="show_results_views"></unset>
+      </condition>
+      <condition>
+        <set token="show_inputs">True</set>
+        <set token="tok_show_no_ou_s_err">display:none</set>
+        <unset token="show_ou_users_warning"></unset>        
+      </condition>
+    </done>
+  </search>
+  <search base="base_ad_ou_objects" id="sub_user_filt">
+    <query>search distinguishedName="$tok_ou$"
+| eval exec_user_srch_trigger=if(user_count&gt;=$tok_bypass_min$,"false","true")
+| eval show_user_list=if(user_count&gt;=$tok_bypass_min$,"false","true")
+| eval show_user_filt=if(user_count&gt;=$tok_bypass_min$,"true","false")
+| eval inp_usr_lst_nmb=if(user_count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"6","4")
+| eval msg_state=if(user_count&gt;=$tok_bypass_min$,"Warning","Info")
+| eval msg_color=if(user_count&gt;=$tok_bypass_min$,"red","green")
+| eval msg=if(user_count&gt;=$tok_bypass_min$ AND user_count&lt;=$tok_results_max$,inp_usr_lst_nmb.": ".user_count." Total Users are in the \"OU Path\" ($tok_ou$). Optionally use the Filter User List input to reduce the matching count, or enter * to view the full list of Users. (Slow Dropdown Possible).",if(user_count&gt;=$tok_results_max$,inp_usr_lst_nmb.": ".user_count." Total Users are in the \"OU Path\" ($tok_ou$). Use the \"Filter User\" input to reduce the matching count.","4: Info (".user_count." Users) Either select a individual matching user account or \"All\" from the \"Select User\" input."))
+</query>
+    <done>
+      <condition match="$result.user_count$>0">
+        <eval token="tok_show_user_filt">if($result.show_user_filt$=="false",NULL,"true")</eval>
+        <eval token="tok_show_user_list">if($result.show_user_list$=="false",NULL,"true")</eval>
+        <set token="tok_tgr_sub_user_list">true</set>
+        <set token="tok_user_filter"></set>
+        <set token="tok_user_filt_post"></set>
+        <set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_inp_usr_list_nmb">$result.inp_usr_lst_nmb$</set>
+        <set token="tok_message_color">$result.msg_color$</set>
+        <set token="tok_message_state">$result.msg_state$</set>
+        <set token="tok_message">$result.msg$</set>
+        <unset token="tok_tgr_post_check"></unset>
+        <unset token="show_ou_warning"></unset>
+      </condition>   
+      <condition match="$result.user_count$==0">
+      	<set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_tgr_post_check">true</set>
+        <set token="show_ou_warning">true</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_user_list">
+    <query>| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ AND dn_path="$tok_ou$" $tok_user_filter$
+| eval exec_trigger="$tok_tgr_sub_user_list$"
+| fields *
+</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_ou_user_list">0</set>
+        <set token="tok_no_users_found">True</set>
+        <set token="tok_user_count">0</set>
+        <set token="tok_user_count_color">red</set>
+        <set token="tok_show_no_users_s_err"></set>
+        <unset token="tok_users_found"></unset>
+      </condition>
+      <condition>
+        <set token="show_ou_members">True</set>
+        <set token="tok_users_found">True</set>
+        <set token="tok_user_count">$job.resultCount$</set>
+        <set token="tok_user_count_color">green</set>
+        <set token="tok_show_no_users_s_err">display:none;</set>
+        <unset token="tok_no_users_found"></unset>
+      </condition>
+    </done>
+  </search>
+  <!-- Check Matching Results Count - Prevent Search if beyond $tok_results_max$, warn if under $tok_results_max$ but above $tok_bypass_min$.  This prevents slowness when building the Domain User List -->
+  <search base="base_user_list" id="sub_check_size_res">
+    <query>| fields 
+| eval subchk_trigger="$tok_tgr_sub_chk$"
+| `ms_obj_ss_filt_pre_cnt_chk($tok_bypass_min$,$tok_results_max$)`
+| eval show_bypass_option=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"true","false")
+| eval show_user_list=if(count&gt;=$tok_bypass_min$,"false","true")
+| eval inp_usr_lst_nmb=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,"6","5")
+| eval msg_state=if(count&gt;=$tok_bypass_min$,"Warning","Info")
+| eval msg_color=if(count&gt;=$tok_bypass_min$,"red","green")
+| eval msg=if(count&gt;=$tok_bypass_min$ AND count&lt;=$tok_results_max$,inp_usr_lst_nmb.": ".count." Total Users matched the \"Filter User\" ($tok_user_filter_bs$). Either update the \"Filter User\" to reduce the matching count, or click the \"Yes\" option in the \"Bypass Large List\" input and run the search (Slow Search Possible).",if(count&gt;=$tok_results_max$,inp_usr_lst_nmb.": ".count." Total Users matched the \"Filter User\" ($tok_user_filter_bs$). Update the \"Filter User\" to reduce the matching count.",inp_usr_lst_nmb.": (".count." Users) Either select a individual matching user account or \"All\" from the \"Select User\" input."))
+</query>
+    <done>
+      <condition match="$result.count$>0">
+        <eval token="tok_show_bypass_option">if($result.show_bypass_option$=="false",NULL,"true")</eval>
+        <eval token="tok_show_user_list">if($result.show_user_list$=="false",NULL,"true")</eval>
+        <set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_inp_usr_list_nmb">$result.inp_usr_lst_nmb$</set>
+        <set token="tok_message_color">$result.msg_color$</set>
+        <set token="tok_message_state">$result.msg_state$</set>
+        <set token="tok_message">$result.msg$</set>
+        <unset token="tok_tgr_post_check"></unset>
+      </condition>   
+      <condition match="$result.count$==0">
+      	<set token="tok_filt_user_cnt">$result.count$</set>
+        <set token="tok_tgr_post_check">true</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_logon_search">
+    <query>$tok_base_search$ ([$tok_srch_u_raw$])
+| fields _time,action,domain,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| eval exec_logon_search="$tok_tgr_exec_logon$"
+| search user IN([$tok_srch_u_link$])
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1","-",src_ip)
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),upper(host),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eventstats values(src_nt_host) AS src_nt_host by user,_time
+| eval user=lower(user),Failed_Attempts=if(status="failure",1,0),Successful_Attempts=if(status="success",1,0)
+| fillnull value="Not In Event" src_nt_host</query>
+    <earliest>$time_field.earliest$</earliest>
+    <latest>$time_field.latest$</latest>
+    <progress>
+      <condition>
+        <eval token="tok_results_count">$job.dispatchState$." ".toString($job.eventCount$,"commas")</eval>
+        <set token="tok_results_count_color">blue</set>
+        <set token="tok_login_srch_state">$job.dispatchState$</set>
+        <set token="tok_login_srch_done_prog">$job.doneProgress$</set>
+        <set token="tok_login_srch_done_cnt">$job.eventCount$</set>
+        <set token="tok_srch_logon">$tok_base_search$ ([$tok_srch_u_raw$])
+| fields _time,action,domain,signature,src_ip,src_host,src_nt_host,src_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| search user IN([$tok_srch_u_link$])
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1","-",src_ip)
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),upper(host),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| eventstats values(src_nt_host) AS src_nt_host by user,_time
+| eval user=lower(user),Failed_Attempts=if(status="failure",1,0),Successful_Attempts=if(status="success",1,0)
+| fillnull value="Not In Event" src_nt_host
+| stats sum(Failed_Attempts) AS Failed_Attempts,sum(Successful_Attempts) AS Successful_Attempts, sum(count) AS Total_Attempts by user,src_nt_domain</set>        
+        <unset token="show_results_warning"></unset>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="show_results_views">True</set>
+        <set token="tok_url_time_search">earliest=$time_field.earliest$<![CDATA[&]]>latest=$time_field.latest$<![CDATA[&]]></set>
+        <set token="tok_results_count">0</set>
+        <set token="tok_results_count_color">red</set>
+        <set token="show_results_warning">True</set>
+        <set token="tok_login_srch_state">$job.dispatchState$</set>
+        <set token="tok_login_srch_done_cnt">$job.resultCount$</set>
+        <set token="tok_show_no_logon_s_err"></set>
+        <unset token="show_results_views"></unset>
+      </condition>
+      <condition>
+        <set token="show_results_views">True</set>
+        <set token="tok_url_time_search">earliest=$time_field.earliest$<![CDATA[&]]>latest=$time_field.latest$<![CDATA[&]]></set>
+        <set token="tok_results_count_color">green</set>
+        <set token="show_results_views">True</set>
+        <set token="tok_login_srch_state">$job.dispatchState$</set>
+        <set token="tok_login_srch_done_cnt">$job.resultCount$</set>
+        <set token="tok_show_no_logon_s_err">display:none;</set>
+        <unset token="show_results_warning"></unset>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+  </fieldset>
+  <row id="rw_inputs_njs">
+    <panel id="rw_initial_panel_njs">
+    <input type="time" token="time_field">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_domain" searchWhenChanged="true" depends="$show_inputs$">
+      <label>1. Select Domain</label>
+      <choice value="sel">Select Domain...</choice>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+        <search base="base_domain_search">
+          <query>sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="show_obj_filt"></unset>
+            <unset token="tok_ou_filter"></unset>
+            <unset token="tok_ou"></unset>
+            <unset token="tok_srch_ad_ou_list"></unset>
+            <unset token="tok_srch_ad_user_list"></unset>
+            <unset token="tok_ou_filter_bs"></unset>
+            <unset token="tok_tgr_exec_logon"></unset>
+            <set token="input_tok_ou">sel</set>
+            <set token="form.input_tok_ou">sel</set> 
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the AD Domain for the target Group</set>
+          </condition>
+          <condition>
+            <unset token="form.tok_ou_filter_bs"></unset>
+            <unset token="tok_ou_filter"></unset>
+            <unset token="tok_srch_ad_ou_list"></unset>
+            <unset token="tok_srch_ad_user_list"></unset>
+            <unset token="tok_ou_filter_bs"></unset>
+            <unset token="ex_s_trigger"></unset>
+            <unset token="tok_show_user_list"></unset>
+            <unset token="tok_show_user_filt"></unset>
+            <unset token="tok_show_bypass_option"></unset>
+            <unset token="show_adv_options"></unset>
+            <unset token="show_ou_members"></unset>
+            <unset token="tok_tgr_exec_logon"></unset>
+            <unset token="show_results_views"></unset>
+            <unset token="show_ou_warning"></unset>
+            <set token="tok_ou">sel</set>
+            <set token="form.tok_ou">sel</set>
+            <set token="tok_user_filter_bs"></set>
+            <set token="form.tok_user_filter_bs"></set>
+            <set token="tok_bypass_lg">no</set>
+            <set token="form.tok_bypass_lg">no</set>
+            <set token="tok_user">sel</set>
+            <set token="form.tok_user">sel</set>
+            <set token="show_obj_filt">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Enter a AD OU Name or part of an OU Name.  Do not use a Wildcard, entered value will be used for any part of the OU Name by default.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="tok_ou_filter_bs" searchWhenChanged="true" depends="$show_obj_filt$">
+        <label>2: Filter OU List</label>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)>0">
+            <unset token="tok_show_user_list"></unset>
+            <unset token="tok_show_user_filt"></unset>
+            <unset token="tok_show_bypass_option"></unset>
+            <unset token="show_adv_options"></unset>
+            <unset token="tok_tgr_exec_logon"></unset>
+            <unset token="show_results_views"></unset>
+            <unset token="show_ou_members"></unset>
+            <set token="tok_ou_filter">$value$</set>
+            <set token="show_obj_list">True</set>
+            <set token="tok_user_filter_bs"></set>
+            <set token="form.tok_user_filter_bs"></set>
+            <set token="tok_bypass_lg">no</set>
+            <set token="form.tok_bypass_lg">no</set>
+            <set token="tok_user">sel</set>
+            <set token="form.tok_user">sel</set>
+            <set token="tok_ou">sel</set>
+            <set token="form.tok_ou">sel</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">3: Select and OU Path for the target Users.</set>
+          </condition>
+          <condition>
+            <unset token="tok_tgr_exec_logon"></unset>
+            <unset token="tok_ou_filter"></unset>
+            <unset token="tok_user_filter"></unset>
+            <unset token="tok_ou"></unset>
+            <unset token="show_obj_list"></unset>
+            <unset token="show_ou_members"></unset>
+          </condition>
+        </change>
+      </input>
+    <input type="dropdown" token="tok_ou" searchWhenChanged="true" id="input_src_filt_element_ou" depends="$show_obj_list$">
+      <label>3. Select OU or Container</label>
+      <default></default>
+      <initialValue></initialValue>
+      <choice value="sel">Select OU...</choice>
+      <search base="base_ad_ou_objects" id="sub_ou_list">
+        <query>stats count by displayName,distinguishedName 
+| sort 0 displayName
+| table displayName, distinguishedName</query>
+      </search>
+      <fieldForLabel>displayName</fieldForLabel>
+      <fieldForValue>distinguishedName</fieldForValue>
+      <change>
+        <condition value="sel">
+          <set token="tok_ou_label">pending</set>
+          <unset token="tok_audit_value"></unset>
+          <unset token="tok_tab_1"></unset>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_4"></unset>
+          <set token="tok_tab_3">active</set>
+          <unset token="show_results_user_trigger"></unset>
+          <unset token="tok_tgr_exec_logon"></unset>
+        </condition>
+        <condition>
+          <unset token="tok_show_user_list"></unset>
+          <unset token="tok_show_user_filt"></unset>
+          <unset token="tok_show_bypass_option"></unset>
+          <unset token="show_adv_options"></unset>
+          <unset token="tok_tgr_exec_logon"></unset>
+          <unset token="show_results_views"></unset>
+          <set token="tok_user_filter_bs"></set>
+          <set token="form.tok_user_filter_bs"></set>
+          <set token="tok_bypass_lg">no</set>
+          <set token="form.tok_bypass_lg">no</set>
+          <set token="tok_user">sel</set>
+          <set token="form.tok_user">sel</set>
+          <set token="tok_audit_value">$value$</set>
+          <set token="tok_ou_label">$label$</set>
+          <set token="tok_show_tabs">true</set>
+          <unset token="tok_tab_1"></unset>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_4"></unset>
+          <set token="tok_tab_3">active</set>
+          <set token="tok_base_raw_srch_filt">| inputlookup $tok_usr_lookup$ WHERE domain=$tok_domain$
+| fields cn,sAMAccountName, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats count by dn_path,cn,sAMAccountName</set>
+          <set token="tok_user_srch_filt">([| inputlookup AD_Obj_User WHERE domain=$tok_domain$
+| fields sAMAccountName, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values(sAMAccountName) AS search
+| eval search="\"".mvjoin(search,"\" OR \"")."\""
+| table search])</set>
+		    <set token="tok_user_filt">| search ([| inputlookup AD_Obj_User WHERE domain=$tok_domain$
+| fields sAMAccountName, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values(sAMAccountName) AS search
+| eval search="user IN(\"".mvjoin(search,"\",\"")."\")"
+| table search])</set>
+          <set token="show_results_user_trigger">true</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="tok_user_filter_bs" searchWhenChanged="true" depends="$tok_show_user_filt$">
+      <label>4: Filter User</label>
+      <initialValue></initialValue>
+      <change>
+        <condition value="">
+          <unset token="tok_tgr_sub_chk"></unset>
+          <unset token="show_user_dropdown"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_tgr_exec_logon"></unset>
+          <set token="tok_user">sel</set>
+        </condition>
+        <condition>
+          <unset token="show_results_views"></unset>
+          <unset token="tok_result_msg"></unset>
+          <unset token="tok_tgr_exec_logon"></unset>
+          <unset token="tok_tab_1"></unset>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_4"></unset>
+          <set token="tok_tab_3">active</set>          
+          <set token="form.tok_user">sel</set>
+          <set token="tok_user">sel</set>
+          <set token="tok_user_filter"> AND (cn="$value$" OR sAMAccountName="$value$" OR userPrincipalName="$value$")</set>
+          <set token="tok_tgr_sub_chk">true</set>
+        </condition>
+      </change>
+    </input>
+    <input type="radio" token="tok_bypass_lg" depends="$tok_show_bypass_option$">
+      <label>5. Bypass Large List</label>
+      <choice value="no">No</choice>
+      <choice value="yes">Yes</choice>
+      <default>no</default>
+      <initialValue>no</initialValue>
+      <change>
+        <condition value="no">
+          <unset token="tok_tgr_sub_user_list"></unset>
+          <unset token="tok_show_user_list"></unset>
+          <unset token="tok_tgr_exec_logon"></unset>
+          <unset token="show_results_views"></unset>
+          <set token="form.tok_user">sel</set>
+          <set token="tok_user">sel</set>
+        </condition>
+        <condition value="yes">
+          <unset token="tok_tgr_exec_logon"></unset>
+          <set token="tok_tgr_sub_user_list">true</set>
+          <set token="tok_show_user_list">true</set>
+          <set token="form.tok_user">sel</set>
+          <set token="tok_user">sel</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_user" searchWhenChanged="true" depends="$show_inputs$,$tok_show_user_list$">
+      <label>$tok_inp_usr_list_nmb$. Select User</label>
+      <choice value="sel">Select User</choice>
+      <choice value="all">All</choice>
+      <search base="base_user_list">
+        <query>| eval tgt_field=sAMAccountName | table cn,tgt_field</query>
+      </search>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <fieldForLabel>cn</fieldForLabel>
+      <fieldForValue>tgt_field</fieldForValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_tgr_exec_logon"></unset>
+          <unset token="show_adv_options">True</unset>
+        </condition>
+        <condition value="all">
+          <unset token="show_ou_members"></unset>
+          <set token="tok_show_tabs">true</set>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_3"></unset>
+          <unset token="tok_tab_4"></unset>
+          <set token="tok_tab_1">active</set>
+          <set token="show_adv_options">True</set>
+          <set token="tok_user_filt">$tok_user_filter$</set>
+          <set token="tok_logon_srch_u_filt">$tok_user_filter$</set>
+          <set token="tok_srch_u_raw">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ AND dn_path="$tok_ou$" $tok_user_filter$
+| fields cn,sAMAccountName,userPrincipalName
+| `ms_obj_ss_filt_flds_raw("cn,sAMAccountName,userPrincipalName")`</set>
+          <set token="tok_srch_u_link">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ AND dn_path="$tok_ou$" $tok_user_filter$
+| fields cn,sAMAccountName,userPrincipalName
+| `ms_obj_ss_filt_flds_in("cn,sAMAccountName,userPrincipalName")`</set>
+          <set token="tok_tgr_exec_logon">True</set>
+        </condition>
+        <condition>
+          <unset token="show_ou_members"></unset>
+          <set token="tok_show_tabs">True</set>
+          <unset token="tok_tab_2"></unset>
+          <unset token="tok_tab_3"></unset>
+          <unset token="tok_tab_4"></unset>
+          <set token="tok_tab_1">active</set>
+          <set token="tok_user_filt"> AND sAMAccountName="$value$"</set>
+          <set token="tok_logon_srch_u_filt"> AND sAMAccountName="$value$"</set>
+          <set token="show_adv_options">True</set>
+          <set token="tok_srch_u_raw">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ AND dn_path="$tok_ou$" AND sAMAccountName="$value$"
+| fields cn,sAMAccountName,userPrincipalName
+| `ms_obj_ss_filt_flds_raw("cn,sAMAccountName,userPrincipalName")`</set>
+          <set token="tok_srch_u_link">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ AND dn_path="$tok_ou$" AND sAMAccountName="$value$"
+| fields cn,sAMAccountName,userPrincipalName
+| `ms_obj_ss_filt_flds_in("cn,sAMAccountName,userPrincipalName")`</set>
+          <set token="tok_tgr_exec_logon">True</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_search_type" depends="$show_inputs$,$show_adv_options$" id="advance_opt_id">
+      <label>5. Advance Options - Search Type</label>
+      <choice value="standard">Standard Index</choice>
+      <choice value="model">Authentication DM</choice>
+      <choice value="model_sum">Authentication DM(With Summary)</choice>
+      <default>standard</default>
+      <initialValue>standard</initialValue>
+      <change>
+        <condition value="standard">
+          <set token="tok_base_search">`ms_obj_failed_success_logons("user")`</set>
+          <set token="tok_filter_type">standard</set>
+          <set token="tok_filt_1_pre">$tok_base_srch_filt$</set>
+          <set token="tok_filt_link_field">search</set>
+          <set token="tok_filt_1_post">| table search | format</set>
+        </condition>
+        <condition value="model_sum">
+          <set token="tok_base_search">| `ms_obj_srch_auth_model_basic("true")`</set>
+          <set token="tok_filter_type">model</set>
+          <set token="tok_filt_1_pre">| join user</set>
+          <set token="tok_filt_link_field">user</set>
+          <set token="tok_filt_1_post">| table user,cn,dn,sAMAccountName,dn_path</set>
+          <set token="tok_srch_u_raw"></set>
+          <set token="tok_user_srch_filt"></set>
+        </condition>
+        <condition>
+          <set token="tok_base_search">| `ms_obj_srch_auth_model_basic("false")`</set>
+          <set token="tok_filter_type">model</set>
+          <set token="tok_filt_1_pre">| join user</set>
+          <set token="tok_filt_link_field">user</set>
+          <set token="tok_filt_1_post">| table user,cn,dn,sAMAccountName,dn_path</set>
+          <set token="tok_srch_u_raw"></set>
+          <set token="tok_user_srch_filt"></set>
+        </condition>
+      </change>      
+    </input>
+     <html depends="$tok_message_state$" id="inp_post_msg">
+        <p style="font-size:8;" id="inp_msg_p">
+          <font color="$tok_message_color$">
+            <i>
+              <b>$tok_message_state$: </b> $tok_message$.</i> 
+          </font>
+        </p>
+      </html>
+    </panel>
+    <panel id="rw_initial_post_panel_njs" depends="$show_results_views$">
+      <input type="link" token="tok_logon_type" searchWhenChanged="true" id="select_logon_type">
+      <label>Select Logon Status</label>
+      <choice value="All">All Logons</choice>
+      <choice value="Success">Succesful</choice>
+      <choice value="Failed">Failed</choice>
+      <default>All</default>
+      <initialValue>All</initialValue>
+      <change>
+        <condition value="All">
+          <set token="tok_all_o_time">True</set>
+          <set token="tok_success_o_time">True</set>
+          <set token="tok_failed_o_time">True</set>
+          <set token="tok_logon_srch_top">| stats sum(Failed_Attempts) AS Failed_Attempts,sum(Successful_Attempts) AS Successful_Attempts, count AS Total_Attempts by user,src_nt_domain
+| sort -Total_Attempts</set>
+          <set token="tok_logon_srch_src">| stats sum(Failed_Attempts) AS Failed_Attempts,sum(Successful_Attempts) AS Successful_Attempts, count AS Total_Attempts by src_nt_host, src_ip
+| sort -Total_Attempts</set>
+          <set token="tok_logon_srch_sum">| stats sum(Failed_Attempts) AS f_cnt,sum(Successful_Attempts) AS s_cnt, count AS Total_Attempts by src_nt_host, src_ip,user,signature
+| eventstats sum(f_cnt) AS uf_cnt,sum(s_cnt) AS us_cnt by user,src_nt_host
+| eventstats sum(f_cnt) AS sf_cnt by signature,src_nt_host
+| sort -uf_cnt -us_cnt -sf_cnt
+| eval Top_Failed_Users=if(uf_cnt&gt;0,"(".tostring(uf_cnt,"commas").") ".user,""),signature=if(sf_cnt&gt;0,"(".tostring(sf_cnt,"commas").") ".signature,""),Top_Success_Users=if(us_cnt&gt;0,"(".tostring(us_cnt,"commas").") ".user,"")
+| stats sum(Total_Attempts) AS Total_Attempts, list(Top_Failed_Users) AS Top_Failed_Users, list(signature) AS signature,list(Top_Success_Users) AS Top_Success_Users,values(src_ip) AS src_ips by src_nt_host
+| eval Top_Success_Users=mvindex(mvdedup(Top_Success_Users),0,9),Top_Failed_Users=if(Top_Failed_Users=="","NA",mvindex(mvdedup(Top_Failed_Users),0,9)),signature=mvdedup(signature)
+| sort -Total_Attempts
+| rename signature AS "Top_Failure_Reasons", src_nt_host AS "Source System", src_ip AS "Source IP"</set>
+        </condition>
+        <condition value="Success">
+          <set token="tok_success_o_time">True</set>
+          <set token="tok_logon_srch_top">| WHERE status="success"
+| stats sum(Successful_Attempts) AS Successful_Attempts by user,src_nt_domain
+| sort -Successful_Attempts</set>
+          <set token="tok_logon_srch_src">| WHERE status="success"
+| stats sum(Successful_Attempts) AS Successful_Attempts by src_nt_host, src_ip
+| sort -Successful_Attempts</set>
+          <set token="tok_logon_srch_sum">| WHERE status="success"
+| stats count AS Total_Attempts, sum(Successful_Attempts) AS s_cnt,values(src_ip) AS src_ip by src_nt_host,user
+| sort -s_cnt
+| eval eval Top_Success_Users=if(s_cnt&gt;0,"(".tostring(s_cnt,"commas").") ".user,NULL)
+| stats sum(Total_Attempts) AS Total_Successful_Attempts, list(Top_Success_Users) AS Top_Success_Users,values(src_ip) AS src_ip by src_nt_host
+| eval Top_Success_Users=mvindex(Top_Success_Users,0,9)
+| sort -Total_Successful_Attempts
+| rename src_nt_host AS "Source System", src_ip AS "Source IPs"</set>
+          <unset token="tok_failed_o_time"></unset>
+          <unset token="tok_all_o_time"></unset>
+        </condition>
+        <condition value="Failed">
+          <set token="tok_failed_o_time">True</set>
+          <set token="tok_logon_srch_top">| WHERE status="failure"
+| stats sum(Failed_Attempts) AS Failed_Attempts by user,src_nt_domain
+| sort -Failed_Attempts</set>
+          <set token="tok_logon_srch_src">| WHERE status="failure"
+| stats sum(Failed_Attempts) AS Failed_Attempts by src_nt_host, src_ip 
+| sort -Failed_Attempts</set>
+          <set token="tok_logon_srch_sum">| WHERE status="failure"
+| stats count AS Total_Attempts, sum(Failed_Attempts) AS f_cnt,values(src_ip) AS src_ip by src_nt_host, user,signature
+| eventstats sum(f_cnt) AS uf_cnt by user,src_nt_host
+| eventstats sum(f_cnt) AS sf_cnt by signature,src_nt_host
+| sort -uf_cnt -sf_cnt
+| eval Top_Failed_Users=if(uf_cnt&gt;0,"(".tostring(uf_cnt,"commas").") ".user,""),signature=if(sf_cnt&gt;0,"(".tostring(sf_cnt,"commas").") ".signature,"")
+| stats sum(Total_Attempts) AS Total_Attempts, list(Top_Failed_Users) AS Top_Failed_Users, list(signature) AS signature,values(src_ip) AS src_ips by src_nt_host
+| eval Top_Failed_Users=if(Top_Failed_Users=="","NA",mvindex(mvdedup(Top_Failed_Users),0,9)),signature=mvdedup(signature)
+| sort -Total_Attempts
+| rename signature AS "Top_Failure_Reasons", src_nt_host AS "Source System", src_ip AS "Source IP"</set>
+          <unset token="tok_success_o_time"></unset>
+          <unset token="tok_all_o_time"></unset>
+        </condition>
+      </change>
+    </input>
+    </panel>
+  </row>
+  <row id="tabs_row" depends="$tok_show_tabs$">
+    <panel id="ou_pan_tabs">
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_ms_ad_obj_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_results_sys_user_id" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;show_ou_members&quot;:&quot;undefined&quot;,&quot;show_logon_status&quot;:&quot;True&quot;}">Results Counts (<b style="color:$tok_results_count_color$;"> $tok_results_count$ </b>)</a>
+          </li>
+          <li class="$tok_tab_2$">
+            <a href="#tab_results_time_id" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;show_ou_members&quot;:&quot;undefined&quot;,&quot;show_logon_status&quot;:&quot;True&quot;}">Results Over Time</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_members_id" class="toggle-tab" data-token-json="{&quot;show_ou_members&quot;:&quot;true&quot;,&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;show_logon_status&quot;:&quot;True&quot;}">OU Users  ( <b style="color:$tok_user_count_color$;">$tok_user_count$</b> )</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_search_info_id" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;show_ou_members&quot;:&quot;undefined&quot;,&quot;show_logon_status&quot;:&quot;undefined&quot;}">Search Info</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$show_ou_warning$">
+    <panel>
+      <html>
+        <h2>
+    			<center>
+    			  <i class="icon-warning ms-obj-mod-icon">
+              <font>
+    			    <b>
+    			      Warning - No AD OU's available in the AD_Obj_OU lookup. See below for troubleshooting steps.
+    		      </b>
+    		    </font>
+            </i>
+    		  </center>
+    		</h2>
+        <table class="mddominpsettoptbl">
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_1.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Review and Verify collected admon:</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="/app/ms_windows_ad_objects/ms_ad_obj_overview?form.tok_show_top_level=app_main_deploy" class="btn small" target="_blank">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to verify that the admon baseline steps have been implemented correctly.
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_2.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Verify collected admon (eventtype=ms_ad_obj_msad_data admonEventType=Sync) data for target AD Objects - Groups, Users, Computers, OU's and GPO's:</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="@go?s=AD Objects - Verify Baseline Data - Overall" class="btn small" target="_blank">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to verify that the admon baseline steps have been implemented correctly.
+                      </i>
+                    </li>
+                    <li>
+                      <b>Note:</b> <i>This dashboard leverages the admon data for objectClass's ("top|person|organizationalPerson|user" and "top|orginizational")</i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>After verifying admon data has been collected, open the <b>Build AD Lookp Lists - Main</b> dashboard to build AD Object Lookups:</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="/app/ms_windows_ad_objects/ms_ad_obj_build_ad_lookup_lists__main" class="btn small" target="_blank">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to open the <b>Build AD Lookp Lists - Main</b> dashboard.  
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>        
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Re-open this dashboard to pickup the newly created, required, lookups:</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="/app/ms_windows_ad_objects/ms_ad_obj_ad_user_by_ou_logons" class="btn small">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to re-open this dashboard.  
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>           
+        </table>
+    	</html>
+    </panel>
+  </row>
+  <row id="ou_tab_members" depends="$tok_tab_3$">
+    <panel>
+      <html depends="$show_ou_users_warning$">
+        <h2>
+    			<center>
+    			  <i class="icon-warning ms-obj-mod-icon">
+              <font>
+    			    <b>
+    			      Warning - No AD Users available in the selected $tok_ou_label$ OU. <br/>
+    			      Select an AD OU that has Users, or if you recently added a user to the $tok_ou_label$ ou, then perform the below steps.
+    		      </b>
+    		    </font>
+            </i>
+    		  </center>
+    		</h2>
+        <table class="mddominpsettoptbl">
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_1.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Update the AD OU Lookup with the latest AD OU changes (Default schedule: run every 15 minutes):</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="/app/ms_windows_ad_objects/ms_ad_obj_overview?form.tok_show_top_level=app_main_deploy" class="btn small" target="_blank">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to run the AD Group Sync saved search to pick up the latest AD OU changes.
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_2.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Update the AD User Lookup with the latest AD OU changes (Default schedule:  run every 15 minutes):</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="@go?s=AD Objects - Verify Baseline Data - Overall" class="btn small" target="_blank">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to run the AD User Sync saved search to pick up the latest AD Group changes.
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>
+          <tr class="domsetvrw">
+            <td style="width: 5%">
+              <center>
+                <img src="/static/app/ms_windows_ad_objects/number_icon_3.png" style="height: 20px;"/>
+              </center>
+            </td>
+            <td style="width: 95%;text-align:left !important;">                 
+              <p>  
+                <ul>
+                  <h4>
+                    <i>Re-open this dashboard to pickup the updated AD Groups and User lookups:</i>
+                  </h4>
+                  <ul>
+                    <li>
+                      <i>
+                        <a href="/app/ms_windows_ad_objects/ms_ad_obj_ad_user_by_group_logons" class="btn small">
+                          <i class="icon-list"> Click Here</i>
+                        </a> to re-open this dashboard.  
+                      </i>
+                    </li>
+                  </ul>
+                </ul>    
+              </p>
+            </td>
+          </tr>           
+        </table>
+    	</html>
+    </panel>
+  </row>
+  <row depends="$show_ou_members$">
+    <panel>
+      <table>
+        <title>Filtered Users Lists in or under OU or Container ( $tok_ou$ )</title>
+        <search base="base_user_list">
+          <query>eval "User_Source_Field(sAMAccountName,cn,userPrincipalName)"=sAMAccountName.",".cn.",".userPrincipalName
+| fields domain,cn,dn_path,"User_Source_Field(sAMAccountName,cn,userPrincipalName)"
+| sort cn 
+| rename domain AS "User Domain", cn AS "User Name", dn_path AS "Object Path"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="ou_tab_results_sys_user" depends="$tok_tab_1$">
+    <panel>
+      <html depends="$show_results_warning$">
+    		<h2>
+    			<center>
+              <b>
+                <i class="icon-warning ms-obj-mod-icon">
+                  <font>No Login Results returned for Users within the directory ($tok_ou_label$).
+                    <ul>
+                      <li>Expand the Search Time Period, select a different AD OU Part/Path, or review the searches in the <b>Search Info</b> tab to verify login data.</li>
+                    </ul>
+                  </font>
+                </i>
+              </b>
+          </center>
+    		</h2>
+    	</html>
+      <table  depends="$show_results_user_trigger$,$show_results_views$">
+        <title>$tok_logon_type$ Logins by User Accounts</title>
+        <search base="base_logon_search">
+          <query>$tok_logon_srch_top$ 
+|rename user as "Username", src_nt_domain as "Domain"</query>
+          <done>
+            <condition match=" 'job.resultCount' == 0">
+              <set token="tok_results_count">0</set>
+            </condition>
+            <condition>
+              <eval token="tok_results_count">toString($job.resultCount$,"commas")</eval>
+            </condition>
+          </done>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Failed_Attempts">
+          <colorPalette type="list">[#65A637,#D93F3C]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <format type="color" field="Successful_Attempts">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+      </table>
+      <table depends="$show_results_user_trigger$,$show_results_views$">
+        <title>$tok_logon_type$ Logins by Source System</title>
+        <search base="base_logon_search">
+          <query>$tok_logon_srch_src$
+| rename src_nt_host as "Workstation",src_ip as "IP Address"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Failed_Attempts">
+          <colorPalette type="list">[#65A637,#D93F3C]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <format type="number" field="Failed_Attempts">
+          <option name="precision">0</option>
+        </format>
+        <format type="color" field="Successful_Attempts">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+      </table>
+    </panel>
+    <panel>
+      <table depends="$show_results_user_trigger$,$show_results_views$">
+        <title>Top 10 Users by System - $tok_logon_type$ Logins</title>
+        <search base="base_logon_search">
+          <query>$tok_logon_srch_sum$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row id="ou_tab_results_time" depends="$tok_tab_2$">
+    <panel>
+      <html depends="$show_results_warning$">
+    		<h2>
+    			<center>
+              <b>
+                <i class="icon-alert-circle" style="color:red">
+                  <font color="Red">No Login Results returned for members of the group ($tok_ou_label$).</font>
+                </i>
+              </b>
+          </center>
+    		</h2>
+    	</html>
+      <chart depends="$show_results_user_trigger$,$show_results_views$,$tok_all_o_time$">
+        <title>All Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+      <chart depends="$show_results_user_trigger$,$show_results_views$,$tok_failed_o_time$">
+        <title>Failed Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>WHERE status="failure"
+| timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+      <chart depends="$show_results_user_trigger$,$show_results_views$,$tok_success_o_time$">
+        <title>Success Logins by Users - Over Time</title>
+        <search base="base_logon_search">
+          <query>WHERE status="success"
+| timechart count by user</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">-45</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_search_info" depends="$tok_tab_4$">
+    <panel>
+      <html>
+        <h2>
+    			<center>
+    			  <i class="icon-info-circle" style="color:blue"/>
+    			    <i>Below are the base searches for this dashboard. <br/>
+    			    (<b>Note</b> the resulting logon search has two types, Dynamic and Non-Dynamic. Dynamic uses the subsearch, where Non-Dynamic uses only the values from the configured subsearch.)
+    		      </i>
+    		  </center>
+    		</h2>        
+        <table class="mddominpsettoptbl" >
+          <tr class="digsinpsethdrrow">
+            <td style="width: 15%">
+              <center>
+                <h4>Type</h4>
+              </center>
+            </td>
+            <td style="width: 75%">
+              <center>
+                <h4>Search Text</h4>
+              </center>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <h4>Action</h4>
+              </center>
+            </td>              
+          </tr>
+          <tr class="domsetvrw" style="$tok_show_no_ou_s_err$">
+            <td colspan="3">
+              <h2>
+    			      <center>
+    			        <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">
+    			            <b>
+    			              Warning - No AD OU's available in the AD_Obj_OU lookup. Verify admon data collection and Lookups have been built. <a href="/app/ms_windows_ad_objects/ad_objects__configuration__getting_data_in" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Getting Started Dashboard</i>
+                </a>
+    		              </b>
+    		            </font>
+                  </i>
+    		        </center>
+    		      </h2>             
+            </td>
+          </tr>            
+          <tr class="domsetvrw">
+            <td style="width: 15%">
+              <center>OU List</center>
+            </td>
+            <td style="width: 75%;text-align:left !important;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">| inputlookup $tok_user_lkp$ | fields dn_path |stats count by dn_path</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=| inputlookup $tok_user_lkp$ | fields dn_path |stats count by dn_path| sort -count" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>
+          <tr class="domsetvrw" style="$tok_show_no_users_s_err$">
+            <td colspan="3">
+              <h2>
+    			      <center>
+    			        <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">
+    			            <b>
+    			              Warning - No AD OU Users available in the selected $tok_ou_label$ Directory. <br/>
+    			              Select an AD OU Part or Path that has users, or if you recently added a user to the $tok_ou_label$ directory, then wait up to 15minutes for the next scheduled pickup and update of the new Users admon data.
+    		              </b>
+    		            </font>
+                  </i>
+    		        </center>
+    		      </h2>             
+            </td>
+          </tr>          
+          <tr class="domsetvrw">
+            <td style="width: 15%">
+              <center>Filtered OU - User List</center>
+            </td>
+            <td style="width: 75%;text-align:left !important;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_u_raw$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_u_raw|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>  
+          <tr class="domsetvrw" style="$tok_show_no_logon_s_err$">
+            <td colspan="3">
+    			    <center>
+                <b>
+                  <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">No Login Results returned for Users within the directory ($tok_ou_label$).
+                    <ul>
+                      <li>Expand the Search Time Period, select a different AD OU Part/Path, or review the searches below to verify login data.</li>
+                    </ul>
+                    </font>
+                  </i>
+                </b>
+              </center>              
+            </td>
+          </tr>    
+          <tr class="domsetvrw" style="$tok_show_no_logon_s_info$">
+            <td style="width: 15%">
+              <center>Base Logon Search<br/>
+              <b>Dynamic</b>
+              </center>
+            </td>
+            <td style="width: 75%;text-align:left !important;">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_logon$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_logon|u$&amp;earliest=$time_field.earliest$&amp;latest=$time_field.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>
+        </table>              
+      </html>
+    </panel>
+  </row>
+</form>

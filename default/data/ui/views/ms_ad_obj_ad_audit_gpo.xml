@@ -1,0 +1,138 @@
+<form script="customized_chart_preload.js,ms_ad_obj_audit_report.js" version="1.1">
+  <label>AD Objects - Group Policy - Audit</label>
+  <search id="base_audit_search">
+    <query>| inputlookup AD_Obj_GPO 
+| makemv delim="|" objectClass
+| makemv delim="####" dSCorePropagationData
+| fields *</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <search id="audit_query" base="base_audit_search">
+    <query>search domain="$tok_domain$" cn="$tok_gpo$"
+| fields *</query> 
+  </search>
+  <search id="base_gpo_chg_search">
+    <query>`ms_obj_changes_base_cat("Group Policy")` (src_nt_domain="$tok_domain$" OR dest_nt_domain="$tok_domain$") ([|`ms_obj_ss_filt_raw_link("$tok_gpo$","cn","AD_Obj_GPO","$tok_domain$","$tok_gpo$","cn,displayName,distinguishedName","raw_txt")`])
+| fields _time, _raw,sourcetype,session_id, src_nt_domain, src_user,Object_Name_Guid,displayName,msad_action,change_action,dir_svcs_action,AttributeLDAPDisplayName,AttributeSyntaxOID,AttributeValue,MSADChangedAttributes,Correlation_ID,signature,Old_DN,New_DN
+| eval time_group=strftime(_time,"%m/%d/%y %I:%M %P")
+| eval time_group_epoch=strptime(time_group,"%m/%d/%y %I:%M %P")
+| eval change_action=if(isnull(change_action),"modified",change_action)
+| fillnull value="NA" Correlation_ID,msad_action
+| eval adminuser=if(isnull(src_nt_domain),src_user,src_nt_domain."\\".src_user) 
+| eval Object_Lookup_Name="{".lower(Object_Name_Guid)."}"
+| eval change_action=if(isnull(msad_action),change_action,msad_action)
+| eval chg_summary=case(change_action="created","|GPO Created:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="undeleted","|GPO Undeleted:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="deleted","|GPO Deleted:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="modified","|GPO Modified:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature)
+| lookup AD_Obj_GPO cn AS Object_Lookup_Name OUTPUT displayName,distinguishedName,cn
+| eval displayName=if(isnull(displayName),Object_Lookup_Name,displayName)
+| stats values(displayName) AS GPO,values(chg_summary) AS chg_summary by time_group,cn,adminuser,msad_action
+| makemv delim="|" chg_summary
+| search cn IN([|`ms_obj_ss_filt_raw_link("$tok_gpo$","cn","AD_Obj_GPO","$tok_domain$","$tok_gpo$","cn,displayName,distinguishedName","link")`])
+| table time_group,adminuser,msad_action,chg_summary 
+| rename time_group AS Time_Minute_Group,adminuser as "Administrator",msad_action AS Change_Actions,GPO as "Target_GPO",chg_summary as "Change Summary"</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="tok_domain_input" searchWhenChanged="true">
+      <label>Account Domain</label>
+      <search>
+        <query>| inputlookup AD_Obj_Domain
+| stats count by DomainNetBIOSName 
+| rename DomainNetBIOSName AS domain
+| table domain</query>
+      </search>
+      <choice value="sel">Select ....</choice>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_domain"></unset>
+          <unset token="show_sel_gpo"></unset>
+          <unset token="show_sel_time"></unset>
+          <unset token="show_views"></unset>
+        </condition>
+        <condition>
+           <set token="tok_domain">$value$</set>  
+           <set token="show_sel_gpo">True</set>  
+           <set token="show_sel_time">True</set>  
+           <set token="show_views">True</set>
+        </condition>
+      </change>
+      <selectFirstChoice>true</selectFirstChoice>
+    </input>
+    <input type="dropdown" token="tok_gpo" searchWhenChanged="true" id="input_src_filt_element_gpo" depends="$show_sel_gpo$">
+      <label>Select Group Policy</label>
+      <search base="base_audit_search">
+        <query>search domain=$tok_domain$ | stats count by displayName,cn | table displayName,cn | sort displayName</query>
+      </search>
+      <fieldForLabel>displayName</fieldForLabel>
+      <fieldForValue>cn</fieldForValue>
+      <selectFirstChoice>true</selectFirstChoice>
+    </input>
+    <input type="time" token="Time" depends="$show_sel_time$">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row depends="$show_views$">
+    <panel>
+      <html>
+        <div id="audit_report"/>
+      </html>
+    </panel>
+    <panel>
+      <table>
+        <title>Linked Containers</title>
+        <search>
+          <query>| inputlookup AD_Obj_GPO
+| search domain="$tok_domain$" cn="$tok_gpo$"
+| rename displayName AS gpo_name
+| table gpo_name, lc
+| mvexpand lc
+| rename lc as "Linked Containers"</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+      <table>
+        <title>Group Policy - Changes</title>
+        <search base="base_gpo_chg_search">
+          <query></query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hidden_style$">
+    <panel>
+      <html>
+        <style>
+#input_src_filt_element_gpo {
+width:500px !important;
+padding-right: 20px !important;
+margin-right: 20px !important;
+}
+[id^="input_src_filt_element_gpo"] [data-component="splunk-core:/splunkjs/mvc/components/Dropdown"] {
+width: 475px !important; 
+padding-right:20px;
+margin-right:20px !important;
+display: flex;  
+}          
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

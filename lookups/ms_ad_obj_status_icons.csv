@@ -1,0 +1,7 @@
+Status,"Status_Array"
+"*","icon-question-circle,UNKNOWN,grey"
+ERROR,"icon-error,ERROR,red"
+INFO,"icon-check-circle,OK,green"
+UNKNOWN,"icon-question-circle,UNKNOWN,grey"
+WARN,"icon-warning,WARNING,orange"
+WARNING,"icon-warning,WARNING,orange"

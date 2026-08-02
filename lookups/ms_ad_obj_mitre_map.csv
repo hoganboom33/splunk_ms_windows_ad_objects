@@ -1,0 +1,147 @@
+savedsearch_name,mitre_technique_id,mitre_technique,mitre_tactic,confidence
+AD Objects - Windows Performance - Process CPU,N/A,N/A,N/A,n/a
+AD Objects - Windows Performance - Procces Threads,N/A,N/A,N/A,n/a
+AD Objects - Audit - Modified - Computers,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Modified - Users,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Changes - Group All,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Changes - Group Membership Add,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Changes - Group Membership Remove,T1098|T1531,Account Manipulation|Account Access Removal,Persistence|Impact,medium
+AD Objects - Membership - All,T1069.002,Domain Groups,Discovery,low
+AD Objects - Membership - User,T1069.002|T1087.002,Domain Groups|Domain Account,Discovery,low
+AD Objects - Membership - Computer,T1069.002|T1018,Domain Groups|Remote System Discovery,Discovery,low
+AD Objects - Membership - Group,T1069.002,Domain Groups,Discovery,low
+AD Objects - Membership - Individual Group,T1069.002,Domain Groups,Discovery,low
+temp_build_inputs_lookup,N/A,N/A,N/A,n/a
+AD Objects - File ACL - Full List,T1222.001,Windows File and Directory Permissions Modification,Defense Evasion,medium
+AD Objects - File ACL - Summary,T1222.001,Windows File and Directory Permissions Modification,Defense Evasion,medium
+AD Objects - File Audit - Detailed View,T1222.001|T1083,Windows File and Directory Permissions Modification|File and Directory Discovery,Defense Evasion|Discovery,medium
+AD Objects - File Audit - Top 10 Obj Path,T1222.001|T1083,Windows File and Directory Permissions Modification|File and Directory Discovery,Defense Evasion|Discovery,low
+AD Objects - File Audit - Top 10 User  and Obj Path,T1222.001|T1083,Windows File and Directory Permissions Modification|File and Directory Discovery,Defense Evasion|Discovery,low
+AD Objects - File Audit - Top 10 Path and Type,T1222.001|T1083,Windows File and Directory Permissions Modification|File and Directory Discovery,Defense Evasion|Discovery,low
+AD Objects - Config - KVstore - Configuration,N/A,N/A,N/A,n/a
+AD Objects - Verify Baseline Data - Completed,N/A,N/A,N/A,n/a
+AD Objects - Verify Baseline Data - Overall,N/A,N/A,N/A,n/a
+AD Objects - Verify Baseline Data - ManualTime,N/A,N/A,N/A,n/a
+AD_Obj_Domain_Update,N/A,N/A,N/A,n/a
+AD_Obj_Group_ReBuild,N/A,N/A,N/A,n/a
+AD_Obj_Group_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_Group_Update,N/A,N/A,N/A,n/a
+AD_Obj_User_ReBuild,N/A,N/A,N/A,n/a
+AD_Obj_User_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_User_Update,N/A,N/A,N/A,n/a
+AD_Obj_Computer_ReBuild,N/A,N/A,N/A,n/a
+AD_Obj_Computer_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_Computer_Update,N/A,N/A,N/A,n/a
+AD_Obj_OU_ReBuild,N/A,N/A,N/A,n/a
+AD_Obj_OU_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_OU_Update,N/A,N/A,N/A,n/a
+AD_Obj_GPO_ReBuild,N/A,N/A,N/A,n/a
+AD_Obj_GPO_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_GPO_Update,N/A,N/A,N/A,n/a
+AD_Obj_GPO_OU_Update,N/A,N/A,N/A,n/a
+AD_Obj_OU_GPO_Update,N/A,N/A,N/A,n/a
+AD_Obj_Admin_Audit_Build,N/A,N/A,N/A,n/a
+AD_Obj_Admin_Audit_Migrate,N/A,N/A,N/A,n/a
+AD_Obj_Admin_Audit_Update,N/A,N/A,N/A,n/a
+AD_Obj_md_template_User_Update,N/A,N/A,N/A,n/a
+AD_Obj_md_template_Group_Update,N/A,N/A,N/A,n/a
+AD_Obj_md_template_Computer_Update,N/A,N/A,N/A,n/a
+ms_ad_obj_cfg_macro_chk,N/A,N/A,N/A,n/a
+AD Objects - Computer Lookup - Group List,T1069.002|T1018,Domain Groups|Remote System Discovery,Discovery,low
+AD Objects - User Lookup - SubSearch txt - Critical Obj Events,T1098|T1078.002,Account Manipulation|Domain Accounts,Persistence|Defense Evasion|Privilege Escalation|Initial Access,medium
+AD Objects - User Lookup - SubSearch - Critical Obj Events,T1098|T1078.002,Account Manipulation|Domain Accounts,Persistence|Defense Evasion|Privilege Escalation|Initial Access,medium
+AD Objects - User Lookup - UAC to Binary Example,N/A,N/A,N/A,n/a
+AD Objects - User Lookup - User Settings Full,T1087.002|T1078.002,Domain Account|Domain Accounts,Discovery|Defense Evasion|Persistence|Privilege Escalation|Initial Access,low
+AD Objects - User Lookup - User Settings Basic,T1087.002|T1078.002,Domain Account|Domain Accounts,Discovery|Defense Evasion|Persistence|Privilege Escalation|Initial Access,low
+AD Objects - User Lookup - Group List,T1069.002|T1087.002,Domain Groups|Domain Account,Discovery,low
+AD Objects - Audit - Changes - User - By Admin Day Summary,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Changes - User - By Admin Change Summary,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Changes - GPO - By Admin Day Summary,T1484.001,Group Policy Modification,Defense Evasion|Privilege Escalation,high
+AD Objects - Audit - Changes - Group Policies,T1484.001,Group Policy Modification,Defense Evasion|Privilege Escalation,high
+AD Objects - Audit - Created - Group Policies,T1484.001,Group Policy Modification,Defense Evasion|Privilege Escalation,high
+AD Objects - Audit - Deleted - Group Policies,T1484.001,Group Policy Modification,Defense Evasion|Privilege Escalation,high
+AD Objects - Audit - Changes - OU,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - Audit - Modified - OU,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - Audit - Created - OU,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - Audit - Critical Objects - Lookup,T1069.002,Domain Groups,Discovery,low
+AD Objects - View User AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify User Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify User Delete,N/A,N/A,N/A,n/a
+AD Objects - Verify Group AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify Group Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify Group Delete,N/A,N/A,N/A,n/a
+AD Objects - Verify DL Group AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify DL Group Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify DL Group Delete,N/A,N/A,N/A,n/a
+AD Objects - Verify Computer AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify Computer Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify Computer Delete,N/A,N/A,N/A,n/a
+AD Objects - Verify OU AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify OU Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify OU Delete,N/A,N/A,N/A,n/a
+AD Objects - Verify GPO AD Objects Lookup,N/A,N/A,N/A,n/a
+AD Objects - Verify GPO Sync Or Update,N/A,N/A,N/A,n/a
+AD Objects - Verify GPO Delete,N/A,N/A,N/A,n/a
+AD Objects - Scheduled Search - Runtime Statistics,N/A,N/A,N/A,n/a
+AD Objects - Scheduled Search - Skipped Reasons,N/A,N/A,N/A,n/a
+AD Objects - Tools - Lookup Field List,N/A,N/A,N/A,n/a
+Admin_Extra_Field_Sizing_Analysis,N/A,N/A,N/A,n/a
+ms_ad_obj_dev_user_delete_missing_fields,N/A,N/A,N/A,n/a
+AD Objects - Directory Services - Field Extractions,T1484|T1098,Domain Policy Modification|Account Manipulation,Defense Evasion|Privilege Escalation|Persistence,low
+AD Objects - File ACL - Base List,T1222.001,Windows File and Directory Permissions Modification,Defense Evasion,low
+AD Objects - Audit - Login - Details,T1078.002|T1110,Domain Accounts|Brute Force,Defense Evasion|Persistence|Privilege Escalation|Initial Access|Credential Access,high
+AD Objects - Audit - Login - Expired Disabled,T1078.002,Domain Accounts,Defense Evasion|Persistence|Privilege Escalation|Initial Access,high
+AD Objects - Audit - Login - Failed - Non-Domain Users,T1110|T1087.002,Brute Force|Domain Account,Credential Access|Discovery,medium
+AD Objects - Audit - Login - Failed Logons - Basic,T1110,Brute Force,Credential Access,high
+AD Objects - Audit - Login - Success Ratio,T1110|T1110.003,Brute Force|Password Spraying,Credential Access,medium
+AD Objects - Audit - Login - User Locked Events,T1110,Brute Force,Credential Access,high
+AD Objects - Audit - Login - Computer,T1078.002,Domain Accounts,Defense Evasion|Persistence|Privilege Escalation|Initial Access,medium
+AD Objects - Audit - Critical Users - Events,T1078.002|T1098,Domain Accounts|Account Manipulation,Defense Evasion|Persistence|Privilege Escalation|Initial Access,high
+AD Objects - Audit - Changes - Users,T1098,Account Manipulation,Persistence,high
+AD Objects - OU - GPO Linked,T1484.001,Group Policy Modification,Defense Evasion|Privilege Escalation,low
+AD Objects - Audit - Changes - Computers,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Created - Computers,T1136.002,Domain Account,Persistence,high
+AD Objects - Audit - Deleted - Computers,T1531,Account Access Removal,Impact,medium
+AD Objects - Audit - Undeleted - Computers,T1098,Account Manipulation,Persistence,medium
+AD Objects - Audit - Moved - Computers,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - Audit - Created - Users,T1136.002,Domain Account,Persistence,high
+AD Objects - Audit - Deleted - Users,T1531,Account Access Removal,Impact,high
+AD Objects - Audit - Undeleted - Users,T1098,Account Manipulation,Persistence,medium
+AD Objects - Audit - Moved - Users,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - Audit - Changes - Group Membership,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Created - Group,T1098,Account Manipulation,Persistence,medium
+AD Objects - Audit - Deleted - Group,T1531,Account Access Removal,Impact,medium
+AD Objects - Audit - Undeleted - Group,T1098,Account Manipulation,Persistence,medium
+AD Objects - Audit - Moved - Group,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,low
+AD Objects - Audit - Critical Groups - Events,T1098|T1069.002,Account Manipulation|Domain Groups,Persistence|Discovery,high
+AD Objects - Group Lookup - Members and UsersList,T1069.002,Domain Groups,Discovery,low
+AD Objects - Group Lookup - Members and ComputerList,T1069.002,Domain Groups,Discovery,low
+AD Objects - Group Lookup - Members and EmbGroupList,T1069.002,Domain Groups,Discovery,low
+AD Objects - Group Lookup - Members List,T1069.002,Domain Groups,Discovery,low
+AD Objects - Group Lookup - Embedded In Group List,T1069.002,Domain Groups,Discovery,low
+AD Objects - Group Lookup - Windows Security Membership Changes,T1098,Account Manipulation,Persistence,high
+AD Objects - Group Lookup - Critical Members,T1069.002,Domain Groups,Discovery,medium
+AD Objects - Audit - Changes - Group,T1098,Account Manipulation,Persistence,high
+AD Objects - Audit - Moved - OU,T1484,Domain Policy Modification,Defense Evasion|Privilege Escalation,medium
+AD Objects - App Health - Sourcetype Counts Windows,N/A,N/A,N/A,n/a
+AD Objects - App Health - Sourcetypes by Indexes,N/A,N/A,N/A,n/a
+AD Objects - App Health - Windows Index Details,N/A,N/A,N/A,n/a
+AD Objects - App Health - Macro Data Summary,N/A,N/A,N/A,n/a
+AD Objects - App Health - Macro Data Details,N/A,N/A,N/A,n/a
+AD Objects - App Health - Slow SvdSrch Detail,N/A,N/A,N/A,n/a
+AD Objects - App Health - Slow SvdSrch,N/A,N/A,N/A,n/a
+AD Objects - App Health - Slow SvdSrch Time,N/A,N/A,N/A,n/a
+AD Objects - Windows Registry - By Key Path Level,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Objects Values Hosts,T1112,Modify Registry,Defense Evasion,medium
+AD Objects - Windows Registry - Top 10 Objects by Type,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Count by Object,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Type by Key Path,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Type by root_hive,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Type by sub_root_hive,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Procces Threads,T1112,Modify Registry,Defense Evasion,low
+AD Objects - Windows Registry - Third Level Analysis,T1112,Modify Registry,Defense Evasion,low
+ms_obj_reset_gs_cfg,N/A,N/A,N/A,n/a
+AD Objects - ML Feature - Entity Change Velocity,T1098,Account Manipulation,Persistence,medium
+AD Objects - ML Feature - Logon Type Vector,T1078.002|T1021.001,Domain Accounts|Remote Desktop Protocol,Defense Evasion|Persistence|Privilege Escalation|Initial Access|Lateral Movement,medium
+AD Objects - ML Feature - Admin Session Features,T1078.002,Domain Accounts,Defense Evasion|Persistence|Privilege Escalation|Initial Access,medium
+AD Objects - ML Feature - Group Membership Delta,T1098,Account Manipulation,Persistence,medium

@@ -1,0 +1,1459 @@
+<form script="ms_ad_obj_update_input.js,ms_ad_obj_config_h.js" stylesheet="ms_ad_obj_gs_cfg.css,ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>Build AD Lookup Lists - Main</label>
+  <init>
+    <set token="tok_chk_d_dom_lkp_msg">Pending</set>
+    <set token="tok_chk_d_dom_lkp_lbl">Pending</set>
+    <set token="tok_chk_d_dom_health_lbl">Pending</set>
+    <set token="tok_chk_d_dom_health_msg">Pending</set>
+    <set token="tok_chk_d_admon_sync_lbl">Pending</set>
+    <set token="tok_chk_d_admon_sync_msg">Pending</set>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_dom_health_trigger">0</set>
+    <set token="tok_dom_lkup_trigger">0</set>
+    <set token="tok_ad_sync_trigger">0</set>
+    <set token="tok_show_build_inputs">True</set>
+    <set token="tok_status_user_build">Pending</set>
+    <set token="tok_status_computer_build">Pending</set>
+    <set token="tok_status_group_build">Pending</set>
+    <set token="tok_status_ou_build">Pending</set>
+    <set token="tok_status_gpo_build">Pending</set>
+    <set token="tok_status_gpo_ou_link">Pending</set>
+    <set token="tok_status_admin_audit_build">Pending</set>
+    <set token="tok_count_domain_build">0</set>
+    <set token="tok_count_user_build">0</set>
+    <set token="tok_count_computer_build">0</set>
+    <set token="tok_count_group_build">0</set>
+    <set token="tok_count_ou_build">0</set>
+    <set token="tok_count_gpo_build">0</set>
+    <set token="tok_count_gpo_ou_link">0</set>
+    <set token="tok_count_admin_audit_build">0</set>
+    <set token="tok_msg_user_build">Pending</set>
+    <set token="tok_msg_computer_build">Pending</set>
+    <set token="tok_msg_group_build">Pending</set>
+    <set token="tok_msg_ou_build">Pending</set>
+    <set token="tok_msg_gpo_build">Pending</set>
+    <set token="tok_msg_gpo_ou_link">Pending</set>
+    <set token="tok_msg_admin_audit_build">Pending</set>
+    <set token="tok_build_individual_computer">display:none;</set>
+    <set token="tok_build_individual_group">display:none;</set>
+    <set token="tok_build_individual_ou">display:none;</set>
+    <set token="tok_build_individual_gpo">display:none;</set>
+    <set token="tok_build_individual_gpo_link">display:none;</set>
+    <set token="tok_build_individual_admin_audit">display:none;</set>
+    <set token="tok_show_cancel_button">display:none;</set>
+    <set token="tok_dom_host"></set>
+    <set token="tok_dom_dns_name"></set>
+    <set token="tok_dom_netbios_name"></set>
+    <set token="tok_dom_forest"></set>
+    <set token="tok_dom_site"></set>
+    <set token="tok_add_dm_btn_ena">false</set>
+    <set token="tok_time_helper_results">display:none;</set>
+    <unset token="tok_dd_result_lookup"></unset>
+    <unset token="tok_show_cat_results"></unset>
+    <unset token="tok_show_details_results"></unset>
+    <unset token="tok_exec_user_build"></unset>
+    <unset token="tok_exec_computer_build"></unset>
+    <unset token="tok_exec_group_build"></unset>
+    <unset token="tok_exec_ou_build"></unset>
+    <unset token="tok_exec_gpo_build"></unset>
+    <unset token="tok_exec_gpo_ou_link"></unset>
+    <unset token="tok_exec_admin_audit_build"></unset>
+    <unset token="tok_show_reload"></unset>
+    <unset token="tok_show_man_domain_update"></unset>
+    <unset token="tok_show_man_domain_updatea"></unset>
+  </init>
+  <!-- Pre-Check Searches -->
+  <search id="base_chk_ms_obj_state">
+    <query>| inputlookup AD_Domain_Selector
+| eval trigger="$tok_new_cfg$"
+| head 2</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_srch_trigger_rerun">0</set>
+        <set token="tok_nxt_btn_state">disabled</set>
+        <set token="tok_chk_pre_upg">chk_pre_upg_n</set>
+        <set token="tok_auto_chk_lbl">Pending Scope Definition:</set>
+        <set token="tok_obj_upg_app">obj_upg_app_n</set>
+        <set token="tok_h_state_input_1">Completed</set>
+        <set token="tok_h_state_completed">pending</set>
+        <set token="tok_input_1_a_i"></set>
+        <set token="tok_input_1_b_i">chosen</set>
+      </condition>
+      <condition>
+        <set token="tok_srch_trigger_rerun">0</set>
+        <set token="tok_nxt_btn_state">disabled</set>
+        <set token="tok_chk_pre_upg">chk_pre_upg_y</set>
+        <set token="form.tok_build_type">build_migrate</set>
+        <set token="tok_auto_chk_lbl">Upgrade Pre-Check</set>
+        <set token="tok_obj_depl">obj_depl_n</set>
+        <set token="tok_enable_next">enable</set>
+        <set token="tok_h_load_details">ms_ad_obj_gs_prep.html</set>
+        <set token="tok_obj_upg_app">obj_upg_app_y</set>
+        <set token="tok_obj_env_type_arch">none</set>
+        <set token="tok_obj_env_type">none</set>
+        <set token="tok_obj_use_ds">none</set>
+        <set token="tok_obj_inst_ds">none</set>
+        <set token="tok_obj_inst_hf">no</set>
+        <set token="tok_obj_inst_hf_wta">no</set>
+        <set token="tok_obj_use_hf">no</set>
+        <set token="tok_obj_inst_uf">no</set>
+        <set token="tok_obj_inst_uf_wta">no</set>
+        <set token="tok_h_state_input_1">Completed</set>
+        <set token="tok_h_state_input_2">Not_Required</set>
+        <set token="tok_h_state_input_2_s">Not_Required</set>
+        <set token="tok_h_state_input_3">Skip</set>
+        <set token="tok_h_state_input_4">Not_Required</set>
+        <set token="tok_h_state_input_4_s">Not_Required</set>
+        <set token="tok_h_state_input_5">Skip</set>
+        <set token="tok_h_state_input_6">Not_Required</set>
+        <set token="tok_h_state_input_6_s">Not_Required</set>
+        <set token="tok_h_state_input_7">Skip</set>
+        <set token="tok_h_state_input_8">Skip</set>
+        <set token="tok_h_state_input_9">Skip</set>
+        <set token="tok_h_state_input_10_s">Not_Required</set>
+        <set token="tok_h_state_input_10">Not_Required</set>
+        <set token="tok_h_state_input_11">Skip</set>
+        <set token="tok_h_state_input_12">Skip</set>
+        <set token="tok_state_completed">Pre-Check - It appears you are upgrading the MS Windows AD Objects application, if not then select Yes on the first question in the left panel.:</set>
+        <set token="tok_h_state_completed">completed</set>
+        <set token="tok_input_1_a_i">chosen</set>
+        <set token="tok_input_1_b_i"></set>
+      </condition>
+    </done>
+  </search>
+  <search id="domain_health_check">
+    <query>`ms__obj_win_ad_index` eventtype="ms_ad_obj_msad-dc-health"
+| eval tok_srch_trigger_rerun_val="$tok_dom_health_trigger$"
+| head 2
+    </query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_missing</set>
+        <set token="tok_chk_d_dom_health_lbl">Warning: MSAD Health data is missing.</set>
+        <set token="tok_chk_d_dom_health_msg">Review below troubleshooting steps for checking required macro index definitions and enabling the MSAD Health data collection input on a Domain Controller or Click the Manually Domain Input to manually input the Domain values. Note: You can ignore if you the above Status is "Ok: AD_Obj_Domain Lookup has data".</set>
+        <set token="tok_load_chk_data_src">ms_ad_obj_gs_chk_data_src.html</set>
+        <set token="tok_load_chk_data_det">ms_ad_obj_gs_chk_data_det.html</set>
+        <set token="tok_chk_d_main">chk_d_y</set>
+        <set token="tok_chk_d_ko">chk_d_ko_y</set>
+        <set token="tok_chk_d_dom_health">chk_d_dom_health_y</set>
+        <set token="tok_chk_d_man_domain">chk_d_man_domain_y</set>
+      </condition>
+      <condition>
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_ok</set>
+        <set token="tok_chk_d_dom_health_lbl">OK: MSAD Health data is available</set>
+        <set token="tok_chk_d_dom_health_msg">MSAD Health Data is being indexed, and will be used to update AD_Obj_Domain lookup.</set>
+        <set token="tok_chk_d_dom_health">chk_d_dom_health_n</set>
+        <set token="tok_chk_d_man_domain">chk_d_man_domain_n</set>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Domain Lookup Build Workflow -->
+  <search id="first_domain_build">
+    <query>| inputlookup AD_Obj_Domain
+| eval tok_srch_trigger_rerun_val="$tok_dom_lkup_trigger$"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_sec_domain_attempt">AD_Domain_Selector</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup has data</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup has data, so if the other data checks are ok then click Next to proceed to the Building Lookup tasks.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set>
+        <set token="tok_post_exec_add_d">TRUE</set>
+        <unset token="tok_sec_domain_attempt"></unset>
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="second_domain_build" depends="$tok_sec_domain_attempt$">
+    <query>| inputlookup $tok_sec_domain_attempt$</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_fourth_domain_attempt">`ms_obj_admon_bld_domain`</set>
+        <unset token="tok_third_domain_attempt"></unset>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_third_domain_attempt">ms_obj_admon_migrate_out</set>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="third_domain_build" depends="$tok_third_domain_attempt$">
+    <query>|`$tok_third_domain_attempt$(domain,Domain)`</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_fourth_domain_attempt">`ms_obj_admon_bld_domain`</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup migration completed.</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup now has data populated by the previous versions lookup AD_Domain_Selector, so if the other data checks are ok then click Next to proceed to the Building Lookup tasks.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set>
+        <unset token="tok_fourth_domain_attempt"></unset>
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="fourth_domain_build" depends="$tok_fourth_domain_attempt$">
+    <query>$tok_fourth_domain_attempt$</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_count_domain_build">0</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_missing</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Critical: AD_Obj_Domain Lookup is missing data</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup has not been populated. This is required before proceeding to the next step. Review the below troubleshooting steps and then click the Rerun Autocheck button to attempt to build again.  The AD_Obj_Domain lookup has to be populated before attempting to build the other AD_Obj_... lookups.  Note: You can also manually populate this lookup using the below manual entry form.</set>
+        <set token="tok_chk_d_dom_health_cls">chk_dm_health_missing</set>
+        <set token="tok_chk_d_dom_health_lbl">Warning: MSAD Health data is missing</set>
+        <set token="tok_chk_d_dom_health_msg">MSAD Health data is not being collected, so the AD_Obj_Domain Lookup was not populated. Review the below troubleshooting steps and then click the Rerun Autocheck button to attempt to build again. Note: You can also manually populate this lookup using the below manual entry form.</set>
+        <set token="tok_chk_d_main">chk_d_y</set>
+        <set token="tok_chk_d_ko">chk_d_ko_y</set>
+        <unset token="tok_show_build_table"></unset>
+        <unset token="tok_show_build_inputs"></unset>
+      </condition>
+      <condition>
+        <set token="tok_count_domain_build">$job.resultCount$</set>
+        <set token="tok_show_build_table">TRUE</set>
+        <set token="tok_flg_complete">F</set>
+        <set token="tok_show_compl_button">display:none;</set>
+        <set token="tok_show_build_inputs">TRUE</set>
+        <set token="tok_chk_d_dom_lkp_cls">chk_dm_lkp_ok</set>
+        <set token="tok_chk_d_dom_lkp_lbl">Ok: AD_Obj_Domain Lookup has been built</set>
+        <set token="tok_chk_d_dom_lkp_msg">The AD_Obj_Domain Lookup now has data populated by the MSAD Health collected data, so if the other data checks are ok then click Next to proceed to the Building Lookup task.</set>
+        <set token="tok_show_add_dom_tbl">TRUE</set>
+        <unset token="tok_show_domain_update"></unset>
+        <unset token="tok_show_man_domain_updatea"></unset>
+        <unset token="tok_show_man_domain_update"></unset>
+      </condition>
+    </done>
+    <earliest>@d</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Get Macro Settings --> 
+  <search id="bs_mac_chk_res">
+    <query>| `ms_obj_cfg_macro_chk_h("$tok_check_mac_trigger$")`</query>
+  </search> 
+  <!-- Get Last admon Sync Time --> 
+  <search id="base_admon_check">
+    <query>`ms_obj_admon_get_begin_sync_t_val`
+| eval auto_earliest=strptime(Recommended_Sync_Start_Day,"%m/%d/%y")
+| eval tok_srch_trigger_rerun_val="$tok_ad_sync_trigger$"
+  	</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_ok_sync_msg"></unset>
+        <set token="tok_chk_d_res_admon">chk_d_res_admon_y</set>
+        <set token="tok_chk_d_ko">chk_d_ko_y</set>
+        <set token="tok_chk_d_admon_sync_cls">chk_admon_sync_missing</set>
+        <set token="tok_chk_d_admon_sync_lbl">Warning: admon Baseline (Sync) data is missing</set>
+        <set token="tok_chk_d_admon_sync_msg">The baseline admon (ie admonEventType=Sync) is either not collected, or was collected before the last 30 days. If you collected it more than a year ago, it is recommended to recollect it now.  Click the "Resetting admon Baseline" button below and follow the steps.</set>
+        <set token="tok_check_mac_trigger">1</set>
+      </condition>
+      <condition>
+        <set token="tok_chk_d_res_admon">chk_d_res_admon_n</set>
+        <set token="tok_chk_d_admon_sync_cls">chk_admon_sync_ok</set>
+        <set token="tok_chk_d_admon_sync_lbl">OK: admon Baseline (Sync) data is available</set>
+        <set token="tok_chk_d_admon_sync_msg">The baseline admon (ie admonEventType=Sync) is available within the last 30 days.</set>
+        <set token="tok_ts_admon_sync_f_day">$result.Recommended_Sync_Start_Day$</set>
+        <set token="tok_ts_admon_sync_l_day">$result.Last_Sync_Day$</set>
+        <set token="tok_ts_admon_sync_l_day_show">True</set>
+        <set token="form.tok_time_sync.earliest">$result.auto_earliest$</set>
+        <set token="tok_time_sync.earliest">$result.auto_earliest$</set>
+        <set token="tok_init_show_rec_sync_day">True</set>
+        <set token="tok_show_ok_sync_msg">admon Last Sync Data ($result.Recommended_Sync_Start_Day$) - total Sync Events ($result.Sync_Count$)</set>
+        <set token="tok_check_mac_trigger">1</set>
+      </condition>
+    </done>
+    <earliest>0</earliest>
+    <latest>now</latest>
+  </search>
+  <!-- Check Domain and admon Sync Status -->
+  <search id="base_set_dom_warn">
+    <query>| makeresults
+| eval async="$tok_chk_d_admon_sync_cls$"
+| eval domlkp="$tok_chk_d_dom_lkp_cls$"
+| eval warn=if(async=="chk_admon_sync_missing" OR domlkp=="chk_dm_lkp_missing","TRUE","FALSE")
+| search warn="TRUE"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_domain_warn"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_domain_warn">TRUE</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Manual Add Domain -->
+  <search id="base_m_add_domain">
+    <query>| makeresults
+| eval trigger="$tok_add_domain_trigger$" 
+| eval host = "$tok_upd_dm_host$"
+| eval DomainDNSName = "$tok_upd_dm_dns$"
+| eval DomainNetBIOSName = "$tok_upd_dm_netbios$"
+| eval domain = DomainNetBIOSName
+| eval ForestName = "$tok_upd_dm_forest$"
+| eval Site = "$tok_upd_dm_site$"
+| eval time=now()
+| eval multi_lkps_enabled="f"
+| eval kv_suffix=lower(DomainNetBIOSName)
+| eval dc_val=lower(DomainDNSName)
+| eval user_lookup="AD_Obj_User",group_lookup="AD_Obj_Group",computer_lookup="AD_Obj_Computer"
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,time,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+| eval _key=host
+| outputlookup AD_Obj_Domain append=true</query>
+    <earliest>-24h@h</earliest>
+    <latest>now</latest>
+    <progress>
+      <set token="tok_n_dm_host">$result.host$</set>
+      <set token="tok_n_dm_forest">$result.ForestName$</set>
+      <set token="tok_n_dm_dns">$result.DomainDNSName$</set>
+      <set token="tok_n_dm_netbios">$result.DomainNetBIOSName$</set>
+      <set token="tok_n_dm_site">$result.Site$</set>
+    </progress>
+    <done>
+      <unset token="tok_add_domain_trigger"></unset>
+      <set token="tok_show_add_dom_tbl">$result.time$</set>
+      <set token="tok_post_exec_add_d">$result.time$</set>
+      <set token="tok_reset_dom_man_inputs">$result.time$</set>
+    </done>
+  </search>
+  <!-- Object Builder Searches -->
+  <search id="check_uac_table">
+    <query>| inputlookup AD_Obj_UAC | head 5</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="load_new_uac_table">ms_obj_UAC_new</set>
+      </condition>
+      <condition>
+        <unset token="load_new_uac_table"></unset>
+      </condition>
+    </done>
+  </search>
+  <search id="upd_obj_lookup_uac">
+    <query>| `$load_new_uac_table$`</query>
+  </search>
+  <search id="base_obj_uac_upd">
+    <query>| $tok_start_uac_flg$
+| eval uac_u_vals="$tok_uac_u$"
+| eval uac_c_vals="$tok_uac_c$"
+| eval userAccountControl=case(uac_u_vals="0" AND uac_c_vals="0","NA",uac_u_vals="0",uac_c_vals,uac_c_vals="0",uac_u_vals,uac_u_vals!="0" AND uac_c_vals!="0",uac_u_vals.",".uac_c_vals)
+| makemv delim="," userAccountControl
+| mvexpand userAccountControl
+| table userAccountControl
+| join type=left userAccountControl [|inputlookup AD_Obj_UAC | table userAccountControl,uac_bin_map,uac_details]
+| WHERE (isnull(uac_details) OR uac_details="") AND userAccountControl!="NA"
+| table userAccountControl
+| `ms_obj_uac_to_details`
+| table userAccountControl,uac_bin_map,uac_details
+| eval _key=userAccountControl
+| outputlookup AD_Obj_UAC append=true</query>
+  </search>
+  <search id="base_build_type">
+    <query>| makeresults
+| eval type_value="build_all,build_individual"
+| makemv delim="," type_value
+| mvexpand type_value
+| eval type_label=if(type_value="build_all","New Build - All","New Build - Individual")
+| append [| inputlookup AD_OU_LDAP_list | fields | stats count | eval type_label=if(count&gt;0,"Migrate Previous",NULL),type_value=if(count&gt;0,"build_migrate",NULL) | table type_label,type_value]
+| sort type_value
+| table type_value,type_label</query>
+  </search>
+  <!-- # Time Range Helper Search - Will get the first Sync Time and counts of Sync Events by Day.  Will assist with determining what time to use for the Sync Events -->
+  <search id="base_time_helper">
+    <query>`$tok_exec_time_helper$`</query>
+    <progress>
+      <set token="tok_time_helper_msg">Running - Please Wait.</set>
+      <set token="tok_time_helper_results"></set>
+      <set token="tok_time_helper_f_time">Pending</set>
+      <set token="tok_time_helper_l_time">Pending</set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_time_helper_msg">Warning: No Sync admon Events Found.  Make sure you have followed the steps for getting the admon baseline data in, and have permission to the index specified in the macro ms__obj_win_ad_index.</set>
+        <set token="tok_time_helper_f_time">Not Found</set>
+        <set token="tok_time_helper_l_time">Not Found</set>
+        <set token="tok_time_helper_r_table">True</set>
+      </condition>
+      <condition>
+        <set token="tok_time_helper_msg">Review Results - Settings (2. Select Admon Sync Time)</set>
+        <set token="tok_time_helper_f_time">$result.First_Sync_Day$</set>
+        <set token="tok_time_helper_l_time">$result.Last_Sync_Day$</set>
+        <set token="tok_time_helper_r_table">True</set>
+      </condition>
+    </done>
+    <earliest>-180d@d</earliest>
+    <latest>now</latest>
+  </search>
+  <search id="upd_cfg_state">
+    <query>| `ms_obj_config_st_upd($tok_result_btn_run$)`</query>
+  </search>
+  <!-- # Base Building Searches -->
+  <search id="build_status_results">
+    <query>| makeresults
+| eval flag_status=if("$tok_count_user_build$"="0" OR "$tok_count_computer_build$"="0" OR "$tok_count_group_build$"="0" OR "$tok_count_ou_build$"="0" OR "$tok_count_gpo_build$"="0" OR "$tok_count_gpo_ou_link$"="0" OR "$tok_count_admin_audit_build$"="0","1","0")
+| eval completed_trigger="$tok_result_btn_run$"
+| eval flag_ok=if(flag_status=="1","0","1")
+| eval flag_warn=if(flag_status=="1","1","0")
+| table flag_ok,flag_warn</query>
+    <done>
+      <condition>
+        <unset token="tok_show_build_inputs"></unset>
+        <unset token="tok_show_build_all_msg"></unset>
+        <eval token="tok_show_build_all_success_msg">if($result.flag_ok$=="0",NULL,"True")</eval>
+        <eval token="tok_show_build_all_incmpl_msg">if($result.flag_warn$=="0",NULL,"True")</eval>
+        <set token="tok_result_btn_run">completed</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_user_build" depends="$tok_exec_user_build$">
+    <query>$tok_exec_user_build$
+| stats count,values(userAccountControl) AS uac_e_val
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"
+| table count,flg_compl,uac_e_val,build_type</query>
+    <progress>
+      <eval token="tok_count_user_build">tostring(round(tonumber('job.doneProgress')*99,2))."%"</eval>
+      <set token="tok_show_user_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_uac_u">0</set>
+        <set token="tok_status_user_build">Warning</set>
+        <set token="tok_count_user_build">0</set>
+        <set token="tok_msg_user_build">Warning: No User admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_computer_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(computer,Computer)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(computer,Computer)`",NULL))</eval>
+        <eval token="tok_status_computer_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_computer_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_computer">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_user_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_uac_u">if($result.flg_compl$="T",$result.uac_e_val$,0)</eval>
+        <eval token="tok_exec_computer_build">if($result.build_type$="build_all","`ms_obj_admon_bld_init_out_no_sync(computer,Computer)`",if($result.build_type$="build_migrate","|`ms_obj_admon_migrate_out(computer,Computer)`",NULL))</eval>
+        <eval token="tok_status_computer_build">if($result.build_type$="build_all","Running",if($result.build_type$="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_computer_build">if($result.build_type$="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_msg_user_build">if($result.flg_compl$="T","Initial Build: AD_Obj_User Lookup - Completed","Warning: No User admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_user_build">if($result.flg_compl$="T","Success","Warning")</eval>
+        <eval token="tok_build_individual_computer">if($result.build_type$="build_individual"," ","display:none;")</eval>
+        <set token="tok_count_user_build">$result.count$</set>
+        <set token="tok_show_user_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_computer_build" depends="$tok_exec_computer_build$">
+    <query>$tok_exec_computer_build$
+| stats count,values(userAccountControl) AS uac_e_val
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"
+| table count,flg_compl,uac_e_val,build_type</query>
+    <progress>
+      <eval token="tok_count_computer_build">tostring(round(tonumber('job.doneProgress')*99,2))."%"</eval>
+      <set token="tok_show_computer_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_uac_c">0</set>
+        <set token="tok_start_uac_flg">makeresults</set>
+        <set token="tok_status_computer_build">Warning</set>
+        <set token="tok_count_computer_build">0</set>
+        <set token="tok_msg_computer_build">Warning: No Computer admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_group_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(group,Group)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(group,Group)`",NULL))</eval>
+        <eval token="tok_status_group_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_group_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_group">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_computer_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_uac_c">if($result.flg_compl$="T",$result.uac_e_val$,0)</eval>
+        <set token="tok_start_uac_flg">makeresults</set>
+        <eval token="tok_exec_group_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(group,Group)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(group,Group)`",NULL))</eval>
+        <eval token="tok_status_group_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_group_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_group">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_computer_build">if($result.flg_compl$=="T","Initial Build: AD_Computer Lookup - Completed","Warning: No Computer admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_computer_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_computer_build">$result.count$</set>
+        <set token="tok_show_computer_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_group_build" depends="$tok_exec_group_build$">
+    <query>$tok_exec_group_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_group_build">tostring(round(tonumber('job.doneProgress')*99,2))."%"</eval>
+      <set token="tok_show_group_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_group_build">Warning</set>
+        <set token="tok_count_group_build">0</set>
+        <set token="tok_msg_group_build">Warning: No Group admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_ou_build">if($result.build_type$=="build_all","ms_obj_admon_bld_init_out_no_sync(ou,OU)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(ou,OU)`",NULL))</eval>
+        <eval token="tok_status_ou_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_ou_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_ou">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_group_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_exec_ou_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(ou,OU)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(ou,OU)`",NULL))</eval>
+        <eval token="tok_status_ou_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_ou_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_ou">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_count_group_build">$result.count$</set>
+        <eval token="tok_msg_group_build">if($result.flg_compl$=="T","Initial Build: AD_Obj_Group Lookup - Completed","Warning: No Group admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_group_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_show_group_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_ou_build" depends="$tok_exec_ou_build$">
+    <query>$tok_exec_ou_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_ou_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_ou_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_ou_build">Warning</set>
+        <set token="tok_count_ou_build">0</set>
+        <set token="tok_msg_ou_build">Warning: No OU admon events found - Change Sync Time Period</set>
+        <eval token="tok_exec_gpo_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(gpo,GPO)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(gpo,GPO)`",NULL))</eval>
+        <eval token="tok_status_gpo_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_gpo_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_gpo">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <set token="tok_show_ou_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_exec_gpo_build">if($result.build_type$=="build_all","`ms_obj_admon_bld_init_out_no_sync(gpo,GPO)`",if($result.build_type$=="build_migrate","|`ms_obj_admon_migrate_out(gpo,GPO)`",NULL))</eval>
+        <eval token="tok_status_gpo_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_gpo_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_gpo">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_ou_build">if($result.flg_compl$=="T","Initial Build: AD_OU Lookup - Completed","Warning: No OU admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_ou_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_ou_build">$result.count$</set>
+        <set token="tok_show_ou_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_gpo_build" depends="$tok_exec_gpo_build$">
+    <query>$tok_exec_gpo_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F")</query>
+    <progress>
+      <eval token="tok_count_gpo_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_gpo_build_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_gpo_build">Warning</set>
+        <set token="tok_count_gpo_build">0</set>
+        <set token="tok_msg_gpo_build">Warning: No GPO admon events found - Change Sync Time Period</set>
+        <set token="tok_exec_gpo_ou_link">ms_ad_admon_upd_gpo_wou</set>
+        <set token="tok_exec_ou_gpo_link">ms_ad_admon_upd_ou_wgpo</set>
+        <set token="tok_status_gpo_ou_link">Running</set>
+        <set token="tok_msg_gpo_ou_link">Executing... Please Wait...</set>
+        <set token="tok_show_gpo_build_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <set token="tok_exec_gpo_ou_link">ms_ad_admon_upd_gpo_wou</set>
+        <set token="tok_exec_ou_gpo_link">ms_ad_admon_upd_ou_wgpo</set>
+        <set token="tok_status_gpo_ou_link">Running</set>
+        <set token="tok_msg_gpo_ou_link">Executing... Please Wait...</set>
+        <eval token="tok_msg_gpo_build">if($result.flg_compl$=="T","Initial Build: AD_GPO Lookup - Completed","Warning: No GPO admon events found - Change Sync Time Period")</eval>
+        <eval token="tok_status_gpo_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_gpo_build">$result.count$</set>
+        <set token="tok_show_gpo_build_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_gpo_ou_link" depends="$tok_exec_gpo_ou_link$">
+    <query>| `$tok_exec_gpo_ou_link$`
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_gpo_ou_link">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_gpo_ou_link">Warning</set>
+        <set token="tok_count_gpo_ou_link">0</set>
+        <set token="tok_msg_gpo_ou_link">Warning: No GPO&lt;-&gt;OU Links found in AD_Obj_GPO and AD_Obj_OU Lookups</set>
+        <eval token="tok_exec_admin_audit_build">if($result.build_type$=="build_all","`ms_obj_winevt_init_admin_audit`",if($result.build_type$=="build_migrate","| `ms_obj_winevt_migrate_admin_audit`",NULL))</eval>
+        <eval token="tok_status_admin_audit_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_admin_audit">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+      </condition>
+      <condition>
+        <eval token="tok_exec_admin_audit_build">if($result.build_type$=="build_all","`ms_obj_winevt_init_admin_audit`",if($result.build_type$=="build_migrate","| `ms_obj_winevt_migrate_admin_audit`",NULL))</eval>
+        <eval token="tok_status_admin_audit_build">if($result.build_type$=="build_all","Running",if($result.build_type$=="build_migrate","Migrating","Next"))</eval>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_individual","Click the button to the right to build this lookup next:","Executing... Please Wait.")</eval>
+        <eval token="tok_build_individual_admin_audit">if($result.build_type$=="build_individual"," ","display:none;")</eval>
+        <eval token="tok_msg_gpo_ou_link">if($result.flg_compl$=="T","Initial Build: AD_Obj_GPO&lt;-&gt;AD_Obj_OU Links - Completed","Warning - No GPO and OU Links Found - Change Time Period")</eval>
+        <eval token="tok_status_gpo_ou_link">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_count_gpo_ou_link">$result.count$</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_sync.earliest$</earliest>
+    <latest>$tok_time_sync.latest$</latest>
+  </search>
+  <search id="base_build_admin_audit">
+    <query>$tok_exec_admin_audit_build$
+| stats count
+| eval flg_compl=if(count&gt;0,"T","F"),build_type="$tok_build_type$"</query>
+    <progress>
+      <eval token="tok_count_admin_audit_build">tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+      <set token="tok_show_admin_audit_cancel"></set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_status_admin_audit_build">Warning</set>
+        <set token="tok_count_admin_audit_build">0</set>
+        <eval token="tok_msg_admin_audit_build">if($result.build_type$=="build_migrate","Migrate: No Data - AD_Obj_Admin_Audit_list - Lookup","No Windows Change Events Found - Change Time Period"</eval>
+        <set token="tok_result_btn_run">completed</set>
+        <set token="tok_show_admin_audit_cancel">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_msg_admin_audit_build">if($result.flg_compl$=="T","Initial Build: AD_Obj_Admin_Audit Lookup - Completed","Warning: No Windows Change Events Found - Change Time Period")</eval>
+        <eval token="tok_status_admin_audit_build">if($result.flg_compl$=="T","Success","Warning")</eval>
+        <set token="tok_result_btn_run">completed</set>
+        <set token="tok_count_admin_audit_build">$result.count$</set>
+        <set token="tok_show_admin_audit_cancel">display:none;</set>
+      </condition>
+    </done>
+    <earliest>$tok_time_admin.earliest$</earliest>
+    <latest>$tok_time_admin.latest$</latest>
+  </search>
+  <search id="base_build_clear_state">
+    <query>| makeresults
+| eval state="$tok_build_clear_flag$"
+| search state="clear"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0"></condition>
+      <condition>
+        <unset token="tok_exec_user_build"></unset>
+        <set token="tok_msg_user_build">Pending</set>
+        <set token="tok_status_user_build">Pending</set>
+        <unset token="tok_exec_computer_build"></unset>
+        <set token="tok_msg_computer_build">Pending</set>
+        <set token="tok_status_computer_build">Pending</set>
+        <unset token="tok_exec_group_build"></unset>
+        <set token="tok_msg_group_build">Pending</set>
+        <set token="tok_status_group_build">Pending</set>
+        <unset token="tok_exec_ou_build"></unset>
+        <set token="tok_msg_ou_build">Pending</set>
+        <set token="tok_status_ou_build">Pending</set>
+        <unset token="tok_exec_gpo_build"></unset>
+        <set token="tok_msg_gpo_build">Pending</set>
+        <set token="tok_status_gpo_build">Pending</set>
+        <unset token="tok_exec_gpo_ou_link"></unset>
+        <set token="tok_msg_gpo_ou_link">Pending</set>
+        <set token="tok_status_gpo_ou_link">Pending</set>
+        <unset token="tok_exec_admin_audit_build"></unset>
+        <set token="tok_msg_admin_audit_build">Pending</set>
+        <set token="tok_status_admin_audit_build">Pending</set>
+        <unset token="tok_show_build_all_msg"></unset>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false"></fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_none" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}">Required Data Check</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_none" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}">View admon Baseline Data</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_none" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;}">Build Lookups</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel id="pan_p_t_single_4">
+      <html>
+          <table style="padding:4px;border: 4px solid #e20082;padding: 2px;margin: 2px;width:98%;">
+            <tr style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;">
+            	<th colspan="3">
+            		<center>
+            			<h2>
+                  <b>Check Data</b> - <i>Click <a href="#" class="btn btn-mini" data-rerun-multi="t" data-rerun-srch="tok_check_mac_trigger,tok_dom_health_trigger,tok_dom_lkup_trigger,tok_ad_sync_trigger">Rerun All Autochecks</a> to rerun the validation searches after changes.</i>
+                </h2>
+            			<h4>Use the below table to check that your environment is ready for the next task of Building the AD Object Lookup tables.</h4>
+            		</center>
+            	</th>
+            </tr>
+            <tr style="padding:2px;border: 3px solid #e20082;padding: 2px;margin: 2px;">
+              <td style="text-align:center;padding:2px;border: 2px solid #e20082;padding: 2px;margin: 2px;" colspan="2">Status</td>
+              <td style="text-align:center;padding:2px;border: 2px solid #e20082;padding: 2px;margin: 2px;">Message</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              <i class="chk_data $tok_chk_d_dom_lkp_cls$"/>
+            </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;"> 
+                	<img class="run_spin run_spin_dom_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+                	<b class="chk_data $tok_chk_d_dom_lkp_cls$">$tok_chk_d_dom_lkp_lbl$</b>  <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_dom_lkup_trigger">Rerun Check</a>
+            	</td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_dom_lkp_msg$</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              <i class="chk_data $tok_chk_d_dom_health_cls$"/>
+            </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_dom_health_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+              	<b class="chk_data $tok_chk_d_dom_health_cls$">$tok_chk_d_dom_health_lbl$</b>  <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_dom_health_trigger">Rerun Check</a>
+              </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_dom_health_msg$</td>
+            </tr>
+            <tr>
+              <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              <i class="chk_data $tok_chk_d_admon_sync_cls$"/>
+            </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_sync_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>   
+              	<b class="chk_data $tok_chk_d_admon_sync_cls$">$tok_chk_d_admon_sync_lbl$</b> <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_ad_sync_trigger">Rerun Check</a>
+              </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">$tok_chk_d_admon_sync_msg$</td>
+            </tr>            
+      		<tr>
+      			<td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              <b class="ma_st_ci $tok_macro_all_state$"/>
+            </td>
+              <td style="text-align:left;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">
+              	<img class="run_spin run_spin_mac_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> 
+              	<div class="mac_chk_all_msg"/> 
+              	 <ul style="list-style-type:none;">
+              	  <li>
+                  <a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_check_mac_trigger">Rerun Check</a>
+                </li>
+              	  <li>
+                  <a href="$tok_macro_base_url$?ns=ms_windows_ad_objects&amp;pwnr=-&amp;app_only=1&amp;search=index%3D&amp;count=25" class="btn btn-mini" target="_blank">Open Macro Settings</a>
+                </li>
+              	</ul>
+              </td>
+      		  <td>
+				      <div class="mac_chk_h_tbl"/>
+      		  </td>
+      		  </tr>
+      			<tr>
+      			  <td style="padding:5px;border: 3px solid #f99d1c;margin: 2px;" colspan="3"/>
+      			</tr>
+      			<tr style="padding:5px;border: 2px solid #f99d1c;margin: 2px;">
+      			    <td style="text-align:center;vertical-align:middle;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;" colspan="3">
+      			    	<center>
+						  <table style="width:100%;padding:5px;border: 4px solid #f99d1c;margin: 2px;">
+						    <tr>
+						    	<td style="padding:5px;border: 3px solid #f99d1c;margin: 2px;" colspan="7">
+                      <center>
+                        <h3>Troubleshooting Bar:</h3>
+                      </center>
+                    </td>
+						    </tr>
+							<tr>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<a class="btn btn-mini pop" data-t-mod-id="chk_d_task_res_admon_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}">
+                        <i class="icon-question-circle" style="font-size:20px;color:#e20082;"/> Resetting admon Baseline</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<a class="btn btn-mini pop" data-t-mod-id="chk_d_task_ko_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}">
+                        <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/> Macro Settings Check</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+								<div>
+                        <a class="btn btn-mini" data-t-mod-id="chk_d_task_crt_idx_$tok_obj_env_type$_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}">
+                          <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/> Reviewing Indexes</a>
+                      </div>
+							  </td> 
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="chk_d_task_dom_health_pop" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;undefined&quot;}">
+                        <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/> MSAD Health Input</a>
+							  </td>	
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}">
+                        <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/> Manual Domain Input</a>
+							  </td>	
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="gs_prep_task_input_pop_win" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;"/> Base OS Pre-Defined Inputs</a>
+							  </td>
+							  <td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">
+							  	<a class="btn btn-mini" data-t-mod-id="gs_prep_task_input_pop_ad" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}">
+                        <i class="icon-info-circle" style="font-size:20px;height:20px;color:#e20082;"/> AD Pre-Defined Inputs</a>
+							  </td>							  					     
+							</tr>
+						  </table>
+						</center>
+      			    </td>
+      			</tr>
+          </table>
+        </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel id="pan_p_left_4_1">
+      <title>Verify Baseline Data - Overall</title>
+      <input type="radio" token="time_chk_type">
+        <label>Select Time Range Type</label>
+        <choice value="auto">Auto Time Range</choice>
+        <choice value="manual">Manual Time Range</choice>
+        <default>auto</default>
+        <initialValue>auto</initialValue>
+        <change>
+          <condition value="auto">
+            <set token="tok_show_time_auto">True</set>
+            <unset token="tok_show_time_manual"></unset>
+          </condition>
+          <condition>
+            <unset token="tok_show_time_auto"></unset>
+            <set token="tok_show_time_manual">True</set>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="time_verify" depends="$tok_show_time_manual$">
+        <label>Use Manual Time Period</label>
+        <default>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <html depends="$tok_init_show_rec_sync_day$">
+        <h4>
+          <i class="icon-check" style="font-size:15px !important;color:#49B849;"> $tok_show_ok_sync_msg$</i>
+        </h4>
+      </html>
+    </panel>
+    <panel id="pan_p_right_4_1">
+      <table depends="$tok_show_time_auto$">
+        <search>
+          <query>`ms_obj_admon_get_sync_cnt(ms_obj_admon_base_a_obj)`</query>
+          <earliest>0</earliest>
+          <latest>now</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>domain_count,ObjectType,count,sync_start_event_time,last_event_event_time,completion_check</fields>
+      </table>
+      <table depends="$tok_show_time_manual$">
+        <search>
+          <query>`ms_obj_admon_get_sync_cnt_nt(ms_obj_admon_base_a_obj)`
+| eval trigger="$tok_show_time_manual$"</query>
+          <earliest>$time_verify.earliest$</earliest>
+          <latest>$time_verify.latest$</latest>
+          <sampleRatio>1</sampleRatio>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <fields>domain_count,ObjectType,count,sync_start_event_time,last_event_event_time,completion_check</fields>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel id="pan_bld_dm_msg" depends="$tok_show_build_msgs$">
+      <html depends="$tok_show_build_all_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h1>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <img id="img_init_spin" style="height:30px;width:30px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/>
+                <br/>
+                <i style="font-size:20px!important;color:#DC4E41 !important;padding-right:10px;"> <br/>Please Wait. $tok_show_build_all_msg$ All the lookups...</i>
+              </span>
+            </h1>
+          </center>
+        </div>
+      </html>
+      <html depends="$tok_show_build_all_success_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h2>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <i class="icon-check-circle" style="height:35px;color:#40A540;"/>
+                <i style="font-size:18px!important;color:#DC4E41 !important;padding-right:10px;"> Lookup Build Process Successfully Completed</i>
+             </span>
+            </h2>
+          </center>
+                <ul>
+                	<li>
+              <div class="li_content">Click the <i class="icon-visible" style="height:20px;color:#007ABD;"/> in the Action column to view lookup results</div>
+            </li>
+                	<li>
+              <div class="li_content">Click the <i class="icon-search" style="height:20px;color:#40A540;"/> in the Action column to review base search.</div>
+            </li>
+                	<li>
+              <div class="li_content">You can Now Exit the <b>Getting Started Dashboard</b> or <a class="btn btn-mini" href="ms_ad_obj_overview" target="_blank">Click Here</a> to open the Overview Dashboard.</div>
+            </li>
+            </ul>
+        </div>
+      </html>
+      <html depends="$tok_show_build_all_incmpl_msg$">
+        <div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr">
+          <center>
+            <h2>
+              <span class="mw-headline" id="splunk_owner_steps">
+                <i class="icon-warning" style="height:35px;color:#DC4E41;"/>
+                <i style="font-size:18px!important;color:#DC4E41 !important;padding-right:10px;"> Warning: Build process cancelled or not all of the Lookups were successfully built</i>
+             </span>
+            </h2>
+          </center>
+          <h4> Review the below options and troubleshooting steps for more information on successfully building the required lookups.</h4>
+                <ul class="note_lst">
+                	<li>
+              <div class="li_content">Click <a class="btn btn-mini Reset" data-token-json="{&quot;tok_show_build_msgs&quot;: &quot;tok_show_build_table&quot;,&quot;tok_show_build_msgs&quot;: &quot;undefined&quot;,&quot;tok_build_clear_flag&quot;: &quot;clear&quot;,&quot;tok_show_build_inputs&quot;:&quot;True&quot;}">
+                  <i class="icon-two-arrows-cycle" style="font-size:20px;color:#007ABD;"/>
+                </a>: Reset above Inputsefresh the settings and try expanding the Sync or Admin Audit Time Period</div>
+            </li>
+                	<li>
+              <div class="li_content">Click <a class="btn btn-mini pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_ko_pop">
+                  <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/>
+                </a>: Troubleshooting Roles and Knowledge Objects.</div>
+            </li>
+                	<li>
+              <div class="li_content">Click <a class="btn btn-mini pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_res_admon_pop">
+                  <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/>
+                </a>: Refreshing admon Baseline data with current values.</div>
+            </li>
+            	</ul>
+        </div>
+      </html>
+    </panel>
+    <panel id="pan_bld_dm_inp" depends="$tok_show_build_inputs$">
+      <input type="radio" token="tok_build_type" depends="$tok_show_build_inputs$">
+        <label>1. Select Build Type</label>
+        <default>build_all</default>
+        <initialValue>build_all</initialValue>
+        <fieldForLabel>type_label</fieldForLabel>
+        <fieldForValue>type_value</fieldForValue>
+        <search base="base_build_type"></search>
+        <change>
+          <condition value="build_all">
+            <set token="tok_build_all"></set>
+            <set token="tok_build_individual">display:none;</set>
+            <set token="tok_build_migrate">display:none;</set>
+            <set token="tok_show_time_helper_info"></set>
+            <set token="tok_show_time_fields">True</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <unset token="tok_show_build_indv_msg"></unset>
+          </condition>
+          <condition value="build_individual">
+            <set token="tok_build_individual"></set>
+            <set token="tok_build_all">display:none;</set>
+            <set token="tok_build_migrate">display:none;</set>
+            <set token="tok_show_time_helper_info"></set>
+            <set token="tok_show_time_fields">True</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <set token="tok_show_build_indv_msg">true</set>
+          </condition>
+          <condition value="build_migrate">
+            <set token="tok_build_migrate"></set>
+            <set token="tok_build_all">display:none;</set>
+            <set token="tok_build_individual">display:none;</set>
+            <set token="tok_show_time_helper_info">display:none;</set>
+            <set token="tok_build_clear_flag">clear</set>
+            <unset token="tok_show_build_indv_msg"></unset>
+            <unset token="tok_show_time_fields"></unset>
+            <unset token="tok_time_helper_r_table"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="tok_time_sync" depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <label>2. Select Admon Sync Time</label>
+        <default>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <set token="tok_build_clear_flag">clear</set>
+        </change>
+      </input>
+      <input type="time" token="tok_time_admin" searchWhenChanged="false" depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <label>3. Select Admin Audit Time Range</label>
+        <default>
+          <earliest>-30d@d</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <set token="tok_build_clear_flag">clear</set>
+        </change>
+      </input>
+      <html depends="$tok_show_ok_sync_msg$">
+         <center>
+          <h4>
+            <i class="icon-check" style="font-size:15px !important;color:#49B849;"> $tok_show_ok_sync_msg$</i>
+          </h4>
+        </center>       
+      </html>
+      <html depends="$tok_show_build_indv_msg$">
+        <center>
+          <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_ms_ad_obj_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          <h4>Complete building the individual lookups using the table and action buttons in the right column.</h4>
+        </center>
+      </html>
+      <html>
+        <div class="run_spin run_spin_sync_chk hidden">
+          <img style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Checking for admon Sync Date...</div>
+      </html>
+      <html depends="$tok_show_build_inputs$,$tok_show_time_fields$">
+        <div style="$tok_show_time_helper_info$">
+          <details ontoggle="mydetfunction()">
+			<summary class="ms_obj_summary_steps">
+              <i class="icon-question" style="color:#e20082;font-size:16px;"/> Help and Tips:</summary>
+			<p>
+				<ul class="note_lst">		
+					<li class="mrk_greater">
+                  		<i class="icon-bulb" style="color:#f99d1c;font-size:15px;"/>  <b>Setting the <i>2. Select Admon Sync Time</i> input:</b>:
+						<ol class="nbr_ts_list">
+						  <li class="nbr_ts_step">
+                      <div class="li_content">Click <a class="btn btn-mini sp-btn-gradient" data-token-json="{&quot;tok_exec_time_helper&quot;: &quot;ms_obj_admon_get_begin_sync_t_val&quot;}">Use Sync Time Helper</a> to help you determine what beginning start date to enter above for <b>2. Select Admon Sync Start Time</b>.</div>
+                    </li>
+						  <li class="nbr_ts_step">
+                      <div class="li_content">It is important that you get the last time the <b>admon baseline</b> was collected, to ensure that all of the AD Objects (User/Group/Computer/OU/GPO) are added to the lookup.</div>
+                    </li>
+						  <li class="nbr_ts_step">
+                      <div class="li_content">Choose a day that contains the most <b>Sync_Count</b> and then is closest to the current day.</div>
+                    </li>
+						</ol>
+					</li>
+					<li class="mrk_arrow_r">
+                  <div class="li_content">Click <a class="btn pop" style="font-size:20px;color:#e20082;" data-t-mod-id="chk_d_task_res_admon_pop">
+                      <i class="icon-question-circle" style="font-size:20px;height:20px;color:#e20082;"/>
+                    </a> to view steps for Refreshing admon Baseline data with current values if no Sync data is found.</div>
+                </li>
+          		  </ul>
+          		</p>
+          	</details>
+			<details ontoggle="mydetfunction()">
+				<summary class="vj_summary_step_details">
+					<i class="icon-info" style="color:red;font-size:15x;"/> <b>
+                <i>Large AD Environments Tip:</i>
+              </b>
+				</summary>						      
+				<ul class="note_lst">
+					<li class="mrk_note">
+						<div class="li_content">
+							<i>If you have a large AD Object count environment, and the building process is taking too long, it is recommended follow the steps outlined in the <b>Steps for Recollecting admon Base Line Data</b> to recollect the <i>"Baseline" admon data</i> for the individual Splunk Forwarder that is collecting admon data.</i>
+						</div>
+					</li>
+					<li>
+                <div class="li_content">This will allow you to select a shorter time range for picking up the Sync data used to build the Lookups.</div>
+              </li>
+					<li class="mrk_arrow_r">
+                <div class="li_content">For Advance Users, you can also split out the User, Group, and Computer lookups into separate lookups for each domain.   <a class="btn btn-mini" href="ms_ad_obj_cfg_split_kvs" target="_blank">Click Here</a> to review the configuration steps for performing this.  </div>
+              </li>
+				</ul>
+			</details>
+        </div>
+		<div style="$tok_time_helper_results$">
+			<table style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 3px;">
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;" colspan="2">
+                <h4>Time Helper Results</h4>
+              </td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">Message:</td>
+					<td style="padding:3px;border: 2px solid #e20082;">
+                <i>$tok_time_helper_msg$</i>
+              </td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">First Time for Sync Data:</td>
+					<td style="padding:3px;border: 2px solid #e20082;">
+                <i>$tok_time_helper_f_time$</i>
+              </td>
+				</tr>
+				<tr>
+					<td style="padding:3px;border: 2px solid #e20082;">Last Time for Sync Data:</td>
+					<td style="padding:3px;border: 2px solid #e20082;">
+                <i>$tok_time_helper_l_time$</i>
+              </td>
+				</tr>
+			</table>
+			<h4>Use the table below for seeing the Sync history</h4>
+		</div>
+      </html>
+      <table depends="$tok_time_helper_r_table$,$tok_show_build_inputs$,$tok_show_time_fields$">
+        <title>Sync History</title>
+        <search base="base_time_helper">
+          <query>table Sync_Day,Sync_Count
+| sort -Sync_Count</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel id="pan_bld_dm_table" depends="$tok_show_build_table$">
+      <html depends="$tok_show_domain_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:25px !important;color:red;"> Warning - Review the troubleshooting steps below before attempting to build the lookups. Required data is missing or unavailable. </i>
+          </h3>
+        </center>
+      </html>
+      <html>
+        <center>
+          <h1>
+            <a class="btn sp-btn-gradient" style="$tok_build_all$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_all&quot;,&quot;tok_exec_user_build&quot;: &quot;`ms_obj_admon_bld_init_out_no_sync(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_all_msg&quot;: &quot;Building&quot;,&quot;tok_show_build_inputs&quot;: &quot;undefined&quot;,&quot;tok_show_user_build_cancel&quot;: &quot;&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_build_all">Click to Build All AD Lookups
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_individual$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_indv&quot;,&quot;tok_exec_user_build&quot;: &quot;`ms_obj_admon_bld_init_out_no_sync(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual&quot;: &quot;display:none;.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_indv_msg&quot;: &quot;True&quot;,&quot;tok_show_user_build_cancel&quot;: &quot; &quot;,&quot;tok_show_user_build_cancel&quot;: &quot;&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_build_all">Click to Build AD_Obj_User Lookup First
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_migrate$" data-token-json="{&quot;tok_build_clear_flag&quot;: &quot;running_migrate&quot;,&quot;tok_exec_user_build&quot;: &quot;|`ms_obj_admon_migrate_out(user,User)`&quot;,&quot;tok_status_user_build&quot;: &quot;Migrating&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_migrate&quot;: &quot;display:none;.&quot;,&quot;tok_build_individual&quot;: &quot;display:none;.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_build_inputs&quot;: &quot;undefined&quot;,&quot;tok_show_build_all_msg&quot;: &quot;Migrating&quot;,&quot;tok_show_user_build_cancel&quot;: &quot; &quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}" id="btn_migrate_all">Click to Migrate All AD Lookups
+              <i class="icon-rotate"/>
+            </a>
+          </h1>
+        <table style="width:98%;border: 4px solid #e20082;padding: 2px;margin: 2px;overflow: auto !important;">
+          <tr style="border: 3px solid #f99d1c;height: 40px;">
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Lookup</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Build Status</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Object Count</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Status Message</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:18px;font-weight:500;">Actions</th>
+          </tr>
+          <tr class="build Success" style="height: 35px;">
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:16px;font-weight:500;">AD_Obj_Domain</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build Success"> (Success)</i>
+              </td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_domain_build$</td>    
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">Initial Build: AD_Obj_Domain Lookup - Completed.</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <a class="btn sp-btn-gradient build build completed Success" style="height:25px !important;" data-token-json="{&quot;tok_dd_result_lookup&quot;:&quot;AD_Obj_Domain&quot;}">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+              </td>
+          </tr>          
+          <tr class="build $tok_status_user_build$" style="height: 35px;">
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Users</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_user_build$"> ($tok_status_user_build$)</i>
+              </td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_user_build$</td>    
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_user_build$</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_user_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_User&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_user_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_user%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_user%2Cnone%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_user%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+               <a class="btn build Cancel $tok_status_user_build$" style="$tok_show_user_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_user_build&quot;:&quot;undefined&quot;,&quot;tok_status_user_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_user_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_user_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_computer&quot;:&quot;&quot;,&quot;tok_show_user_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                  
+              </td>
+          </tr>
+          <tr class="build $tok_status_computer_build$" style="height: 35px;">
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Computers</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_computer_build$"> ($tok_status_computer_build$)</i>
+              </td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <a class="btn sp-btn-gradient build $tok_status_computer_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_Computer&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_computer_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_computer%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_computer%2Cnone%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_computer%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_computer$height:25px !important;" data-token-json="{&quot;tok_exec_computer_build&quot;:&quot;`ms_obj_admon_bld_init_out_no_sync(computer,Computer)`&quot;,&quot;tok_status_computer_build&quot;: &quot;Running&quot;,&quot;tok_msg_computer_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_computer&quot;: &quot;display:none;.&quot;,&quot;tok_show_computer_build_cancel&quot;: &quot;&quot;}">Build Computer Lookup</a>
+               <a class="btn build Cancel $tok_status_computer_build$" style="$tok_show_computer_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_computer_build&quot;:&quot;undefined&quot;,&quot;tok_status_computer_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_computer_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_computer_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_group&quot;:&quot;&quot;,&quot;tok_show_computer_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>  
+              </td>            
+          </tr>          
+          <tr class="build $tok_status_group_build$" style="height: 35px;">
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Group</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_group_build$"> ($tok_status_group_build$)</i>
+              </td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_group_build$</td> 
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_group_build$</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_group_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_User&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_group_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_group%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_group%2Cnone%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_group%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_group$height:25px !important;" data-token-json="{&quot;tok_exec_group_build&quot;:&quot;`ms_obj_admon_bld_init_out_no_sync(group,Group)`&quot;,&quot;tok_status_group_build&quot;: &quot;Running&quot;,&quot;tok_msg_group_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_group&quot;: &quot;display:none;.&quot;,&quot;tok_show_group_build_cancel&quot;: &quot;&quot;}">Build Group Lookup</a>
+                 <a class="btn build Cancel $tok_status_group_build$" style="$tok_show_group_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_group_build&quot;:&quot;undefined&quot;,&quot;tok_status_group_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_group_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_group_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_ou&quot;:&quot;&quot;,&quot;tok_show_group_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                      
+              </td>
+          </tr>
+          <tr class="build $tok_status_ou_build$" style="height: 35px;">
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:16px;font-weight:500;">AD_Obj_OU</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_ou_build$"> ($tok_status_ou_build$)</i>
+              </td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_ou_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_OU&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_ou_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_ou%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_ou%2Cnone%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_ou%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_ou$height:25px !important;" data-token-json="{&quot;tok_exec_ou_build&quot;: &quot;`ms_obj_admon_bld_init_out_no_sync(ou,OU)`&quot;,&quot;tok_status_ou_build&quot;: &quot;Running&quot;,&quot;tok_msg_ou_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_ou&quot;: &quot;display:none;.&quot;,&quot;tok_show_ou_build_cancel&quot;: &quot;&quot;}">Build OU Lookup</a>
+                 <a class="btn build Cancel $tok_status_ou_build$" style="$tok_show_ou_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_exec_ou_build&quot;: &quot;undefined&quot;,&quot;tok_status_ou_build&quot;:&quot;Cancelled&quot;,&quot;tok_msg_ou_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_ou_build&quot;:&quot;0;&quot;,&quot;tok_build_individual_gpo&quot;:&quot;&quot;,&quot;tok_show_ou_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                  
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_build$" style="height: 35px;">
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_GPO</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_gpo_build$"> ($tok_status_gpo_build$)</i>
+              </td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn sp-btn-gradient build $tok_status_gpo_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_GPO&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_build$" href="/app/ms_windows_ad_objects/search?q=%60ms_obj_admon_flt_obj_type%28ms_obj_admon_gpo%2Cms_obj_admon_base_a_type%29%60%20%5Bsearch%20%60ms_obj_admon_get_begin_sync_t%28ms_obj_admon_gpo%2Cnone%29%60%5D%0A%7C%20%60ms_obj_admon_base_out_gpo%60&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient" style="$tok_build_individual_gpo$height:25px !important;" data-token-json="{&quot;tok_exec_gpo_build&quot;: &quot;`ms_obj_admon_bld_init_out_no_sync(gpo,GPO)`&quot;,&quot;tok_status_gpo_build&quot;: &quot;Running&quot;,&quot;tok_msg_gpo_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_gpo&quot;: &quot;display:none;.&quot;,&quot;tok_show_gpo_build_cancel&quot;: &quot;&quot;}">Build GPO Lookup</a>
+                 <a class="btn build Cancel $tok_status_gpo_build$" style="$tok_show_gpo_build_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_status_gpo_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_gpo_build&quot;:&quot;Cancelled&quot;,&quot;tok_count_gpo_build&quot;:&quot;0&quot;,&quot;tok_exec_gpo_build&quot;:&quot;undefined&quot;,&quot;tok_status_gpo_ou_link&quot;:&quot;Cancelled&quot;,&quot;tok_msg_gpo_ou_link&quot;:&quot;Cancelled&quot;,&quot;tok_count_gpo_ou_link&quot;:&quot;0;&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;&quot;,&quot;tok_show_gpo_build_cancel&quot;:&quot;display:none;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>                
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_ou_link$" style="height: 35px;">
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_GPO&lt;-&gt;AD_Obj_OU Links</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_gpo_ou_link$"> ($tok_status_gpo_ou_link$)</i>
+              </td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center">
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_OU | search gpo_link=*| table cn,dn,Linked_GPO&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" href="/app/ms_windows_ad_objects/search?q=%7C%20inputlookup%20AD_Obj_GPO%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20mvexpand%20gpo_link%0A%7C%20join%20gpo_link%20%5B%7C%20inputlookup%20AD_Obj_OU%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20fields%20dn%2Cgpo_link%0A%7C%20rename%20dn%20AS%20lc%0A%7C%20stats%20values%28lc%29%20AS%20lc%20by%20gpo_link%0A%7C%20eval%20lc%3Dmvjoin%28lc%2C%22%7C%22%29%0A%7C%20table%20gpo_link%2Clc%5D%0A%7C%20makemv%20delim%3D%22%7C%22%20lc&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"> GPO</i>
+                </a>
+                <a class="btn sp-btn-gradient build $tok_status_gpo_ou_link$" href="/app/ms_windows_ad_objects/search?q=%7C%20inputlookup%20AD_Obj_OU%20WHERE%20gpo_link%21%3D%22%22%0A%7C%20mvexpand%20gpo_link%0A%7C%20join%20gpo_link%20%5B%7C%20inputlookup%20AD_Obj_GPO%0A%7C%20fields%20gpo_link%2CdisplayName%0A%7C%20rename%20displayName%20AS%20Linked_GPO%0A%7C%20table%20gpo_link%2CLinked_GPO%5D%0A%7C%20stats%20values%28Linked_GPO%29%20AS%20Linked_GPO%2Cvalues%28%2A%29%20AS%20%2A%20by%20objectGUID%2Cdomain&amp;earliest=$tok_time_sync.earliest$&amp;latest=$tok_time_sync.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"> OU</i>
+                </a>
+              </td>
+          </tr>     
+          <tr class="build $tok_status_admin_audit_build$" style="height: 35px;">
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:left;font-size:16px;font-weight:500;">AD_Obj_Admin_Audit</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">
+                <i class="build $tok_status_admin_audit_build$"> ($tok_status_admin_audit_build$)</i>
+              </td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_count_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:16px;">$tok_msg_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                 <a class="btn build Cancel $tok_status_admin_audit_build$" style="$tok_show_admin_audit_cancel$" data-token-json="{&quot;tok_show_build_all_incmpl_msg&quot;:&quot;True&quot;,&quot;tok_status_admin_audit_build&quot;: &quot;Cancelled&quot;,&quot;tok_msg_admin_audit_build&quot;: &quot;Cancelled&quot;,&quot;tok_count_admin_audit_build&quot;: &quot;0&quot;,&quot;tok_exec_admin_audit_build&quot;: &quot;undefined&quot;,&quot;tok_show_build_inputs&quot;: &quot;True;.&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">
+                  <i class="icon-x-circle" style="color:red;font-size:18px;"/>
+                </a>
+                 <a class="btn sp-btn-gradient build $tok_status_admin_audit_build$" data-token-json="{&quot;tok_dd_result_lookup&quot;: &quot;AD_Obj_Admin_Audit&quot;}" style="height:25px !important;">
+                  <i class="icon-visible" style="font-size: 18px;color:#FFFFFF;"/>
+                </a>
+                 <a class="btn sp-btn-gradient build $tok_status_admin_audit_build$" href="/app/ms_windows_ad_objects/search?q=search%20%60ms_obj_winevt_init_admin_audit%60&amp;earliest=$tok_time_admin.earliest$&amp;latest=$tok_time_admin.latest$" target="_blank" style="padding-left:10px;height:25px !important;">
+                  <i class="icon-search" style="height:18px;color:#FFFFFF;"/>
+                </a>
+                 <a class="btn sp-btn-gradient" style="$tok_build_individual_admin_audit$height:25px !important;" data-token-json="{&quot;tok_exec_admin_audit_build&quot;:&quot;`ms_obj_winevt_init_admin_audit`&quot;,&quot;tok_status_admin_audit_build&quot;:&quot;Running&quot;,&quot;tok_msg_admin_audit_build&quot;:&quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;display:none;&quot;,&quot;tok_build_individual_admin_audit&quot;:&quot;display:none;&quot;,&quot;tok_show_admin_audit_cancel&quot;:&quot;&quot;,&quot;tok_show_build_all_msg&quot;:&quot;undefined&quot;,&quot;tok_show_build_indv_msg&quot;:&quot;True&quot;,&quot;tok_show_build_msgs&quot;: &quot;true&quot;}">Build Admin Audit Lookup</a>
+              </td>
+          </tr>  
+        </table>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_bld_dm_warn" depends="$tok_show_domain_warn$">
+      <html src="info_pages/init_build/init_build_dom_warn.html"/>
+    </panel>
+  </row>
+  <row id="nav_part_r_5_1" depends="$tok_dd_result_lookup$">
+    <panel depends="$tok_dd_result_lookup$">
+      <html>
+        <center>
+          <h1>
+            <i class="icon-check-circle" style="font-size:35px !important;color:green;">Resulting Values in the $tok_dd_result_lookup$ KVstore Lookup</i>
+          </h1>
+        </center>
+      </html>
+      <table>
+        <search>
+          <query>| inputlookup $tok_dd_result_lookup$</query>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_add_domain" depends="$tok_show_man_domain_update$">
+    <panel id="pan_p_single_5_2_a">
+      <title>Manually Add AD Domain Information into the AD_Obj_Domain lookup</title>
+      <input type="text" token="tok_upd_dm_host" id="upd_dm_host">
+        <label>DC Host Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_forest" id="upd_dm_forest">
+        <label>Forest FQDN</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_dns" id="upd_dm_dns">
+        <label>Domain FQDN (DNS)</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_netbios" id="upd_dm_netbios">
+        <label>Domain NetBIOS Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input type="text" token="tok_upd_dm_site" id="upd_dm_site">
+        <label>Domain Site Name</label>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <html>
+        <hr/>
+        <center>
+          <h2>Fill Out the Boxes above, when all of the inputs have been populated, click the <i>Add Above Values</i> to add the Domain Details into the AD_Obj_Domain Lookup.</h2>
+          <h4>        
+            <a id="nbtn_upd_domain" aria-disabled="$tok_dm_btn$" class="btn btn-small sp-btn-gradient" data-token-json="{&quot;tok_add_domain_trigger&quot;:&quot;$tok_dom_host$&quot;}">Add Above Values</a>
+            </h4>
+          <hr/>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_p_single_5_2_b">
+      <html depends="$tok_n_dm_host$,$tok_post_exec_add_d$">
+        <h4>
+          <b>
+            <i>New Domain Information Just Added</i>
+          </b>
+        </h4>
+        <table style="padding-right: 0px;border: 4px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+          <tr>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">host</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">domain</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">DomainDNSName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">DomainNetBIOSName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">ForestName</th>
+            <th style="padding-right: 0px;border: 2px solid #f99d1c;margin-right: 0px;text-align:center;">Site</th>
+          </tr>
+          <tr>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_host$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_netbios$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_dns$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_netbios$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_forest$</td>
+            <td style="padding-right: 0px;border: 2px solid #e20082;margin-right: 0px;">$tok_n_dm_site$</td>
+          </tr>
+        </table>
+        <hr/>
+      </html>
+      <table depends="$tok_show_add_dom_tbl$">
+        <title>Updated Full AD_Obj_Domain Lookup Table</title>
+        <search>
+          <query>| inputlookup AD_Obj_Domain
+| eval trigger="$tok_post_exec_add_d$"
+| sort -time
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,user_lookup,group_lookup,computer_lookup</query>
+          <done>
+            <set token="form.rem_tok_upd_dm_host"></set>
+            <set token="form.rem_tok_upd_dm_forest"></set>
+            <set token="form.rem_tok_upd_dm_site"></set>
+            <set token="form.rem_tok_upd_dm_dns"></set>
+            <set token="form.rem_tok_upd_dm_netbios"></set>
+            <unset token="rem_tok_upd_dm_host"></unset>
+            <unset token="rem_tok_upd_dm_forest"></unset>
+            <unset token="rem_tok_upd_dm_site"></unset>
+            <unset token="rem_tok_upd_dm_dns"></unset>
+            <unset token="rem_tok_upd_dm_netbios"></unset>
+          </done>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hidden$">
+    <panel>
+      <html src="wiz_content/getting_started/ms_ad_obj_gs_pop.html"/>
+      <html>
+        <style>
+/* Check Data Tasks */
+.hdr_c_top.$tok_chk_d_ko$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_dom_health$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_man_domain$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_res_admon$ {display:inline !important;}
+.hdr_c_top.$tok_chk_d_crt_idx$.$tok_obj_env_type$ {display:inline !important;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,575 @@
+<form stylesheet="ms_ad_obj_reports.css" version="1.1">
+  <label>AD Objects - Group Policy - Reports</label>
+  <init><set token="tok_tbl_res_flds">chg_summary</set></init>
+  <search id="base_obj_change">
+    <query>`ms_obj_changes_base_cat("Group Policy")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$)
+| fields _time, _raw,sourcetype,session_id, src_nt_domain, src_user,Object_Name_Guid,displayName,msad_action,change_action,dir_svcs_action,AttributeLDAPDisplayName,AttributeSyntaxOID,AttributeValue,MSADChangedAttributes,Correlation_ID,signature,Old_DN,New_DN
+| eval time_group=strftime(_time,"%m/%d/%y %I:%M %P")
+| eval time_group_epoch=strptime(time_group,"%m/%d/%y %I:%M %P")
+| eval change_action=if(isnull(change_action),"modified",change_action)
+| fillnull value="NA" Correlation_ID,msad_action
+| eval adminuser=if(isnull(src_nt_domain),src_user,src_nt_domain."\\".src_user) 
+| eval Object_Lookup_Name="{".lower(Object_Name_Guid)."}"
+| rex "(?msi)(?:([\r\n]+))(?&lt;msad_attribute&gt;Attribute\:.*)(?:([\r\n]+)Operation\:)"
+| rex "(?msi)(?&lt;msad_operation&gt;Operation\:.*)(?:(([\r\n]+)\S+|$))"
+| eval MSADStdChanges=if(isnull(msad_attribute),if(isnull(msad_operation),NULL,"| - ".mvjoin(replace(msad_operation,"(?msi)([\r\n]+)","|   "),"|")),if(isnull(msad_operation),"| - ".mvjoin(replace(msad_attribute,"(?msi)([\r\n]+)","|   "),"|"),"| - ".mvjoin(replace(msad_attribute,"(?msi)([\r\n]+)","|   "),"| ")."| - ".mvjoin(replace(msad_operation,"(?msi)([\r\n]+)","|   "),"|")))
+| eval MSADXMLChanges=if(sourcetype=="XmlWinEventLog","Attribute:| - AttributeLDAPDisplayName: ".AttributeLDAPDisplayName."| - AttributeSyntaxOID: ".AttributeSyntaxOID."| - AttributeValue: ".AttributeValue,NULL)
+| eval change_action=if(isnull(msad_action),change_action,msad_action)
+| eval chg_summary=case(change_action="created","|GPO Created:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="undeleted","|GPO Undeleted:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="deleted","|GPO Deleted:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature,change_action="modified","|GPO Modified:| - Object_Lookup_Name: ".Object_Lookup_Name."| - Action: ".change_action."| - signature: ".signature)
+| eval chg_details=if(isnull(MSADStdChanges),if(isnull(MSADXMLChanges),chg_summary,chg_summary."| - Time: ".strftime(_time,"%m/%d/%y %I:%M:%S %P")."".MSADXMLChanges),chg_summary."| - Time: ".strftime(_time,"%m/%d/%y %I:%M:%S %P")."".MSADStdChanges)
+| lookup AD_Obj_GPO cn AS Object_Lookup_Name OUTPUT displayName,distinguishedName,cn
+| eval displayName=if(isnull(displayName),Object_Lookup_Name,displayName)
+| stats values(displayName) AS GPO,values(chg_details) AS chg_details,values(chg_summary) AS chg_summary by time_group,cn,msad_action
+| makemv delim="|" chg_summary
+| makemv delim="|" chg_details
+| eval chg_details=mvfilter(NOT match(chg_details,"(\-\s+$|^\s+$)"))</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+  </search>
+  <search base="base_obj_change" id="sub_obj_change">
+    <query>search msad_action="$tok_action$"
+| eval chg_trigger="$tok_sel_obj$"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_action_input"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">3. No Change Events for Selected Time Range. Adjust Time Range to view change results.</set>
+        <unset token="show_changed_rep">True</unset>
+      </condition>
+      <condition>
+        <unset token="show_action_input"></unset>
+        <unset token="show_chg_no_data_msg"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3. Adjust Time Range and 4. Select MSAD Action.</set>
+        <unset token="show_changed_rep">True</unset>
+      </condition>
+    </done>
+  </search>
+  <search id="base_obj_time">
+    <query>| `ms_obj_secrpt-$tok_time_report_val$-lkp-gpo("$tok_domain$","$set_time_from$","$set_time_to$")`</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_time_rep"></unset>
+        <unset token="show_message"></unset>
+        <set token="show_time_warn_message">True</set>
+        <set token="tok_time_report">| `ms_obj_secrpt-$tok_time_report_val$-lkp-gpo("$tok_domain$","$set_time_from$","$set_time_to$")`</set>
+      </condition>
+      <condition>
+        <unset token="show_time_warn_message"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3. Adjust Time Range for $tok_time_label$.</set>
+        <set token="show_time_rep">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Domain List Search -->
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Domain Filters -->  
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"
+| eval dc_val=if(isnull(dc_val),"$tok_domain$",dc_val)</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Create Object Search Filters -->
+  <search id="base_obj_filt">
+    <query>| makeresults
+| eval filt_raw_text="([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"cn\",\"AD_Obj_GPO\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,displayName,distinguishedName\",\"raw_txt\")`])"
+| eval filt_raw_text_lbl="|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"cn\",\"AD_Obj_GPO\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,displayName,distinguishedName\",\"raw_txt\")`"
+| eval filt_link="| search gpo_name IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"cn\",\"AD_Obj_GPO\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,displayName,distinguishedName\",\"link\")`])"
+| eval filt_link_r_evt="| search gpo_name IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"cn\",\"AD_Obj_GPO\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,displayName,distinguishedName\",\"link\")`])"
+| eval filt_link_admon="| search gpo_obj_lkp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"cn\",\"AD_Obj_GPO\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,displayName,distinguishedName\",\"link\")`])"
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt,filt_raw_text_lbl,filt_link_admon</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_filt_raw_txt"></unset>
+        <unset token="tok_filt_link"></unset>
+        <unset token="tok_filt_link_add"></unset>
+        <unset token="tok_filt_link_r_evt"></unset>
+        <unset token="tok_filt_link_admon"></unset>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("Group Policy","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","raw_txt")`])
+| eval Object_Lookup_Name="{".lower(Object_Name_Guid)."}"
+| search Object_Lookup_Name IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_gpo("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName,objectGUID","raw_txt")`])
+| search cn IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","link")`])</set>
+      </condition>
+      <condition>
+        <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+        <set token="tok_filt_link">$result.filt_link$</set>
+        <set token="tok_filt_link_add">$result.filt_link_add$</set>
+        <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+        <set token="tok_filt_link_admon">$result.filt_link_admon$</set>
+        <set token="tok_srch_filt_raw">$result.filt_raw_text_lbl$</set>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("Group Policy","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","raw_txt")`])
+| eval Object_Lookup_Name="{".lower(Object_Name_Guid)."}"
+| search Object_Lookup_Name IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_gpo("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName,objectGUID","raw_txt")`])
+| search cn IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","link")`])</set>
+      </condition>
+    </done>
+  </search>  
+  <!-- Sub Drilldown Windows Change Events -->
+  <search base="base_obj_change" id="sub_dd_obj_search">
+    <query>search cn IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","link")`])</query>
+    <progress>
+         <set token="show_res_type_input">True</set>
+          <set token="show_res_message">True</set>
+          <set token="tok_res_message_color">green</set>
+          <set token="tok_res_message_state">Info:</set>
+          <set token="tok_res_message">4. Select Event Result Type</set>
+          <set token="show_dd_details">True</set>
+    </progress>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_dd_msg"></unset>
+        <unset token="show_dd_tbl"></unset>
+        <set token="show_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_dd_msg">True</set>
+        <set token="show_dd_tbl">True</set>
+        <unset token="show_dd_warn"></unset>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown admon Events -->
+  <search id="base_obj_admon">
+    <query>`ms_obj_admon_flt_obj_type(ms_obj_admon_gpo,ms_obj_admon_base_a_type)` $tok_domain$ ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName","raw_txt")`])
+| search cn IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","cn","AD_Obj_GPO","$tok_domain$","$tok_sel_obj$","cn,displayName,distinguishedName,objectGUID","link")`])</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_admon_dd_msg"></unset>
+        <unset token="show_admon_dd_tbl"></unset>
+        <set token="show_admon_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_admon_dd_msg">True</set>
+        <set token="show_admon_dd_tbl">True</set>
+        <unset token="show_admon_dd_warn"></unset>
+      </condition>
+    </done>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>    
+  </search>
+  <!-- Single - Non-Timed Report Search -->
+  <search id="base_non_time_report">
+    <query>$tok_report$</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+          <unset token="show_message"></unset>
+          <unset token="show_regular_rep"></unset>
+          <unset token="tok_message_color"></unset>
+          <unset token="tok_message_state"></unset>
+          <unset token="tok_message"></unset>
+          <set token="show_reg_warn_message">True</set>
+        </condition>
+        <condition>
+          <unset token="show_message"></unset>
+          <unset token="show_reg_warn_message"></unset>
+          <unset token="tok_message_color"></unset>
+          <unset token="tok_message_state"></unset>
+          <unset token="tok_message"></unset>
+          <set token="show_regular_rep">True</set>
+        </condition>
+      </done>          
+  </search>  
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row id="rw_initial_filters">
+    <panel id="pan_initial_inputs">
+      <input type="dropdown" token="tok_sel_domain" searchWhenChanged="true">
+        <label>1. Select Domain</label>
+        <choice value="sel">Select Domain...</choice>
+        <initialValue>sel</initialValue>
+        <default>sel</default>
+        <search base="base_domain_search">
+          <query>table domain | sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_domain"></unset>
+            <unset token="show_rep_list"></unset>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the Target Domain to run the report against.</set>
+          </condition>
+          <condition>
+            <set token="show_message">True</set>
+            <set token="tok_user_domain_add">False</set>
+            <set token="tok_domain">$value$</set>
+            <set token="show_rep_list">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Select the Target Report from the "Select Report" dropdown.</set>
+          </condition>
+        </change>
+      </input>     
+      <input type="dropdown" token="inp_tok_report" searchWhenChanged="true" depends="$show_rep_list$">
+        <label>2. Select GPO Report</label>
+        <choice value="sel">Select Report...</choice>
+        <choice value="all_gpo">All</choice>
+        <choice value="new_gpo">Created</choice>
+        <choice value="deleted_gpo">Deleted</choice>
+        <choice value="changed_gpo">Changed</choice>
+        <choice value="disabled_gpo">Disabled</choice>
+        <choice value="gpo_linked_gpo">OU Linked</choice>
+        <choice value="gpo_not_linked_gpo">Not OU Linked</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_report_label"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="tok_report"></unset>
+            <unset token="tok_time_rpt_val"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_reg_warn_message"></unset>
+            <unset token="show_time_warn_message"></unset>
+          </condition>
+          <condition value="all_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="tok_time_report"></unset>
+            <unset token="show_time_warn_message"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_report">|`ms_obj_secrpt-all-group-policies($tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+          <condition value="new_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_reg_message"></unset>
+            <unset token="tok_report"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">New OUs</set>
+            <set token="tok_time_report_val">new</set>
+            <set token="show_time_input">True</set>
+            <set token="form.tok_msad_action">created</set>
+            <set token="tok_action">created</set>
+            <set token="tok_action_lbl">Created</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="tok_fld_act">Created</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+          <condition value="deleted_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_reg_warn_message"></unset>
+            <unset token="tok_report"></unset>
+            <unset token="show_regular_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">Deleted OUs</set>
+            <set token="tok_time_report_val">deleted</set>
+            <set token="show_time_input">True</set>
+            <set token="tok_action">deleted</set>
+            <set token="tok_action_lbl">Deleted</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="tok_fld_act">Deleted</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+          <condition value="changed_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_reg_warn_message"></unset>
+            <unset token="tok_report"></unset>
+            <unset token="show_regular_rep"></unset>            
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">Changed OUs</set>
+            <set token="tok_time_report_val">changed</set>
+            <set token="show_time_input">True</set>
+            <set token="tok_action">modified</set>
+            <set token="tok_action_lbl">Changed</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="tok_fld_act">Changed</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+          <condition value="disabled_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_time_warn_message"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_report">| `ms_obj_secrpt-disabled-group-policies($tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_time_report"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition> 
+          <condition value="gpo_linked_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_time_warn_message"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_secrpt-gpo-linked($tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_time_report"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition> 
+          <condition value="gpo_not_linked_gpo">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_time_warn_message"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_report">| `ms_obj_secrpt-gpo-not-linked($tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_time_report"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="field3" searchWhenChanged="true" depends="$show_time_input$">
+        <label>3. Select Time Range</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <unset token="tok_sel_obj"></unset>
+          <unset token="show_res_type_input"></unset>
+          <eval token="set_time_from">strftime(relative_time(now(),'earliest'),"%m/%d/%y %I:%M %p")</eval>
+          <eval token="set_time_to">strftime(relative_time(now(),'latest'),"%m/%d/%y %I:%M %p")</eval>
+        </change>
+      </input>
+      <html depends="$show_message$" id="inp_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="$tok_message_color$">
+              <i>
+                <b>$tok_message_state$ </b> $tok_message$</i>
+            </font>
+          </p>
+      </html>
+      <html depends="$show_time_warn_message$" id="inp_time_warn_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="Red">
+              <b>Warning: </b> <i>No $tok_report_label$ GPO Results found for selected Time Range. Adjust Time Range or Click  <a href="/app/ms_windows_ad_objects/search?q=$tok_time_report|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" target="_blank" class="btn btn-mini" style="font-size:20px;height:20px;color:#e20082;"><i class="icon-search"></i></a> to review the search.</i>
+            </font>
+          </p>
+      </html>
+      <html depends="$show_reg_warn_message$" id="inp_reg_warn_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="Red">
+              <b>Warning: </b> <i>$tok_report_label$ GPO Report did not return any data. Click  <a href="/app/ms_windows_ad_objects/search?q=$tok_report|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" target="_blank" class="btn btn-mini" style="font-size:20px;height:20px;color:#e20082;"><i class="icon-search"></i></a> to review the search.</i>
+            </font>
+          </p>
+      </html>
+    </panel>
+    <panel id="pan_res_type_input" depends="$show_res_type_input$">
+      <input id="input_res_field_type" type="radio" token="input_tbl_res_flds" searchWhenChanged="true">
+        <label>$nmb_res_type_input$. Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <choice value="admon">Admon Events</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+        <change>
+          <condition value="Change_Summary">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">chg_summary</set>
+          </condition>
+          <condition value="Change_Details">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">chg_details</set>
+          </condition>
+          <condition value="admon">
+            <unset token="show_dd_details"></unset>
+            <set token="show_admon_dd_details">True</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_res_message$" id="inp_msg_res_field_type">
+          <p style="font-size:8;" id="inp_msg_res_p">
+            <font color="$tok_res_message_color$">
+              <i>
+                <b>$tok_res_message_state$ </b> $tok_res_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+  </row>
+  <row id="result_details_row">
+    <panel id="result_details_pan_list">
+      <table id="result_details_tbl_reg" depends="$show_regular_rep$">
+        <title>$tok_report_label$ - GPOs</title>
+        <search base="base_non_time_report">
+          <query></query>   
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+      <table id="result_details_tbl_time" depends="$show_time_rep$">
+        <title>$tok_report_label$ - GPOs - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_time">
+          <query></query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <drilldown>
+          <set token="show_dd_details"></set>
+          <unset token="show_dd_warn"></unset>
+          <unset token="show_admon_dd_details"></unset>
+          <unset token="show_message">True</unset>
+          <set token="show_dd_details">True</set>
+          <set token="tok_sel_obj">$row.cn$</set>
+          <set token="tok_sel_obj_label">$row.GPO$</set>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_time" depends="$show_time_rep$">
+        <p style="font-size:8;" id="rep_msg_p_time">
+          <font color="green">
+            <i>
+              <b>Click </b> on a GPO in the above table to view $tok_action_lbl$ Event Details.</i> 
+          </font>
+        </p>
+      </html>
+    </panel>
+    <panel id="result_details_pan_dd" depends="$show_dd_details$">
+      <table id="result_details_tbl_dd" depends="$show_dd_tbl$">
+        <title>"$tok_sel_obj_label$" - $tok_fld_act$ Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="sub_dd_obj_search" id="sub_sub">
+          <query>table time_group,adminuser,msad_action,$tok_tbl_res_flds$ 
+| rename time_group AS Time_Minute_Group,adminuser as "Administrator",msad_action AS Change_Actions,GPO as "Target_GPO",chg_summary as "Change Summary",chg_details as "Change Details"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_dd" depends="$show_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw events for <b>All Windows Eventlog Change</b> activities with GPO ($tok_sel_obj_label$) </p><p style="font-size:8;">Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_warn" depends="$show_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No $tok_fld_act$ events found for GPO ($tok_sel_obj_label$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Raw Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Windows Change</b> activities with GPO:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>GPO:</b> $tok_sel_obj_label$ ($tok_sel_obj$)</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+    <panel id="result_details_pan_admon_dd" depends="$show_admon_dd_details$">
+      <event id="result_details_tbl_admon_dd" depends="$show_admon_dd_tbl$">
+        <title>"$tok_sel_obj_label$" - admon Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_admon">
+          <query/>
+        </search>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </event>
+      <html id="result_details_msg_admon_dd" depends="$show_admon_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw <b>admon</b> events for <b>All Admon Change</b> activities with GPO ($tok_sel_obj_label$) </p><p style="font-size:8;">Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_admon_warn" depends="$show_admon_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No Admon events found for GPO ($tok_sel_obj_label$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Admon Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Admon Change</b> activities with GPO:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>GPO:</b> $tok_sel_obj_label$ ($tok_sel_obj$)</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+  </row>
+</form>

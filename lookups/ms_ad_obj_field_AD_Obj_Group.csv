@@ -1,0 +1,42 @@
+field_source,field,field_description
+custom,_key,"The key field in the lookup which is lower(DomainDNSName).""#"".lower(objectGUID).  It is unique for every object, and critical for updates and syncing changes."
+admon,adminCount,Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).
+admon,cn,Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property. See also sAMAccountName.
+custom,deleted_flg,"This field contains either a True or False, where True shows the last admon event was for a deletion of the Group Account."
+admon,description,What you see in Active Directory Users and Computers. Not to be confused with displayName on the Users property sheet.
+admon,displayName,"If you script this property, be sure you understand which field you are configuring.DisplayName can be confused with CN or description. (Ex. displayName = Guy Thomas)"
+admon,distinguishedName,A DN is a sequence of relative distinguished names (RDN) connected by commas.
+admon,dn,A DN is a sequence of relative distinguished names (RDN) connected by commas.
+custom,domain,"Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data. "
+custom,DomainDNSName,"Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data. "
+admon,dSCorePropagationData,The DS-Core-Propagation-Data attribute is for internal use only.
+custom,evt_flg,This field contains the latest admonEventType value for the Group Account admon event.
+admon,groupType,Contains a set of flags that define the type and scope of a group object.
+custom,host,Splunk forwarder host that is sending admon data. 
+admon,instanceType,A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.
+admon,isCriticalSystemObject,"If TRUE, the object hosting this attribute must be replicated during installation of a new replica."
+admon,isDeleted,"If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system."
+admon,isRecycled,Is the object recycled. For use with AD Recycle Bin
+admon,lastKnownParent,The Distinguished Name (DN) of the last known parent of an orphaned object.
+admon,member,The list of users that belong to the group.
+custom,member_dn,Contains the same information as the member field.
+custom,member_domain,Contains the extracted member domain information from the member field.
+custom,member_name,Contains the extracted member name information from the member field.
+custom,member_type,Holder for future testing.
+custom,membercount,Contains the count of members in the member field.
+admon,memberOf,The memberOf field is no longer available since version 4.0.  Instead the member field in the AD_Obj_Group field is the central field that contains group membership information. Use | lookup AD_Obj_Group member AS dn OUTPUT dn AS memberOf in your search to get the User/Computer/Group membership information.
+admon,name,Exactly the same as CN. (Ex. name = Guy Thomas)
+custom,new_flg,"This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event."
+admon,objectCategory,Defines the Active Directory Schema category. (Ex. objectCategory = Person)
+admon,objectClass,"Usually, User, or Computer"
+admon,objectGUID,The unique identifier for an object.
+admon,objectSid,A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.
+admon,primaryGroupToken,"A computed attribute that is used in retrieving the membership list of a group, such as Domain Users. The complete membership of such groups is not stored explicitly for scaling reasons."
+admon,sAMAccountName,"This is a mandatory property. The old NT 4.0 logon name, must be unique in the domain. (Ex. sAMAccountName = guyt)"
+admon,sAMAccountType,The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.
+custom,src_nt_domain,"Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data. "
+admon,systemFlags,An integer value that contains flags that define additional properties of the class.
+admon,uSNChanged,"The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created."
+admon,uSNCreated,"The update sequence number (USN) assigned at object creation. See also, USN-Changed"
+admon,whenChanged,The date when this object was last changed. This value is not replicated and exists in the global catalog.
+admon,whenCreated,The date when this object was created. This value is replicated and is in the global catalog.

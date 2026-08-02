@@ -1,0 +1,29 @@
+EventCode,change_action,change_category,obj_type,signature
+5136,modified,Computer,computer,A directory service Computer object was modified
+5136,modified,Group,group,A directory service Group object was modified
+5136,modified,Group Policy,groupPolicyContainer,A directory service Group Policy object was modified
+5136,modified,User,user,A directory service User object was modified
+5136,modified,OU,organizationalUnit,A directory service Organizational Unit object was modified
+5136,modified,Contact,contact,A directory service Contact object was modified
+5137,created,Computer,computer,A directory service Computer object was created
+5137,created,Group,group,A directory service Group object was created
+5137,created,Group Policy,groupPolicyContainer,A directory service Group Policy object was created
+5137,created,User,user,A directory service User object was created
+5137,created,OU,organizationalUnit,A directory service Organizational Unit object was created
+5137,created,Contact,contact,A directory service Contact object was created
+5138,undeleted,Computer,computer,A directory service Computer object was undeleted
+5138,undeleted,Group,group,A directory service Group object was undeleted
+5138,undeleted,User,user,A directory service User object was undeleted
+5138,undeleted,OU,organizationalUnit,A directory service OU object was undeleted
+5138,undeleted,Contact,contact,A directory service Contact object was undeleted
+5139,moved,Computer,computer,A directory service Computer object was moved
+5139,moved,Group,group,A directory service Group object was moved
+5139,moved,User,user,A directory service User object was moved
+5139,moved,OU,organizationalUnit,A directory service OU object was moved
+5139,moved,Contact,contact,A directory service Contact object was moved
+5141,deleted,Computer,computer,A directory service Computer object was deleted
+5141,deleted,Group,group,A directory service Group object was deleted
+5141,deleted,Group Policy,groupPolicyContainer,A directory service Group Policy object was deleted
+5141,deleted,User,user,A directory service User object was deleted
+5141,deleted,OU,organizationalUnit,A directory service Organizational Unit object was deleted
+5141,deleted,Contact,contact,A directory service Contact Unit object was deleted

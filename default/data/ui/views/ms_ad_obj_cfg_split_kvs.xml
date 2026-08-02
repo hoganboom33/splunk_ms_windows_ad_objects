@@ -1,0 +1,763 @@
+<dashboard script="ms_ad_obj_md_cfg.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - CFG - Split KVs</label>
+  <description>This Configuration Dashboard should only be leveraged if you have Multiple AD Domains, and there are performance issues with the KV Store.</description>
+  <!-- | eval cnt_flg=if(count>1,"f","t") -->
+  <init>
+    <set token="tok_upd_dc_array"></set>
+    <set token="tok_upd_kvsuff_array"></set>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_show_cfg_tabs">hidden</set>
+    <set token="tok_show_cfg_save_tab">hidden</set>
+    <set token="tok_show_save_msg">hidden</set>
+    <unset token="tok_sv_cfg"></unset>
+	  <set token="tok_show_save_err_msg">hidden</set>
+	  <set token="tok_save_tab_numb"></set>
+	  <set token="tok_show_save_spin">hidden</set>
+	  <set token="tok_ppl_run_done_st">Running</set>
+  </init>
+    <search id="init_dom_list">
+      <query>|inputlookup AD_Obj_Domain
+| fields domain,DomainDNSName,Site,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+| stats count by domain,DomainDNSName,Site,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup</query>
+    </search>
+    <search base="init_dom_list" id="pre_ad_dom_chk">
+      <query>eval edit_array=if(multi_lkps_enabled="f",NULL,domain)
+| eval dis_array=if(multi_lkps_enabled="f",domain,NULL)
+| stats dc(domain) AS count,values(edit_array) AS edit_array,values(dis_array) AS dis_array
+| eval edit_array=if(isnull(edit_array),"f",mvjoin(edit_array,","))
+| eval dis_array=if(isnull(dis_array),"f",mvjoin(dis_array,","))
+| eval view_cfg=if(edit_array=="f","display:none;","")
+| eval cnt_flg="f"</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_pre_warn_msg">Warning - The AD_Obj_Domain Lookup is not currently populated.   This needs to be populated before being able to leverage this configuration dashboard.</set>
+        <set token="tok_show_pre_warn_msg">"true"</set>
+        <unset token="tok_show_tabs"></unset>
+        <unset token="tok_get_ad_dom_list"></unset>
+        <unset token="tok_edit_array"></unset>
+        <set token="tok_view_cfg">display:none;</set>
+      </condition>
+      <condition>
+        <eval token="tok_pre_warn_msg">if($result.cnt_flg$=="f",NULL,"Info - The AD_Obj_Domain Lookup only has one AD Domain, the configuration walked through in this dashboard is not needed with a single AD Domain environments.")</eval>
+        <eval token="tok_show_pre_warn_msg">if($result.cnt_flg$=="f",NULL,"true")</eval>
+        <eval token="remove_tok_show_tabs">if($result.cnt_flg$=="f","true",NULL)</eval>
+        <eval token="tok_get_ad_dom_list">if($result.cnt_flg$=="f","true",NULL)</eval>
+        <eval token="tok_edit_ena_array">if($result.edit_array$=="f",NULL,$result.edit_array$)</eval>
+        <eval token="tok_edit_dis_array">if($result.edit_array$=="f","",$result.dis_array$)</eval>
+        <set token="tok_view_cfg">$result.view_cfg$</set>
+      </condition>
+    </done>
+  </search>
+  <!--search base="pre_ad_dom_chk" id="sub_ugc_count">
+    <query>| `ms_obj_default_ugc_count`</query>
+    | eval trigger="$tok_get_ad_dom_list$"
+  </search-->
+  <search id="base_ad_h">
+    <query>|`ms_obj_cfg_kv_split_h`
+    | table table_vl</query>
+    <progress>
+      <set token="tok_init_run">True</set>
+      <unset token="tok_show_tabs"></unset>
+    </progress>
+    <done>
+      <unset token="tok_init_run"></unset>
+      <set token="tok_show_tabs">True</set>
+    </done>
+  </search>
+    <!--search id="base_ad_dom_list">
+      <query>| inputlookup AD_Obj_Domain
+| eval trigger="$tok_get_ad_dom_list$"
+| stats count by domain,DomainDNSName,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+| table domain,DomainDNSName,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+</query>
+    </search-->
+    <search id="base_upd_ppl_lkp">
+      <query>$ppllkp_hold$</query>
+      <progress>
+	        <eval token="aatok_ppl_run_done_st">tostring(round(tonumber($job.doneProgress$)*100,2))</eval>
+	        <set token="aatok_ppl_run_dispatchState">$job.dispatchState$</set>
+	   </progress>
+	  <earliest>0</earliest>
+    <latest>now</latest>
+    </search>
+    <search id="check_dc_val">
+      <query>earliest=0 `ms_obj_admon_base` dc_val="$tok_dc_val_chk$"| fields dc_val,objectCategory | head 5 | stats count by dc_val,objectCategory</query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+          <set token="tok_chk_dc_val_msg">Warning: No results were found using the specified admon Domain Filter.  Either adjust the filter or run the below search in a separate window.</set>
+          <set token="tok_chk_dc_val_srch">earliest=0 `ms_obj_admon_base` dc_val="$tok_dc_val_chk$"| fields dc_val,objectCategory | head 5 | stats count by dc_val,objectCategory</set>
+          <set token="tok_chk_dc_val_color">red</set>
+        </condition>
+        <condition>
+          <set token="tok_chk_dc_val_msg">OK: Resuts were found using the specified admon Domain Filter.</set>
+          <set token="tok_chk_dc_val_srch">earliest=0 `ms_obj_admon_base` dc_val="$tok_dc_val_chk$"| fields dc_val,objectCategory | head 5 | stats count by dc_val,objectCategory</set>
+          <set token="tok_chk_dc_val_color">green</set>          
+        </condition>
+      </done>
+    </search>
+    <search base="init_dom_list" id="inp_filt_table">
+      <query>| join type=left domain [|`ms_obj_cfg_filter_md_inp("$tok_upd_ena_array$","$tok_upd_kvsuff_array$","$tok_upd_dc_array$")`]
+| join type=left domain [| makeresults| eval dis_array="$tok_upd_dis_array$" | makemv delim="," dis_array| eval domain=mvfilter(match(dis_array,"^\\S+")) | mvexpand domain| eval multi_lkps_enabled="f",updated="1"| table domain,multi_lkps_enabled,updated]
+| eval kv_suffix=if(isnull(n_kv_suffix) OR n_kv_suffix=="n_a",kv_suffix,n_kv_suffix)
+| eval dc_val=if(isnull(n_dc_val) OR n_dc_val=="n_a",dc_val,n_dc_val)
+| eval user_lookup=if(multi_lkps_enabled="t","AD_Obj_User_".kv_suffix,"AD_Obj_User"),group_lookup=if(multi_lkps_enabled="t","AD_Obj_Group_".kv_suffix,"AD_Obj_Group"),computer_lookup=if(multi_lkps_enabled="t","AD_Obj_Computer_".kv_suffix,"AD_Obj_Computer")
+| eval dis_def_srch_flg=if(multi_lkps_enabled="f",1,0)
+| eventstats max(dis_def_srch_flg) AS dis_def_srch_flg
+| search updated="1"
+| eval upd_arr=if(updated="1",domain,NULL)
+| eval save_numb=if("$tok_upd_ena_array$"=="","3","7")
+| eventstats values(upd_arr) AS upd_arr
+| eval upd_arr=mvjoin(upd_arr,",")
+	  </query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+            <set token="tok_upd_domains"></set>
+            <set token="tok_save_tab_numb">7</set>
+        </condition>
+        <condition>
+            <set token="tok_upd_domains">$result.upd_arr$</set>
+            <set token="tok_save_tab_numb">$result.save_numb$</set>
+        </condition>
+      </done>
+	</search>
+    <search base="inp_filt_table" id="kv_create">
+      <query>search multi_lkps_enabled="t"
+      </query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+            <set token="tok_show_cfg_tabs">hidden</set>
+        </condition>
+        <condition>
+            <set token="tok_show_cfg_tabs"></set>
+        </condition>
+      </done>
+    </search>
+    <search base="inp_filt_table" id="upd_dom_table">
+      <query>eval save_cfg_trigger="$tok_sv_cfg$"
+| search updated="1"
+| join domain [|inputlookup AD_Obj_Domain | fields host,domain,Site,DomainNetBIOSName,ForestName | stats values(host) AS host by domain,Site,DomainNetBIOSName,ForestName | eval host=mvjoin(host,",")]
+| makemv delim="," host
+| mvexpand host
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,time,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup
+| eval key_val=host
+| outputlookup AD_Obj_Domain key_field=key_val
+| eval trigger=now()</query>
+      <done>
+        <condition match=" 'job.resultCount' == 0">
+          <unset token="tok_sv_cfg"></unset>
+          <set token="tok_show_save_msg">hidden</set>
+          <set token="tok_show_save_err_msg"></set>
+          <set token="tok_show_res_table">true</set>
+    		</condition>
+    		<condition>
+          <unset token="tok_sv_cfg"></unset>
+          <set token="tok_show_save_msg"></set>
+          <set token="tok_show_res_table">true</set>
+          <set token="tok_show_save_err_msg">hidden</set>
+          <set token="tok_pos_upd_trigger">$result.trigger$</set>
+    		</condition>
+      </done>
+    </search>
+	<search id="new_dom_details">
+		<query>| inputlookup AD_Obj_Domain WHERE [| makeresults | eval domain="$tok_upd_domains$" | makemv delim="," domain | mvexpand domain]
+| eval upd_res_trigger="$tok_pos_upd_trigger$"
+| table domain,host,DomainNetBIOSName,DomainDNSName,ForestName,Site,time,multi_lkps_enabled,kv_suffix,dc_val,user_lookup,group_lookup,computer_lookup</query>
+	</search>
+		<!--search base="ppl_lkp_srch_exec">
+	  <query></query>
+	  <progress>
+	    <eval token="remove_tok_ppl_run_done_st">"0 - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+	   </progress>
+	 </search-->
+	 	<!--search id="ppl_lkp_srch">
+	  <query>$tok_ppl_search$</query>
+	  </search-->
+	<!--search id="ppl_lkp_srch">
+	  <query>$tok_ppl_search$</query>
+	  <progress>
+  	   <condition match=" 'job.resultCount' == 0">
+  	    <eval token="tok_ppl_run_done_st">"0 - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_ppl_run_disp_st">"0 - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_ppl_run_request">"0 - ".lower('job.request')</eval>
+  	    <eval token="tok_ppl_run_failed">"0 - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_ppl_run_buck_st">"0 - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_ppl_run_srch">"0 - ".lower('job.search')</eval>
+	    </condition>
+	    <condition>
+  	    <eval token="tok_ppl_run_done_st">"wd - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_ppl_run_disp_st">"wd - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_ppl_run_request">"wd - ".lower('job.request')</eval>
+  	    <eval token="tok_ppl_run_failed">"wd - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_ppl_run_buck_st">"wd - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_ppl_run_srch">"wd - ".lower('job.search')</eval>	      
+	    </condition>
+	  </progress>
+	  <error>
+  	   <condition match=" 'job.resultCount' == 0">
+  	    <eval token="tok_fppl_run_done_st">"0 - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_fppl_run_disp_st">"0 - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_fppl_run_request">"0 - ".lower('job.request')</eval>
+  	    <eval token="tok_fppl_run_failed">"0 - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_fppl_run_buck_st">"0 - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_fppl_run_srch">"0 - ".lower('job.search')</eval>
+	    </condition>
+	    <condition>
+  	    <eval token="tok_fppl_run_done_st">"wd - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_fppl_run_disp_st">"wd - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_fppl_run_request">"wd - ".lower('job.request')</eval>
+  	    <eval token="tok_fppl_run_failed">"wd - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_fppl_run_buck_st">"wd - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_fppl_run_srch">"wd - ".lower('job.search')</eval>	      
+	    </condition>
+	  </error>
+	  <done>
+  	   <condition match=" 'job.resultCount' == 0">
+  	    <eval token="tok_dppl_run_done_st">"0 - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_dppl_run_disp_st">"0 - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_dppl_run_request">"0 - ".lower('job.request')</eval>
+  	    <eval token="tok_dppl_run_failed">"0 - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_dppl_run_buck_st">"0 - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_dppl_run_srch">"0 - ".lower('job.search')</eval>
+	    </condition>
+	    <condition>
+  	    <eval token="tok_dppl_run_done_st">"wd - ".tostring(round(tonumber('job.doneProgress')*100,2))."%"</eval>
+  	    <eval token="tok_dppl_run_disp_st">"wd - ".lower('job.DispatchState')</eval>
+  	    <eval token="tok_dppl_run_request">"wd - ".lower('job.request')</eval>
+  	    <eval token="tok_dppl_run_failed">"wd - ".lower('job.IsFailed')</eval>
+  	    <eval token="tok_dppl_run_buck_st">"wd - ".lower('job.StatusBuckets')</eval>
+  	    <eval token="tok_dppl_run_srch">"wd - ".lower('job.search')</eval>	      
+	    </condition>
+	  </done>
+	</search-->
+    <row id="tabs_row" depends="$tok_show_tabs$">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_stat_ratio" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Overview</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_time_user" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">1. Choose and Configure Domain(s)</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_fail_details_user" class="toggle-tab md-cfg-steps $tok_show_cfg_tabs$" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">2. Create New KvStores</a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a href="#tab_suc_details_user" class="toggle-tab md-cfg-steps $tok_show_cfg_tabs$" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">3. Define New Lookups</a>
+          </li>
+          <li class="$tok_tab_5$">
+            <a href="#tab_time_src_host" class="toggle-tab md-cfg-steps $tok_show_cfg_tabs$" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">4. Create Sched Searches</a>
+          </li>
+          <li class="$tok_tab_6$">
+			<a href="#tab_time_src_ip" class="toggle-tab md-cfg-steps $tok_show_cfg_tabs$" data-token-json="{&quot;tok_tab_6&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">5. Adjust Default Sched Searches</a>
+          </li>
+          <li class="$tok_tab_7$">
+			<a href="#tab_time_src_ip" class="toggle-tab md-cfg-steps $tok_show_cfg_tabs$" data-token-json="{&quot;tok_tab_7&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">6. Populate New Lookups</a>
+          </li> 
+          <li class="$tok_tab_8$">
+			<a href="#tab_time_src_ip" class="toggle-tab md-cfg-steps $tok_show_cfg_save_tab$" data-token-json="{&quot;tok_tab_8&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;"><i class="icon-error" style="color:#DC4E41;"> $tok_save_tab_numb$. Save Configuration</i></a>
+          </li> 
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_init_run$">
+    <panel>
+      <html><center><h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding: 0;">Gathering Domain Details</h1>
+      <h4><img style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Please Wait...</h4></center></html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_1$">
+    <panel>
+      <html>
+        <div class="left-single-box">
+          <center>
+        		<table class="mddominpsettoptbl" style="width:98% !important;padding: 4px;">
+        		  <tr class="mddomsinpsettoprow">
+        		    <td colspan="2" class="domsetvcol" style="text-align:center !important;">
+        		      <h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding: 0;">Overview - Splitting User, Group, and Computer KVstore Lookups into seperate lookups by domain.</h1>
+        	         <p style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:italic;margin: 0;padding: 0;"><i class="icon-warning iconwarn">This should <b>Only</b> be done if you have multiple AD Domains, and a large count of AD Users, Groups or Computers (ie &gt; 200,000).</i> </p>
+        		    </td>
+        		  </tr>
+        			<tr class="domsetvrw">
+        				<td style="width:24%;vertical-align:top;padding:2px;" class="domsetvcol">
+        				<div style="height:530px !important;max-height:530px !important;overflow:scroll;">
+        					<center><h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;padding-top:1px !important;margin-top:1px !important;">
+        						What this configuration dashboard can do for you?
+        					</h3></center>
+        					<dl>
+        						<dt>Split out the <b>AD_Object_User, AD_Object_Group, and AD_Object_Computer</b> lookups into seperate lookups for each <b>AD Domain</b>.</dt>
+        						<dd style="font-weight:200;">This process can be helpful for <b>Large (&gt;200,000 Objects)</b> environments by reducing the <i>User, Group, and Computer</i> lookups.  This is done by creating separate lookups of these three main lookups for each AD Domain, which will reduce the amount stored in them individually.</dd>
+        					</dl>
+        				</div>
+        			</td>
+        				<td style="width:38%;vertical-align:top;padding:4px;" class="domsetvcol">
+        				<h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;">
+        					Step Descriptions
+        				</h3>
+        				<table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_edit_input.png" style="height: 40px;width: 40px;" title="Scope Definition"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 1: <i>Select the Target Domains you would like to create the separate lookups for and adjust settings if needed.</i>
+        								</dt>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_priority_list.png" style="height: 40px;width: 40px;" title="Preparation"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 2: <i>Create the New KvStore Collections</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									<i>This Provides the <b>collections.conf</b> settings based off of the selected Domain and configuration.</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">							
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_splk_forwarder.png" style="height: 40px;width: 40px;" title="Deployment"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 3: <i>Create the Lookup Definitions for the created KV Store Collections</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									<i>This Provides the <b>transforms.conf</b> settings based off of the selected Domain and configuration.</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 4: <i>Create New Scheduled Searches</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+        									<i>Since there will be different lookups, this step will walk you through the steps for adding new scheduled searches to keep the new lookups up to date with the specific domains admon changes, updates.</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 5: <i>Adjust Default Scheduled Searches</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+        									<i>This section walks through any adjustments to the <b>Default Scheduled Searches</b>.</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									Step 6: <i>Populate the New Lookups</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+        									<i>This section walks through the steps and searches to populate ad object data.</i>
+        								</dd>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+        									<i>This section also provides ways to clean out the default lookups with data for a now-split domain..</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+        						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+        							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+        						</td>
+        						<td style="padding:2px;">
+        							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+        								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+        									<i class="icon-error" style="height:15px !important;width:15px !important;color:#DC4E41;">Step 7: Save Configuration</i>
+        								</dt>
+        								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+        									<i>This last step is important, because the configurations made in Step 1 are not saved until you click the <b>Save Configuration</b> button in this step.</i>
+        								</dd>
+        							</dl>
+        						</td>
+        					</tr>
+        				</table>
+        			</td>
+        			</tr>
+        		</table>
+        	</center>
+        </div>
+      </html>
+    </panel>
+  </row>
+    <row depends="$tok_show_pre_warn_msg$">
+    <panel>
+      <html>
+        <center><h2><i class="icon-warning iconwarn" style="height:20px !important;width:20px !important;"> $tok_pre_warn_msg$</i></h2></center>
+      </html>
+    </panel>
+  </row>  
+  <row depends="$tok_tab_2$">
+  	<panel>
+  	<html>
+  	  <table class="mddominpsettoptbl">
+  	    <tr>
+  	      <td colspan="2" style="text-align:center;"><h3><b>Enable and Define New Lookup Definitions for Specific Domains</b></h3></td>
+  	    </tr>
+  	    <tr>
+  	      <td style="width:30%;padding: 10px !important;border: 4px solid #f99d1c;vertical-align:top !important;">
+  	        <center><h3>Configuration Steps:</h3></center>
+  	        <h4>Below are the steps for <i>Enabling and Defining the Settings</i> required to split out the <i>AD_Obj_User, AD_Obj_Group, and AD_Obj_Computer</i> KV Store lookups into separate lookups for the Domain Enabled.</h4>
+  	        <ul>
+  	          <li><b>Important Note:</b> This below steps do <b>NOT</b> automatically create the KV Store Lookups, and the entered values are not saved until <b>Step 7</b> they are initial steps to prepare for the creation and for telling this application where to store, and use the AD <i>User, Group, Computer information.</i></li>
+  	        </ul>
+  	        <ol>
+  	          <li>Select an AD Domain to split out the lookups by clicking on the <b>Enable</b> toggle button to set it to <b>Yes</b></li>
+  	          <li><b>Optionally</b> change the <b>Lookup Suffix</b> to a different value <i>(Default: DomainNetBIOSName)</i>.
+    	          <ul>
+    	            <li>The value entered here will be the added value at the end of the original lookups name, with a preceding "_".</li>
+    	          </ul>
+  	          </li>
+  	          <li>Verify and <b>optionally</b> change the <b>Domain DC Value</b> to a different value.
+    	          <ul>
+    	            <li><b>Important Note: <i>It is critical that this value is correct</i>.</b></li>
+    	            <li>This value is used by MS Windows AD Objects <b>Sync</b> job's to find this specific domain's admon data, so only its data is loaded/updated in it's separate lookups.</li>
+    	            <li>Click the <b>Verify</b> button to open a search view to verify the set value.</li>
+    	          </ul>
+  	          </li>
+  	          <li>Repeat the above steps for each AD Domain you would like to split out the 3 lookups for.</li>
+  	          <li>Proceed to the next section after you are done</li>  	          
+  	        </ol>
+  	        <ul style="$tok_view_cfg$"><li><i class="icon-pencil iconchkcircle" />  <b>Click <a href="#" class="btn btn-mini sp-btn-gradient" data-token-json="{&quot;tok_show_cfg_tabs&quot;:&quot;&quot;,&quot;tok_upd_ena_array&quot;:&quot;$tok_edit_ena_array$&quot;,&quot;tok_upd_dis_array&quot;:&quot;$tok_edit_dis_array$&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;$tok_view_cfg$">View Configuration Steps</a> To View Configurations for currently enabled Domains.</b></li></ul>
+  	        <details style="padding:0px !important;margin:0px !important;">
+						  <summary class="ms_obj_summary_step_settings" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+							  <b>Input Definitions:</b>
+						  </summary>
+										
+				<table style="width:98%;border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:center;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;" colspan="2">
+              <h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;">Input Definitions:</h3>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:center;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<h4>Enabled</h4>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									This sets that seperate lookup kvstores will be used instead of the default <i>AD_Obj_User, AD_Obj_Group, and AD_Obj_Computer</i>
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									When set to <b>Yes</b>, the listed <i>Lookup Names</i> will be used instead of the default aligned lookups for the specific domain.
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									When set to <b>No</b>, the default lookups <i>AD_Obj_User, AD_Obj_Group, and AD_Obj_Computer</i> will be used.
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:center;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<h4>Lookup Suffix</h4>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									The value entered here will be the added value at the end of the original lookups name, with a preceding "_".
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									The new name will then be used in the next step for creating the KV Store collection and definition.
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:center;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<h4>Lookup Names</h4>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									This column shows the 3 lookups that will contain the specific domains content, and used in the dashboard dropdowns.
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:center;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">							
+							<h4>admon Domain Filter:</h4>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+								 The value entered should match the <b>dc_val</b> field.  This field consist of the <b>DC.*</b> portion from the <b>objectCategory</b> field in the <code>sourcetype="ActiveDirectory"</code> data.   
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+								 <b>Important Note:</b> The <b>dc_val</b> field is a <i>Calculated Field</i>, where it replaces the values ",DC=" with a ".".  Make sure that the format entered matches the dc_value.   
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									<i>It is used to filter the admon data for this specific domain, where only that domain's admon data is loaded/updated in the new lookups.</i>
+								</dd>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									<i><b>Verify</b>: Click the <i>Verify</i> button to open a new search using the set <b>Domain DC Value</b>.  Verify that there are results returned, and look through the resulting data to ensure that the <b>dc_val</b> field and the <b>...DC=.*</b> portion from the <b>objectCategory</b> field are correct for the targeted domain.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+				</table>
+				</details>
+  	      </td>
+  	      <td style="width:70%;vertical-align:top;">
+  	        <center>
+  	        <div id="setmdinputs"></div></center>
+  	      </td>
+  	    </tr>
+  	  </table>
+	</html>
+	</panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel>
+      <html><div id="cfgcollh"></div></html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel>
+      <html><div id="cfgtransh"></div></html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_5$">
+    <panel>
+      <html><div id="cfgdefsrchh"></div></html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_6$">
+    <panel>
+      <html><div id="cfgnewsrchh"></div></html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_7$">
+    <panel>
+      <html>
+        <div class="ppl_err_msg hidden"><h2><i class="icon-warning iconwarn"> Warning - the following errors occured when running the search. Make sure the KV Store and Lookup Definitions have been created.<div class="ppl_err_msg_val"></div></i></h2> 
+        <h4>Failed Search: <code>$tok_ppl_search_lbl$</code></h4></div>
+      </html>
+      <html><div id="ppltbls"></div></html>
+    </panel>
+  </row>  
+  <row depends="$tok_tab_8$">
+    <panel>
+      <html><div ></div>
+        <center><img class="md-cfg-save-spin hidden" style="height:30px;width:30px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/><div class="md-cfg-save"><button class="btn btn-default md-cfg-save-btn" data-cfg-md-save="tok_sv_cfg">Save Configuration</button>
+			<h2><i class="icon-warning" style="height:25px !important;color:#DC4E41 !important;"> Make Sure all of the Configuration Steps have been completed before Saving</i></h2></div></center>
+            <div class="md-cfg-save-msg $tok_show_save_msg$"><center><h2><i class="icon-check-circle iconchkcircle" style="{height:35px !important;color:#40A540 !important;"> Configuration Has Been Saved</i></h2></center></div>
+			<div class="md-cfg-save-msg $tok_show_save_err_msg$"><center><h2><i class="icon-warning iconwarn"></i> Warning - AD_Obj_Domain table was not updated with configuration changes.</h2></center></div>			
+		</html> 
+		<table depends="$tok_show_res_table$"><title>Updated Domain Details</title><search base="new_dom_details"><query></query></search></table>
+    </panel>
+  </row>			
+  <row depends="$hiddenpop$">
+	<panel>
+		<html>
+			<div id="cfg_dc_val_chk_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" id="cfg_dc_val_chk_mod_hold_pop" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Verify admon Domain filter</b> - <i  class="splkblue flarge">Domain: $tok_chk_dc_val_dom$</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<center>
+							<table border="1" style="width:100%;">	
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<h4>Below are the results from checking if the admon data filter <i>$tok_dc_val_chk$</i> is able to return the correct data for the <i>$tok_chk_dc_val_dom$</i>. <b>Note: </b><i>It only returns the first 5 events.</i></h4>
+										<h4 style="color:$tok_chk_dc_val_color$;">Message: $tok_chk_dc_val_msg$</h4>
+										<h4>Search Used: <code>$tok_chk_dc_val_srch$</code></h4>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">	
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<div id="chkdcvalres"></div>
+									</td>
+								</tr> 
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">			
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<h4>Result Information</h4>
+										<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+											<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+											The entered value <b>$tok_dc_val_chk$</b> should match the <b>dc_val</b> field.  This field consist of the <b>DC.*</b> portion from the <b>objectCategory</b> field in the <code>sourcetype="ActiveDirectory"</code> data.
+											</dd>
+											<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+											<b>Important Note:</b> The <b>dc_val</b> field is a <i>Calculated Field</i>, where it replaces the values ",DC=" with a ".".  Make sure that the format entered matches the dc_value.   
+											</dd>
+											<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+												<i>It is used to filter the admon data for this specific domain, where only that domain's admon data is loaded/updated in the new lookups.</i>
+											</dd>
+										</dl>
+									</td>
+								</tr>
+							</table>
+						</center>	
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div> 
+    <style>
+/* -- Input Header Table-- */
+.mddominpsettoptbl {border: 4px solid #e20082;padding: 2px;margin: 2px;width:99.8%;}
+.mddominpsettoptbl th{text-align:center;border: 2px solid #f99d1c;padding: 2px;margin: 2px;}
+.mddominpsettoptbl tr.mddomsinpsettoprow {padding:4px;border: 4px solid #e20082;padding: 2px;margin: 2px}
+.mddominpsettoptbl tr.digsinpsetdesc {padding:4px;border: 3px solid #e20082;padding: 2px;margin: 2px}
+.mddominpsettoptbl tr.digsinpsethdrrow {padding:4px;border: 3px solid #e20082;padding: 2px;margin: 2px}
+.mddominpsettoptbl tr.digsinpsethdrrow td{background-color: #f99d1c;text-align:center;font-weight:500;padding:2px;border: 3px solid #000000;margin: 2px;}
+.mddominpsettoptbl tr.domsetvrw {padding:3px;border: 3px solid #f99d1c;padding: 2px;margin: 2px}
+.mddominpsettoptbl tr.domsetvrw td{text-align:center;font-weight:300;padding:2px;border: 3px solid #f99d1c;margin: 2px;}
+.mdppltbl {width: 99% !important;padding: 4px;margin: 10px;}
+.mdppltoptbl {border: 4px solid #e20082;margin: 2px;width:99% !important;padding: 4px;}
+.mdppltoptbl tr.mdppltoprow {border: 4px solid #e20082;padding: 2px;margin: 2px;}
+.mdppltoptbl tr.mdppltoprow th{text-align:center;border: 2px solid #e20082;padding: 2px;margin: 2px;}
+.mdppltbl tr.mdpplrow {border: 2px solid #f99d1c;padding: 2px;margin: 2px}
+.mdppltbl tr td.mdpplcol {padding:2px;border: 2px solid #f99d1c;padding: 2px;margin: 2px}
+.ms_ppl_search_txt {width:220px !important;text-align:left !important;padding:2px !important;margin:2px !important;}
+.ppl_lkp_spin img {height:30px;width:30px;}
+.ppl_st_cnt {font-weight:500 !important;font-color:#333 !important;color:#333 !important;}
+
+/* ---- Toggle Switch CSS --- */
+.checkbox label .toggle,
+.checkbox-inline .toggle {margin-left: -20px;	margin-right: 5px;}
+.toggle {	position: relative;	overflow: hidden;}
+.toggle input[type="checkbox"] {	display: none;}
+.toggle-group {	position: absolute;	width: 200%;	top: 0;	bottom: 0;	left: 0;	transition: left 0.35s;	-webkit-transition: left 0.35s;	-moz-user-select: none;	-webkit-user-select: none;}
+.toggle.off .toggle-group {	left: -100%;}
+.toggle-on {	position: absolute;	top: 0;	bottom: 0;	left: 0;	right: 50%;	margin: 0;	border: 0;	border-radius: 0;}
+.toggle-off {	position: absolute;	top: 0;	bottom: 0;	left: 50%;	right: 0;	margin: 0;	border: 0;	border-radius: 0;}
+.toggle-handle {	position: relative;	margin: 0 auto;	padding-top: 0px;	padding-bottom: 0px;	height: 100%;	width: 0px;	border-width: 0 1px;}
+.toggle.btn { min-width: 45px; min-height: 25px; }
+.toggle-on.btn { padding-right: 12px; }
+.toggle-off.btn { padding-left: 12px; }
+.toggle.btn-lg { min-width: 79px; min-height: 45px; }
+.toggle-on.btn-lg { padding-right: 31px; }
+.toggle-off.btn-lg { padding-left: 31px; }
+.toggle-handle.btn-lg { width: 40px; }
+.toggle.btn-sm { min-width: 50px; min-height: 30px;}
+.toggle-on.btn-sm { padding-right: 20px; }
+.toggle-off.btn-sm { padding-left: 20px; }
+.toggle.btn-xs { min-width: 35px; min-height: 22px;}
+.toggle-on.btn-xs { padding-right: 12px; }
+.toggle-off.btn-xs { padding-left: 12px; } 
+.btn.b-tog { display: inline-block;padding: 1px 5px;margin-bottom: 0;font-size: 12px;font-weight: 400;line-height: 1.42857143;text-align: center;white-space: nowrap;vertical-align: middle;cursor: pointer;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;background-image: none;    border: 1px solid transparent;border-top-color: transparent;border-right-color: transparent;border-bottom-color: transparent;border-left-color: transparent;border-radius: 4px;}
+.btn.b-tog:focus,.btn:active:focus,.btn.active:focus {outline:thin dotted;outline:5px auto -webkit-focus-ring-color;outline-offset:-2px}
+.btn.toggle:hover,.btn:focus {color:#333;text-decoration:none}
+.btn.b-tog:active,.btn.active {background-image:none;outline:0;-webkit-box-shadow:inset 0 3px 5px rgba(0,0,0,.125);box-shadow:inset 0 3px 5px rgba(0,0,0,.125)}
+.bt.b-tog.disabled,.btn[disabled],fieldset[disabled] .btn {pointer-events:none;cursor:not-allowed;filter:alpha(opacity=65);-webkit-box-shadow:none;box-shadow:none;opacity:.65}
+.btn-default {color:#333;background-color:#fff;border-color:#ccc}
+.btn-default:hover,.btn-default:focus,.btn-default:active,.btn-default.active,.open&gt;.dropdown-toggle.btn-default {color:#333;background-color:#e6e6e6;border-color:#adadad}
+.btn-default:active,.btn-default.active,.open&gt;.dropdown-toggle.btn-default {background-image:none}
+.btn-default.disabled,.btn-default[disabled],fieldset[disabled] .btn-default,.btn-default.disabled:hover,.btn-default[disabled]:hover,fieldset[disabled] .btn-default:hover,.btn-default.disabled:focus,.btn-default[disabled]:focus,fieldset[disabled] .btn-default:focus,.btn-default.disabled:active,.btn-default[disabled]:active,fieldset[disabled] .btn-default:active,.btn-default.disabled.active,.btn-default[disabled].active,fieldset[disabled] .btn-default.active {background-color:#fff;border-color:#ccc}
+.btn-default .badge {color:#fff;background-color:#333}
+.btn-primary {color:#fff;background-color:#428bca;border-color:#357ebd}
+.btn-primary:hover,.btn-primary:focus,.btn-primary:active,.btn-primary.active,.open&gt;.dropdown-toggle.btn-primary {color:#fff;background-color:#3071a9;border-color:#285e8e}
+.btn-primary:active,.btn-primary.active,.open&gt;.dropdown-toggle.btn-primary {background-image:none}
+.btn-primary.disabled,.btn-primary[disabled],fieldset[disabled] .btn-primary,.btn-primary.disabled:hover,.btn-primary[disabled]:hover,fieldset[disabled] .btn-primary:hover,.btn-primary.disabled:focus,.btn-primary[disabled]:focus,fieldset[disabled] .btn-primary:focus,.btn-primary.disabled:active,.btn-primary[disabled]:active,fieldset[disabled] .btn-primary:active,.btn-primary.disabled.active,.btn-primary[disabled].active,fieldset[disabled] .btn-primary.active {background-color:#428bca;border-color:#357ebd}
+.btn-primary .badge {color:#428bca;background-color:#fff}
+.btn-success {color:#fff;background-color:#5cb85c;border-color:#4cae4c}
+.btn-success:hover,.btn-success:focus,.btn-success:active,.btn-success.active,.open&gt;.dropdown-toggle.btn-success {color:#fff;background-color:#449d44;border-color:#39843}
+.btn-success:active,.btn-success.active,.open&gt;.dropdown-toggle.btn-success {background-image:none}
+.btn-success.disabled,.btn-success[disabled],fieldset[disabled] .btn-success,.btn-success.disabled:hover,.btn-success[disabled]:hover,fieldset[disabled] .btn-success:hover,.btn-success.disabled:focus,.btn-success[disabled]:focus,fieldset[disabled] .btn-success:focus,.btn-success.disabled:active,.btn-success[disabled]:active,fieldset[disabled] .btn-success:active,.btn-success.disabled.active,.btn-success[disabled].active,fieldset[disabled] .btn-success.active {background-color:#5cb85c;border-color:#4cae4c}
+.btn-success .badge {color:#5cb85c;background-color:#fff}
+.btn-info {color:#fff;background-color:#5bc0de;border-color:#46b8da}
+.btn-info:hover,.btn-info:focus,.btn-info:active,.btn-info.active,.open&gt;.dropdown-toggle.btn-info {color:#fff;background-color:#31b0d5;border-color:#269abc}
+.btn-info:active,.btn-info.active,.open&gt;.dropdown-toggle.btn-info {background-image:none}
+.btn-info.disabled,.btn-info[disabled],fieldset[disabled] .btn-info,.btn-info.disabled:hover,.btn-info[disabled]:hover,fieldset[disabled] .btn-info:hover,.btn-info.disabled:focus,.btn-info[disabled]:focus,fieldset[disabled] .btn-info:focus,.btn-info.disabled:active,.btn-info[disabled]:active,fieldset[disabled] .btn-info:active,.btn-info.disabled.active,.btn-info[disabled].active,fieldset[disabled] .btn-info.active {background-color:#5bc0de;border-color:#46b8da}
+.btn-info .badge {color:#5bc0de;background-color:#fff}
+.btn-warning {color:#fff;background-color:#f0ad4e;border-color:#eea236}
+.btn-warning:hover,.btn-warning:focus,.btn-warning:active,.btn-warning.active,.open&gt;.dropdown-toggle.btn-warning {color:#fff;background-color:#ec971f;border-color:#d58512}
+.btn-warning:active,.btn-warning.active,.open&gt;.dropdown-toggle.btn-warning {background-image:none}
+.btn-warning.disabled,.btn-warning[disabled],fieldset[disabled] .btn-warning,.btn-warning.disabled:hover,.btn-warning[disabled]:hover,fieldset[disabled] .btn-warning:hover,.btn-warning.disabled:focus,.btn-warning[disabled]:focus,fieldset[disabled] .btn-warning:focus,.btn-warning.disabled:active,.btn-warning[disabled]:active,fieldset[disabled] .btn-warning:active,.btn-warning.disabled.active,.btn-warning[disabled].active,fieldset[disabled] .btn-warning.active {background-color:#f0ad4e;border-color:#eea236}
+.btn-warning .badge {color:#f0ad4e;background-color:#fff}
+.btn-danger {color:#fff;background-color:#d9534f;border-color:#d43f3a}
+.btn-danger:hover,.btn-danger:focus,.btn-danger:active,.btn-danger.active,.open&gt;.dropdown-toggle.btn-danger {color:#fff;background-color:#c9302c;border-color:#ac2925}
+.btn-danger:active,.btn-danger.active,.open&gt;.dropdown-toggle.btn-danger {background-image:none}
+.btn-danger.disabled,.btn-danger[disabled],fieldset[disabled] .btn-danger,.btn-danger.disabled:hover,.btn-danger[disabled]:hover,fieldset[disabled] .btn-danger:hover,.btn-danger.disabled:focus,.btn-danger[disabled]:focus,fieldset[disabled] .btn-danger:focus,.btn-danger.disabled:active,.btn-danger[disabled]:active,fieldset[disabled] .btn-danger:active,.btn-danger.disabled.active,.btn-danger[disabled].active,fieldset[disabled] .btn-danger.active {background-color:#d9534f;border-color:#d43f3a}
+.btn-danger.off {color:#d9534f;background-color:#fff}
+.btn-link {font-weight:400;color:#428bca;cursor:pointer;border-radius:0}
+.btn-link,.btn-link:active,.btn-link[disabled],fieldset[disabled] .btn-link {background-color:transparent;-webkit-box-shadow:none;box-shadow:none}
+.btn-link,.btn-link:hover,.btn-link:focus,.btn-link:active {border-color:transparent}
+.btn-link:hover,.btn-link:focus {color:#2a6496;text-decoration:underline;background-color:transparent}
+.btn-link[disabled]:hover,fieldset[disabled] .btn-link:hover,.btn-link[disabled]:focus,fieldset[disabled] .btn-link:focus {color:#777;text-decoration:none}
+.btn-lg,.btn-group-lg&gt;.btn {padding:10px 16px;font-size:18px;line-height:1.33;border-radius:6px}
+.btn-sm,.btn-group-sm&gt;.btn {padding:5px 10px;font-size:12px;line-height:1.5;border-radius:3px}
+.btn-xs,.btn-group-xs&gt;.btn {padding:1px 5px;font-size:12px;line-height:1.5;border-radius:3px}
+.btn-block {display:block;width:100%}
+.sp-btn-gradient {background-image: linear-gradient(to left, #e20082, #f99d1c);background-color: transparent;border-color: #000000;color:#FFFFFF;}
+.sp-btn-gradient:hover,.sp-btn-gradient:active,.sp-btn-gradient:focus{color:#e20082;background-color:transparent;border-color:#e20082;background-image: linear-gradient(to left, #FFFFFF, #FFFFFF)}
+/* Split KV Inputs */
+.inpkvsuffix.hidden {display:none;}
+.inpdcval.hidden {display:none;}
+.listlkp {padding-left:10px;margin-left:10px;}
+.listlkp.hidden {display:none;}
+.defdcval.hidden {display:none;}
+.defkvsuff.hidden {display:none;}
+.chk_verify.hidden {display:none;}
+.md-cfg-save-btn {background-color:#DFF2DF !important;}
+.md-cfg-save.hidden {display:none;}
+.md-cfg-steps.hidden {display:none;}
+.md-cfg-save-msg.hidden {display:none;}
+.md-cfg-save-spin.hidden {display:none;}
+.ppl_lkp_migrate.hidden {display:none;}
+.ppl_lkp_bld.hidden {display:none;}
+.ppl_lkp_spin.hidden {display:none;}
+.ppl_lkp_btn.hidden,.ppl_lkp_btn.Completed {display:none;}
+.ppl_lkp_btn.running {display:none;}
+.ppl_lkp_st.Pending:before {content: "\231A";font-family: Splunk Icons;font-style: normal;font-weight: 400;text-decoration: inherit;line-height: inherit;}
+.ppl_err_msg.hidden {display:none;}
+.ppl_lkp_st.Completed:before {content: "\2713";color: #000000;height: 18px;font-size: 12px;padding-right: 5px;}
+.kv_chk_warn {height:25px;color:#DC4E41;}
+.iconinfo {font-size:20px !important;height:20px !important;color:#e20082 !important;}
+.iconchkcircle {height:35px !important;color:#40A540 !important;}
+.Completed {color:#40A540 !important;}
+.iconwarn {height:35px !important;color:#DC4E41 !important;}
+/* Table Format Settings */
+.domsetleftcol {text-align:left !important;vertical-align:middle;}
+    </style>	
+	</html>
+	</panel>
+  </row>
+</dashboard>

@@ -1,0 +1,915 @@
+<form script="customized_chart_preload.js,ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Group - Sub Search - Builder</label>
+  <init>
+    <set token="tok_group_label">Pending</set>
+    <set token="tok_object_count">0</set>
+  </init>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_time_filt">
+    <query>| makeresults
+| eval t_filt_s ="$field1.earliest$", t_filt_e="$field1.latest$"
+| eval t_filt_s_f=case(match(t_filt_s,"^\d+$"),t_filt_s,t_filt_s="",0,match(t_filt_s,"^(\-|\@)"),relative_time(now(),t_filt_s))
+| eval t_filt_e_f=case(match(t_filt_e,"^\d+$"),t_filt_e,t_filt_e="",9999999999,match(t_filt_e,"^(\-|\@)"),relative_time(now(),t_filt_e),t_filt_e="now",now())
+| eval t_filt_s_l=if(t_filt_s_f=0,"0",strftime(t_filt_s_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_e_l=if(t_filt_e_f=9999999999,"All Time",strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_full_l=if(t_filt_e_f=9999999999,"All Time","From: ".strftime(t_filt_s_f,"%m/%d/%y %I:%M %P")." To: ".strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| table t_filt_s_f, t_filt_s_l,t_filt_e_f, t_filt_e_l,t_filt_full_l</query>
+    <progress>
+      <condition>
+        <set token="tok_filt_start">$result.t_filt_s_l$</set>
+        <set token="tok_filt_end">$result.t_filt_e_l$</set>
+        <set token="tok_filt_msg">$result.t_filt_full_l$</set>
+      </condition>
+    </progress>
+  </search>
+  <search id="base_ad_group_objects">
+    <query>| inputlookup $tok_group_lkp$ where domain="$tok_domain$" AND membercount!="0" AND (cn="$tok_group_filter$" OR sAMAccountName="$tok_group_filter$")
+| eval srt_field=case(isDeleted="TRUE" AND membercount="0",0,isDeleted="TRUE" AND membercount!="0",1,isDeleted="FALSE" AND membercount="0",2,isDeleted="FALSE" AND membercount!="0",3)
+| eval cn=if(isDeleted="TRUE","Deleted- ".sAMAccountName." (".membercount.")",cn." (".membercount.")")
+| fields cn,sAMAccountName,distinguishedName,member, groupType_Name, srt_field</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <set token="tok_object_count">0</set>
+      <set token="tok_object_count_color">blue</set>
+      <set token="tok_results_count">0</set>
+      <set token="tok_results_count_color">blue</set>
+      <set token="tok_group_list_search">| inputlookup $tok_group_lkp$ where domain="$tok_domain$"
+| eval srt_field=case(isDeleted="TRUE" AND membercount="0",0,isDeleted="TRUE" AND membercount!="0",1,isDeleted="FALSE" AND membercount="0",2,isDeleted="FALSE" AND membercount!="0",3)
+| eval cn=if(isDeleted="TRUE","Deleted- ".sAMAccountName." (".membercount.")",cn." (".membercount.")")
+| fields cn,sAMAccountName,distinguishedName,member, groupType_Name, srt_field</set>
+    </done>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_show_no_group_s_err"></set>
+      </condition>
+      <condition>
+        <set token="tok_show_no_group_s_err">display:none;</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_object_list">
+    <query>| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| append [| inputlookup $tok_computer_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn| table dn | format]| table *]
+| append [| inputlookup $tok_group_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]| table *]
+| eval obj_type_val=case(objectClass=="top|person|organizationalPerson|user","user",objectClass=="top|person|organizationalPerson|user|computer","computer",objectClass=="top|group","group")
+| fields *</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <set token="tok_srch_obj_list">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| append [| inputlookup $tok_computer_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn| table dn | format]| table *]
+| append [| inputlookup $tok_group_lkp$ WHERE domain=$tok_domain$ [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]| table *]
+| eval obj_type_val=case(objectClass=="top|person|organizationalPerson|user","user",objectClass=="top|person|organizationalPerson|user|computer","computer",objectClass=="top|group","group")
+| fields *</set>
+    </done>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_group_user_list">0</set>
+        <set token="tok_no_objects_found">True</set>
+        <set token="tok_object_count">0</set>
+        <set token="tok_object_count_color">red</set>
+        <set token="tok_show_no_member_s_err"></set>
+      </condition>
+      <condition>
+        <set token="tok_object_count">$job.resultCount$</set>
+        <set token="tok_object_count_color">green</set>
+        <set token="tok_show_no_member_s_err">display:none;</set>
+        <unset token="tok_no_objects_found"></unset>
+      </condition>
+    </done>
+  </search>
+  <search id="sub_rex_filter" base="base_object_list">
+    <query>stats values($tok_source_link_field$) AS tgt_filt | eval tgt_filt=mvjoin(tgt_filt,"|") | table tgt_filt
+    </query>
+    <done>
+      <set token="tok_tgt_filt">$result.tgt_filt$</set>
+    </done>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_object_found">True</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_object_filter" base="base_object_list">
+    <query>search obj_type_val="$tok_member_obj_type$"
+| stats values($tok_source_link_field$) AS search
+| $tok_target_object_link_field_filt$
+| table search
+| format</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_filter"></set>
+      </condition>
+      <condition>
+        <set token="tok_filter">$result.search$</set>
+        <set token="tok_obj_filt_srch">| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| stats values($tok_source_link_field$) AS search
+| $tok_target_object_link_field_filt$
+| table search
+| format</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_built_search">
+    <query>$tok_filter_text$ $tok_index_filt$ $tok_sourcetype_filt$  ([| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| fields $tok_source_link_field$
+| stats values($tok_source_link_field$) AS $tok_target_link_field_filt$
+| table $tok_target_link_field_filt$
+| format])
+| fields $tok_target_link_field_list$
+</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <progress>
+      <condition>
+        <eval token="tok_results_count">$job.dispatchState$." ".toString($job.eventCount$,"commas")</eval>
+        <set token="tok_obj_full_srch">$tok_filter_text$ $tok_index_filt$ $tok_sourcetype_filt$  ([| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup AD_Obj_Group WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| fields $tok_source_link_field$
+| stats values($tok_source_link_field$) AS $tok_target_link_field_filt$
+| table $tok_target_link_field_filt$
+| format])
+| fields $tok_target_link_field_list$</set>
+        <set token="tok_results_count_color">blue</set>
+        <set token="tok_obj_filt_srch">| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| stats values($tok_source_link_field$) AS search
+| $tok_target_object_link_field_filt$
+| table search
+| format</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_results_count">0</set>
+        <set token="tok_results_count_color">red</set>
+        <unset token="tok_user_drilldown"></unset>
+        <unset token="tok_user_drilldown_label"></unset>
+        <set token="tok_show_no_event_s_err"></set>
+      </condition>
+      <condition>
+        <eval token="tok_results_count">toString($job.eventCount$,"commas")</eval>
+        <set token="tok_results_count_color">green</set>
+        <set token="tok_user_drilldown">*</set>
+        <set token="tok_user_drilldown_label">All Results</set>
+        <set token="tok_show_no_event_s_err">display:none;</set>
+      </condition>
+    </done>
+  </search>
+  <!--row id="tab_results">
+    <panel depends="$tok_sourcetype$">
+      <event>
+        <title>Resulting Events - Total Events ($tok_results_count$)</title>
+        <search base="base_built_search">
+          <query></query>
+        </search>
+      </event>
+    </panel>
+  </row-->
+  <fieldset submitButton="true">
+    <html>
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Step 1</font>: Selected Domain, Group Type, Group, Member Object Type and Object's Source Field for building the base search text.  The Field selected with the <font color="green">Select Source Link Field</font> will contain the values that will be returned in the sub-search and used to filter the configured target data:</i>
+        </b>
+      </p>
+	</html>
+    <input type="dropdown" token="input_tok_domain" searchWhenChanged="true">
+      <label>1.1 Select Group Domain</label>
+      <choice value="sel">Select Domain</choice>
+      <search base="base_domain_search">
+        <query>table domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_domain"></unset>
+          <unset token="tok_show_group_filter"></unset>
+        </condition>
+        <condition>
+          <set token="tok_domain">$value$</set>
+          <set token="tok_show_group_filter">True</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="input_group_filter_bs" searchWhenChanged="true" depends="$tok_show_group_filter$">
+      <label>1.2 Filter Domain Groups</label>
+      <initialValue></initialValue>
+      <change>
+        <condition match="len($value$)>0">
+          <set token="tok_group_filter">$value$</set>
+          <set token="tok_show_group">True</set>
+        </condition>
+        <condition>
+          <unset token="tok_show_group"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_group_type" searchWhenChanged="true" depends="$tok_show_group$">
+      <label>1.3 Select Group Type</label>
+      <choice value="*">All</choice>
+      <search base="base_ad_group_objects">
+        <query>stats count by groupType_Name | sort groupType_Name</query>
+      </search>
+      <fieldForLabel>groupType_Name</fieldForLabel>
+      <fieldForValue>groupType_Name</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="tok_group" searchWhenChanged="true" depends="$tok_show_group$">
+      <label>1.4 Select Group(Member Count)</label>
+      <search base="base_ad_group_objects">
+        <query>search groupType_Name="$tok_group_type$" 
+| stats count by sAMAccountName, cn,distinguishedName, srt_field 
+| sort -srt_field, sAMAccountName 
+| table cn, distinguishedName</query>
+      </search>
+      <fieldForLabel>cn</fieldForLabel>
+      <fieldForValue>distinguishedName</fieldForValue>
+      <change>
+        <set token="tok_audit_value">$value$</set>
+        <set token="tok_group_label">$label$</set>
+      </change>
+    </input>
+    <input type="radio" token="input_tok_member_obj_type" depends="$tok_group$" id="sel_member_type">
+      <label>1.5 Select Member Type</label>
+      <fieldForLabel>obj_type_label</fieldForLabel>
+      <fieldForValue>obj_type_val</fieldForValue>
+      <search base="base_object_list" id="sub_src_obj_type_list">
+        <query>fields obj_type_val
+| stats count by obj_type_val
+| eval obj_type_label=case(obj_type_val=="user","( ".count." ) User",obj_type_val=="computer","( ".count." ) Computer",obj_type_val=="group","( ".count." ) Group")
+| table obj_type_val,obj_type_label
+| sort -obj_type_val</query>
+      </search>
+      <change>
+        <condition value="user">
+          <set token="tok_member_obj_type">user</set>
+          <set token="tok_member_obj_lkp">$tok_user_lkp$</set>
+          <set token="tok_member_obj_type_label">User</set>
+        </condition>
+        <condition value="computer">
+          <set token="tok_member_obj_type">computer</set>
+          <set token="tok_member_obj_lkp">$tok_computer_lkp$</set>
+          <set token="tok_member_obj_type_label">Computer</set>
+        </condition>
+        <condition value="group">
+          <set token="tok_member_obj_type">group</set>
+          <set token="tok_member_obj_lkp">$tok_group_lkp$</set>
+          <set token="tok_member_obj_type_label">Embedded Group</set>
+        </condition>
+        <condition>
+          <unset token="tok_member_obj_type"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_source_user_link_field" searchWhenChanged="true" depends="$tok_group$,$tok_member_obj_type$">
+      <label>1.6 Select $tok_member_obj_type_label$ Link Field</label>
+      <choice value="start">Select Field</choice>
+      <default>start</default>
+      <initialValue>start</initialValue>
+      <search base="base_object_list" id="sub_source_user_field_list">
+        <query>search obj_type_val="$tok_member_obj_type$" 
+| head 10
+| fieldsummary
+| search count&gt;0 NOT(field=sourcetype OR field=index OR field=tag* OR field=source OR field=eventtype OR field=splunk_server OR field=date_*)
+| table field, values 
+| fields + field, values
+| rex max_match=2 field=values "\{\"value\"\:\"(?P&lt;Example_Values&gt;[\S\-\S][^\"]+)"
+| search Example_Values="*"
+| stats values(Example_Values) AS Example_Values by field
+| table field,Example_Values
+| sort field</query>
+      </search>
+      <fieldForLabel>field</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <change>
+        <condition value="start">
+          <unset token="tok_object_found"></unset>
+          <unset token="tok_source_link_field"></unset>
+        </condition>
+        <condition>
+          <set token="tok_source_link_field">$value$</set>
+          <set token="tok_object_found">$value$</set>
+          <set token="tok_tab_1">active</set>
+        </condition>
+      </change>
+    </input>
+    <html depends="$tok_group$,$tok_object_found$">
+      <!--HR WIDTH="75%" SIZE="1"/-->
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Step 2</font>: Select Target data to correllate the above selected Group's members ($tok_source_link_field$) with:</i>
+        </b>
+      </p>
+	</html>
+    <input type="time" token="field1" searchWhenChanged="true" depends="$tok_group$,$tok_object_found$">
+      <label>2.1 Select Time Range</label>
+      <default>
+        <earliest>-4h@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_index" searchWhenChanged="true" depends="$tok_group$,$tok_object_found$">
+      <label>2.2 Select Base Search index</label>
+      <choice value="all">All</choice>
+      <default></default>
+      <initialValue></initialValue>
+      <search>
+        <query>| eventcount summarize=false index=* | search count&gt;0 NOT index=_* NOT index=history NOT index=summary | dedup index | fields index| sort index</query>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>index</fieldForLabel>
+      <fieldForValue>index</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_show_sourcetype"></unset>
+          <unset token="tok_index_filt"></unset>
+          <unset token="tok_target_link_field"></unset>
+          <unset token="tok_user_drilldown"></unset>
+          <unset token="tok_base_srch_msg"></unset>
+          <set token="form.tok_sourcetype"></set>
+        </condition>
+        <condition value="all">
+          <set token="tok_show_sourcetype">True</set>
+          <set token="tok_index_filt"></set>
+          <set token="tok_base_srch_msg">No Target Data specified for (index, sourcetype, or extra text), so sub-search filter values will search across all indexed data.</set>
+          <set token="tok_base_srch_color">Orange</set>
+          <set token="form.tok_sourcetype"></set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition>
+          <set token="tok_show_sourcetype">True</set>
+          <set token="tok_index_filt">index="$value$"</set>
+          <set token="form.tok_sourcetype"></set>
+          <set token="tok_base_srch_msg">index="$value$" $tok_filter_text$</set>
+          <set token="tok_base_srch_color">blue</set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_sourcetype" searchWhenChanged="true" depends="$tok_group$,$tok_object_found$,$tok_show_sourcetype$">
+      <label>2.3 Select Base Search sourcetype</label>
+      <default></default>
+      <initialValue></initialValue>
+      <search>
+        <query>| metadata type=sourcetypes $tok_index_filt$ | dedup sourcetype | table sourcetype</query>
+      </search>
+      <choice value="all">All</choice>
+      <fieldForLabel>sourcetype</fieldForLabel>
+      <fieldForValue>sourcetype</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_show_field_list"></unset>
+          <unset token="tok_sourcetype_filt"></unset>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition value="all">
+          <set token="tok_show_field_list">True</set>
+          <set token="tok_sourcetype_filt"></set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition>
+          <set token="tok_show_field_list">True</set>
+          <set token="tok_sourcetype_filt">sourcetype="$value$"</set>
+          <set token="tok_base_srch_msg">$tok_index_filt$ sourcetype="$value$" $tok_filter_text$</set>
+          <set token="tok_base_srch_color">blue</set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_target_link_field" searchWhenChanged="true" depends="$tok_group$,$tok_object_found$,$tok_show_field_list$">
+      <label>2.4 Select Target Link Field</label>
+      <choice value="search">(Raw Text Search)</choice>
+      <default></default>
+      <initialValue></initialValue>
+      <search id="base_field_list">
+        <query>$tok_index_filt$ $tok_sourcetype_filt$  
+	([| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+	| fields $tok_source_link_field$
+	| stats values($tok_source_link_field$) AS search
+	| eval search="\"".mvjoin(search,"\" OR \"")."\""
+	| table search])
+| head 10
+| fieldsummary
+| search count&gt;0 NOT(field=sourcetype OR field=index OR field=tag* OR field=source OR field=eventtype OR field=splunk_server OR field=date_*)
+| table field, values 
+| fields + field, values
+| rex max_match=2 field=values "\{\"value\"\:\"(?P&lt;Example_Values&gt;[\S\-\S][^\"]+)"
+| search Example_Values="*"
+| stats values(Example_Values) AS Example_Values by field
+| table field,Example_Values
+| sort field</query>
+      </search>
+      <fieldForLabel>field</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_target_link_field_list"></unset>
+          <unset token="tok_target_link_field_label"></unset>
+          <unset token="tok_target_link_field_filt"></unset>
+          <unset token="tok_target_results_drilldown"></unset>
+          <unset token="tok_user_drilldown"></unset>
+          <unset token="tok_results_raw"></unset>
+          <unset token="tok_results_non_raw"></unset>
+        </condition>
+        <condition value="search">
+          <set token="tok_target_link_field_list">_time,host,sourcetype,_raw</set>
+          <set token="tok_target_link_field_label">_raw</set>
+          <set token="tok_results_raw">true</set>
+          <unset token="tok_results_non_raw"></unset>
+          <set token="tok_target_results_drilldown"></set>
+          <set token="tok_target_link_field_filt">search</set>
+          <set token="tok_filtered_srch_url">$tok_filter_text$ $tok_index_filt$ $tok_sourcetype_filt$ $tok_filter_text$ 
+([| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| fields $tok_source_link_field$
+| stats values($tok_source_link_field$) AS search
+| table search
+| format])</set>
+          <set token="tok_sub_srch_url">| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| fields $tok_source_link_field$
+| stats values($tok_source_link_field$) AS search
+| table search
+| format</set>
+        </condition>
+        <condition>
+    	  <set token="tok_target_link_field_list">_time,host,sourcetype,_raw,$value$</set>
+          <set token="tok_results_non_raw">true</set>
+          <unset token="tok_results_raw"></unset>
+          <set token="tok_target_link_field_label">$value$</set>
+          <set token="tok_target_results_drilldown">$value$=</set>
+          <set token="tok_target_link_field_filt">$value$</set>
+          <set token="tok_filtered_srch_url">$tok_filter_text$ $tok_index_filt$ $tok_sourcetype_filt$  
+	([| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+	| fields $tok_source_link_field$
+	| stats values($tok_source_link_field$) AS $value$
+	| table $value$
+	| format])</set>
+          <set token="tok_sub_srch_url">| inputlookup $tok_member_obj_lkp$ WHERE domain=$tok_domain$ AND [| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" | fields member | rename member as dn | table dn | format]
+| fields $tok_source_link_field$
+| stats values($tok_source_link_field$) AS $value$
+| table $value$
+| format</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="input_tok_filter_text" searchWhenChanged="true" depends="$tok_group$,$tok_object_found$,$tok_show_field_list$">
+      <label>2.5 Extra Filter Text</label>
+      <default></default>
+      <initialValue></initialValue>
+      <change>
+        <condition value="">
+          <set token="tok_filter_text"></set>
+        </condition>
+        <condition>
+          <set token="tok_filter_text">"$value$"</set>
+          <set token="tok_base_srch_msg">$tok_index_filt$ $tok_sourcetype_filt$ "$value$"</set>
+          <set token="tok_base_srch_color">blue</set>
+          <set token="tok_filtered_srch_url">"$value$" $tok_filtered_srch_url$</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel rejects="$tok_admin_show_warn$,$tok_admin_show_running$">
+      <title>Results for Group ($tok_group_label$) $tok_filt_msg$</title>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Group Member User Accounts</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Resulting Events</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Search Details</a>
+          </li>        
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="tab_members" depends="$tok_tab_1$">
+    <panel depends="$tok_group$,$tok_object_found$">
+      <table>
+        <title>Group Membership for the $tok_group_label$ Group - Total Members ($tok_object_count$)</title>
+        <search base="base_object_list">
+          <query>eval "Linked Field ($tok_source_link_field$)"=$tok_source_link_field$
+| table objectClass, cn, "Linked Field ($tok_source_link_field$)" | sort cn</query>
+        </search>
+      </table>
+    </panel>
+    <panel depends="$tok_group$,$tok_no_objects_found$">
+      <html>
+      <HR WIDTH="75%" SIZE="3"/>
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Warning</font>: No Users Found in Specified Group.</i>
+        </b>
+      </p>
+	</html>
+    </panel>
+  </row>
+  <row id="tab_results" depends="$tok_tab_2$">
+    <panel depends="$tok_target_link_field$">
+      <table id="tab_results_tbl_non_raw"  depends="$tok_results_non_raw$">
+        <title>Resulting Events Counts - Total Events ($tok_results_count$)</title>
+        <search base="base_built_search">
+          <query>stats count AS Total_Events, dc(host) AS Total_Hosts, values(sourcetype) AS sourcetypes by $tok_target_link_field_label$
+| sort -Total_Events
+| addtotals row=f col=t labelfield=$tok_target_link_field_label$ Total_Events</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="tok_user_drilldown">$click.value$</set>
+          <eval token="atok_user_drilldown">if($click.value$="Total","*",$click.value$)</eval>
+          <eval token="tok_user_drilldown_label">if($click.value$="Total","All Events",$click.value$)</eval>
+        </drilldown>
+      </table>
+      <table id="tab_results_tbl_raw" depends="$tok_results_raw$">
+        <title>Resulting Raw Sourcetype Event Counts - Total Events ($tok_results_count$)</title>
+        <search base="base_built_search">
+          <query>stats count AS Total_Events, dc(host) AS Total_Hosts by sourcetype
+| sort -Total_Events
+| addtotals row=f col=t labelfield=sourcetype Total_Events</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="tok_user_drilldown">$click.value$</set>
+          <eval token="atok_user_drilldown">if($click.value$="Total","*",$click.value$)</eval>
+          <eval token="tok_user_drilldown_label">if($click.value$="Total","All Events",$click.value$)</eval>
+        </drilldown>
+      </table>
+      <html>
+        <h4>
+          <i>
+            <font color="green">Click the $tok_target_link_field_label$ value above to filter the Events and TimeChart panel.</font>
+          </i>
+        </h4>
+      </html>      
+      </panel>
+      <panel depends="$tok_target_link_field$">
+      <chart id="tab_results_cht_raw" depends="$tok_user_drilldown_label$,$tok_results_raw$">
+        <title>Resulting Events Overtime - For ($tok_user_drilldown_label$)</title>
+        <search base="base_built_search">
+          <query>search sourcetype="$tok_user_drilldown$" 
+| timechart count by sourcetype</query>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+      <chart id="tab_results_cht_non_raw" depends="$tok_user_drilldown_label$,$tok_results_non_raw$">
+        <title>Resulting Events Overtime - For ($tok_user_drilldown_label$)</title>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$"
+| timechart count by $tok_target_link_field_label$</query>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel><!--$tok_target_results_drilldown$-->
+    <panel depends="$tok_user_drilldown$,$tok_results_non_raw$">
+      <chart>
+        <title>Resulting Events Overtime By sourcetype - For ($tok_user_drilldown_label$)</title>
+        <search base="base_built_search">
+          <query>search sourcetype="$tok_user_drilldown$" 
+| fields _time,sourcetype
+| timechart count by sourcetype
+| sort -count</query>
+        </search>
+        <option name="charting.chart">line</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_results_raw" depends="$tok_tab_2$,$tok_user_drilldown$">
+    <panel depends="$tok_user_drilldown$">
+      <title>Raw Events for ($tok_user_drilldown_label$)</title>
+      <event depends="$tok_results_raw$">
+        <search base="base_built_search">
+          <query>search sourcetype="$tok_user_drilldown$"
+| table _raw</query>
+        </search>
+        <option name="count">5</option>
+        <option name="list.drilldown">full</option>
+        <option name="list.wrap">0</option>
+        <option name="maxLines">100</option>
+        <option name="raw.drilldown">full</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.wrap">0</option>
+        <option name="type">raw</option>
+      </event>
+      <event depends="$tok_results_non_raw$">
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$" 
+| table _raw</query>
+        </search>
+        <option name="count">5</option>
+        <option name="list.drilldown">full</option>
+        <option name="list.wrap">0</option>
+        <option name="maxLines">100</option>
+        <option name="raw.drilldown">full</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.wrap">0</option>
+        <option name="type">raw</option>
+      </event>
+    </panel>
+  </row>
+  <row id="tab_details" depends="$tok_tab_4$">
+    <panel depends="$tok_target_link_field$,$tok_object_found$">
+      <html>
+        <h3> Built Search Details </h3>
+        <table border="1" cellpadding="10"> 
+  			<tr>
+          <td style="width: 10%">
+            <center>
+              <b>
+                <i> Resulting Full Search:</i>
+              </b>
+            </center>
+          </td>
+          <td style="width: 80%">
+            <p style="font-size:12;">
+          <b>
+                  <font color="$tok_base_srch_color$">$tok_base_srch_msg$</font>
+                </b>
+                <br/>
+<font color="Green">
+    ([| inputlookup $tok_user_lkp$ WHERE domain=<b>$tok_domain$</b>
+                  <br/>
+    | fields <b>$tok_source_link_field$</b>, memberOf<br/>
+    | WHERE match(memberOf, "<b>$tok_group$</b>")<br/>
+    | stats values(<b>$tok_source_link_field$</b>) AS search<br/>
+    | <b>$tok_target_link_field_filt$</b>
+                  <br/>
+    | table search])</font>    
+</p>
+          </td>
+          <td style="width: 10%">
+              <a href="/app/ms_windows_ad_objects/search?q=$tok_filtered_srch_url|u$&amp;earliest=$field1.earliest$%40h&amp;latest=$field1.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+              </a>
+          </td>
+        </tr>
+		    <tr>
+              <td style="width: 10%">
+
+        <center>
+            <b>
+              <i>Sub Search:</i>
+            </b>
+          </center>
+                </td>
+                <td style="width: 80%"> 
+                <p style="font-size:12;">
+<font color="Green">
+| inputlookup $tok_user_lkp$ WHERE domain=<b>$tok_domain$</b>
+                  <br/>
+| fields <b>$tok_source_link_field$</b>, memberOf<br/>
+| WHERE match(memberOf, "<b>$tok_group$</b>")<br/>
+| stats values(<b>$tok_source_link_field$</b>) AS search<br/>
+| <b>$tok_target_link_field_filt$</b>
+                  <br/>
+| table search</font> 
+        </p>
+              </td>
+          <td style="width: 10%">
+              <a href="/app/ms_windows_ad_objects/search?q=$tok_sub_srch_url|u$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+              </a>
+          </td>
+          </tr>
+          <tr>
+            <td style="width: 10%">
+        		<center>
+            		<b>
+              			<i> Sub Search - Filtered String:</i>
+            		</b>
+          		</center>
+            </td>         
+          	<td colspan="2">
+            $tok_filter$
+          	</td>
+          </tr>
+        </table> 
+      </html>
+    </panel>
+  </row>
+  <row id="tab_search_info" depends="$tok_tab_3$">
+    <panel>
+      <html>
+        <h2>
+    			<center>
+    			  <i class="icon-info-circle" style="color:blue"/>
+    			    <i>Below are the base searches for this dashboard. <br/>
+    			    (<b>Note</b> the resulting correlated search has two types, Dynamic and Non-Dynamic. Dynamic uses the subsearch, where Non-Dynamic uses only the values from the configured subsearch.)
+    		      </i>
+    		  </center>
+    		</h2>        
+        <table border="1" style="width: 100%;">
+          <tr>
+            <td style="width: 15%">
+              <center>
+                <h4>Type</h4>
+              </center>
+            </td>
+            <td style="width: 75%">
+              <center>
+                <h4>Search Text</h4>
+              </center>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <h4>Action</h4>
+              </center>
+            </td>              
+          </tr>
+          <tr style="$tok_show_no_group_s_err$">
+            <td colspan="3">
+              <h2>
+    			      <center>
+    			        <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">
+    			            <b>
+    			              Warning - No AD Groups's available in the $tok_group_lkp$ lookup. Verify admon data collection and Lookups have been built. <a href="/app/ms_windows_ad_objects/ms_ad_obj_getting_started" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Getting Started Dashboard</i>
+                </a>
+    		              </b>
+    		            </font>
+                  </i>
+    		        </center>
+    		      </h2>             
+            </td>
+          </tr>            
+          <tr>
+            <td style="width: 15%">
+              <center>Group List</center>
+            </td>
+            <td style="width: 75%">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_group_list_search$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_group_list_search|u$&amp;earliest=$field1.earliest$%40h&amp;latest=$field1.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>
+          <tr style="$tok_show_no_member_s_err$">
+            <td colspan="3">
+              <h2>
+    			      <center>
+    			        <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">
+    			            <b>
+    			              Warning - No AD Group Members available in the selected $tok_group$ AD Group. <br/>
+    			              Select an AD Group that has users/computers/embedded grops.
+    		              </b>
+    		            </font>
+                  </i>
+    		        </center>
+    		      </h2>             
+            </td>
+          </tr>          
+          <tr>
+            <td style="width: 15%">
+              <center>Filtered Member List</center>
+            </td>
+            <td style="width: 75%">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_srch_obj_list$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_srch_obj_list|u$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>     
+          <tr style="$tok_show_no_logon_s_info$">
+            <td style="width: 15%">
+              <center>Sub Search - Filtered Object content only.<br/>
+              <b>Dynamic</b>
+              </center>
+            </td>
+            <td style="width: 75%">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_obj_filt_srch$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_obj_filt_srch|u$&amp;earliest=$field1.earliest$%40h&amp;latest=$field1.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr>
+          <tr style="display: $tok_show_no_logon_s_info$">
+            <td style="width: 15%">
+              <center>Full Correlated Search<br/>
+              <b>Dynamic</b>
+              </center>
+            </td>
+            <td style="width: 75%">
+              <pre style="margin: 2px 2px 2px 2px;">
+<code style="whitespace:normal;">$tok_obj_full_srch$</code>
+              </pre>
+            </td>      
+            <td style="width: 10%">
+              <center>
+                <a href="/app/ms_windows_ad_objects/search?q=$tok_obj_full_srch|u$&amp;earliest=$field1.earliest$%40h&amp;latest=$field1.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+                </a>
+              </center>
+            </td>
+          </tr> 
+          <tr style="display: $tok_show_no_event_s_err$">
+            <td colspan="3">
+    			    <center>
+                <b>
+                  <i class="icon-alert-circle" style="color:red">
+                    <font color="Red">No Data Results returned for $$ Objects that are members of the $tok_group$ AD Group.
+                    <ul>
+                      <li>Expand the Search Time Period, select a different AD Group, or review the searches below to verify correlated data should exist.</li>
+                    </ul>
+                    </font>
+                  </i>
+                </b>
+              </center>              
+            </td>
+          </tr>                    
+        </table>              
+      </html>
+    </panel>
+  </row>
+  <row depends="$hidden_style$">
+    <panel>
+      <html>
+        <style>
+#tab_results_id:after {content: "\0020($tok_results_count$)";font-weight: bold !important;color:$tok_results_count_color$ !important;}   
+#tab_members_id:after {content: "\0020($tok_object_count$)";font-weight: bold !important;color:$tok_object_count_color$ !important;}
+#tab_results_tbl_non_raw {width:50%;}    
+#tab_results_tbl_raw {width:50%;} 
+#tab_results_cht_non_raw {width:50%;}    
+#tab_results_cht_raw {width:50%;} 
+#sel_member_type {text-align: center !important;vertical-align: middle !important;line-height:5px !important;height: 60px !important;width: 350px !important;margin: 0 0 0 15px !important;padding: 0 0 0 15px !important;}
+#sel_member_type label {text-align: center !important;margin: 0 0 0 0 !important;padding: 0 0 0 0 !important;}
+#sel_member_type div {margin-left: 2px;margin-right: 2px;text-overflow: ellipsis;overflow: hidden;width: 80px !important;text-align: center !important;font-size: 10px !important;display:inline !important;}     
+#sel_member_type div div div div {-webkit-box-shadow: 0 3px 7px rgba(0, 0, 4, 0.3);left: 2px;right: 2px;padding-right: 4px;padding-left: 4px;}
+#sel_member_type button {padding-top: 12px !important;margin-top: 3px!important;top: 5px!important;right: 2px!important;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

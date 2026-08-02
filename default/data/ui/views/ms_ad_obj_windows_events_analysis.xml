@@ -1,0 +1,479 @@
+<form stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Windows Events Analysis</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_display_dd">display:none;</set>
+  </init>
+  <search id="base_windows_events">
+    <query>`ms_obj_quick_wineventlog_list`
+| join EventCode,LogName [|inputlookup ms_ad_obj_evt_code_desc.csv | fields EventCode,LogName,signature,signature_severity | table EventCode,LogName,signature,signature_severity]
+| eval signature_severity=upper(signature_severity)
+| stats max(last_time) AS l_time, max(host_count) AS host_count,sum(count) AS Total_Events by LogName,EventCode,signature,signature_severity
+| inputlookup ms_ad_obj_evt_code_desc append=true
+| eval signature_severity=upper(signature_severity)
+| fillnull value="0" Total_Events
+| stats max(Total_Events) AS Total_Events,max(host_count) AS host_count by LogName,EventCode,signature_severity,signature
+| sort -Total_Events</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="base_filtered_events">
+    <query>`ms_obj_win_events_all` (LogName="$tok_logname$" OR Channel="$tok_logname$") EventCode="$tok_eventid$" 
+| fields _time,host,_raw,source,punct
+| table _time,host,_raw,source,punct</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <!-- Previous 
+  | rex field=_raw "(?msi)(?:\&lt;EventData(\&gt;|.+\&gt;))(?&lt;x_evt_Message&gt;.+)(\&lt;\/EventData)" 
+| rex field=x_evt_Message max_match=0 "(?msi)(?:Name\=\')(?&lt;evt_data_names&gt;[^\&lt;]+)\&lt;\/Data\&gt;"
+| eval evt_data_msg=if(isnull(evt_data_names),if(isnull(x_evt_Message),NULL,replace(x_evt_Message,"(\&lt;Data\&gt;|\&lt;\/Data\&gt;)","")),replace("#|# - ".mvjoin(evt_data_names,"#|# - "),"\'\&gt;"," = "))
+| rex field=_raw "(?msi)(?:(SourceName\=|\&lt;Provider Name(\=\'|\=)))(?&lt;SourceName&gt;[^(\'|\/|\r|\n)]+)" 
+| rex field=_raw "(?msi)(?:(Message\=|\&lt;UserData(\&gt;|.+\&gt;)))(?&lt;Message&gt;.+)(\&lt;\/UserData|$)" 
+| eval Message=if(isnull(evt_data_msg),replace(Message,"(\r+|\n+|\&lt;Data\&gt;|\&lt;\/Data\&gt;)",", "),replace(evt_data_msg,"(\r\r|\n\n)","\n"))
+| eval Message=if(isnull(Message),"Host: ".host."#|#source: ".source."#|#SourceName: ".SourceName."#|#Message NA - raw: "._raw,"Host: ".host."#|#source: ".source."#|#SourceName: ".SourceName."#|#Message: ".Message)
+| table _time,Message,SourceName,punct,_raw,host
+-->
+  <search base="base_filtered_events" id="sub_filtered_events">
+    <query>| rex field=_raw "(?msi)(?:\&lt;EventData(\&gt;|.+\&gt;))(?&lt;x_evt_Message&gt;.+)(\&lt;\/EventData)" 
+| rex field=x_evt_Message max_match=0 "(?msi)(?:Name\=\')(?&lt;evt_data_names&gt;[^\&lt;]+)\&lt;\/Data\&gt;"
+| rex max_match=0 "(?msi)(?:\&lt;EventXML xmlns\=\')(?&lt;evt_param_cat&gt;[^\']+)\'\&gt;(?&lt;evt_param_val&gt;.+)\&lt;\/EventXML"
+| eval evt_param_val_list="Param Category: ".evt_param_cat."".replace(replace(replace(evt_param_val,"\&lt;\/\w+\&gt;",""),"\&lt;","#|# - "),"&gt;","= ")
+| eval evt_data_msg=if(isnull(evt_data_names),if(isnull(evt_param_val_list),if(isnull(x_evt_Message),NULL,replace(x_evt_Message,"(\&lt;Data\&gt;\&lt;\/Data\&gt;|\&lt;\/Data\&gt;)","")),evt_param_val_list),replace("#|# - ".mvjoin(evt_data_names,"#|# - "),"\'\&gt;","= ")) 
+| rex field=_raw "(?msi)(?:(SourceName\=|\&lt;Provider Name(\=\'|\=)))(?&lt;SourceName&gt;[^(\'|\/|\r|\n)]+)" 
+| rex field=_raw "(?msi)(?:(Message\=|\&lt;UserData(\&gt;|.+\&gt;)))(?&lt;Message&gt;.+)(\&lt;\/UserData|$)"
+| eval Message=if(isnull(evt_data_msg),replace(Message,"(\r\r|\n\n|\&lt;Data\&gt;)","#|# - "),replace(replace(evt_data_msg,"(\&lt;Data\&gt;)","#|# - "),"#\|# \- \S+\= \-","")) 
+| eval Message=if(isnull(Message),"Host: ".host."#|#source: ".source."#|#SourceName: ".SourceName."#|#Message NA - raw: "._raw,"Host: ".host."#|#source: ".source."#|#SourceName: ".SourceName."#|#Message: ".Message)
+| table _time,Message,SourceName,punct,_raw,host</query>
+  </search>
+  <search id="base_signature_list">
+    <query>|inputlookup ms_ad_obj_evt_code_desc.csv $tok_evt_desc_filt$ | eval signature_severity=upper(signature_severity)| fields signature,EventCode,signature_severity </query>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="text" token="tok_filt_sign_input" searchWhenChanged="true">
+      <label>Search Event Signatures</label>
+      <default></default>
+      <change>
+        <condition value="">
+          <set token="tok_evt_desc_filt"></set>
+          <unset token="tok_logname"></unset>
+          <set token="tok_display_dd">display:none;</set>
+        </condition>
+        <condition>
+          <set token="tok_evt_desc_filt">|Where match(signature,"(?si)$value$")</set>
+          <unset token="tok_logname"></unset>
+          <set token="tok_display_dd">display:none;</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_sev">
+      <label>Choose Event Severity</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>signature_label</fieldForLabel>
+      <fieldForValue>signature_severity</fieldForValue>
+      <search base="base_signature_list">
+        <query>stats count by signature_severity | eval signature_label=case(signature_severity="LOW","LOW",signature_severity="MEDIUM","MEDIUM",signature_severity="HIGH","HIGH")| table signature_severity,signature_label</query>
+      </search>
+      <default>all</default>
+      <change>
+        <condition value="all">
+          <set token="tok_sev_filter">| search signature_severity="*"</set>
+          <set token="tok_sev_label">$label$</set>
+          <set token="tok_sev_srch_add">LogName,EventCode,signature_severity,signature,Total_Events,Total_Hosts</set>
+          <unset token="tok_logname"></unset>
+          <set token="tok_display_dd">display:none;</set>
+          <set token="tok_dd_host_bs">all</set>
+          <set token="tok_dd_punct_bs">all</set>
+          <set token="tok_dd_sourcename_bs">all</set>
+        </condition>
+        <condition>
+          <set token="tok_sev_filter">| search signature_severity="$value$"</set>
+          <set token="tok_sev_label">$label$</set>
+          <set token="tok_sev_srch_add">LogName,EventCode,signature,Total_Events,Total_Hosts</set>
+          <unset token="tok_logname"></unset>
+          <set token="tok_display_dd">display:none;</set>
+          <set token="tok_dd_host_bs">all</set>
+          <set token="tok_dd_punct_bs">all</set>
+          <set token="tok_dd_sourcename_bs">all</set>
+        </condition>
+      </change>
+    </input>
+    <input type="radio" token="tok_hide_empty_bs" searchWhenChanged="true">
+      <label>Hide Empty</label>
+      <choice value="true">True</choice>
+      <choice value="false">False</choice>
+      <default>false</default>
+      <initialValue>false</initialValue>
+      <change>
+        <condition value="true">
+          <set token="tok_hide_empty">| search Total_Events&gt;0</set>
+        </condition>
+        <condition>
+          <set token="tok_hide_empty"></set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Summary Counts</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Summary Charts</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">Drilldown Counts</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">Drilldown Details</a>
+          </li> 
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <title>Event Signature Lookup (search filter: Severity: $tok_sev_label$) ( Click a row below to Open the Drilldown Details Tab )</title>
+      <table>
+        <search base="base_windows_events">
+          <query>$tok_sev_filter$ $tok_hide_empty$ $tok_evt_desc_filt$
+| table Total_Events,LogName,EventCode,host_count,signature,signature_severity
+| sort -Total_Events</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="signature_severity">
+          <colorPalette type="map">{"LOW":#B6C75A,"MEDIUM":#F8BE34,"HIGH":#DC4E41}</colorPalette>
+        </format>
+        <format type="number" field="Total_Events">
+          <option name="precision">0</option>
+        </format>
+        <format type="color" field="Total_Events">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="color" field="Total_Hosts">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="number" field="Total_Hosts">
+          <option name="precision">0</option>
+        </format>
+        <drilldown>
+          <set token="tok_logname">$row.LogName$</set>
+          <set token="tok_eventid">$row.EventCode$</set>
+          <set token="tok_display_dd"></set>
+          <set token="tok_tab_3">active</set>
+          <set token="tok_dd_host_bs">all</set>
+          <set token="tok_dd_punct_bs">all</set>
+          <set token="tok_dd_sourcename_bs">all</set>
+          <unset token="tok_tab_1"></unset>
+        </drilldown>
+      </table>
+      <html>
+        <center>
+          <i class="icon-info-circle" style="font-size:25px;color:blue;"/> <i>
+            <b>Click the Show Filters link at the top to use the filters for this table.</b>
+          </i>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel id="pan_ov_label">
+      <html>
+        <center>
+          <h1>Overview of Counts - $tok_sev_label$ - Events</h1>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <chart>
+        <title>Top 10 - Total Events by EventCode</title>
+        <search base="base_windows_events">
+          <query>$tok_sev_filter$ $tok_hide_empty$ $tok_evt_desc_filt$
+| stats sum(Total_Events) AS Total_Events by EventCode
+| sort -Total_Events
+| head 10</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top 10 - Total Host Count by EventCode</title>
+        <search base="base_windows_events">
+          <query>$tok_sev_filter$ $tok_hide_empty$ $tok_evt_desc_filt$
+| stats max(host_count) AS Host_Count by EventCode
+| sort -Host_Count
+| head 10</query>
+        </search>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <chart>
+        <title>Top 10 - Total Events by signature</title>
+        <search base="base_windows_events">
+          <query>$tok_sev_filter$ $tok_evt_desc_filt$ $tok_hide_empty$ 
+| eval signature="(EventID: ".EventCode.") ".signature 
+| stats max(Total_Events) AS Total_Events by signature
+| sort -Total_Events
+| head 10</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Top 10 - Total Host Count by signature</title>
+        <search base="base_windows_events">
+          <query>$tok_sev_filter$ $tok_hide_empty$ $tok_evt_desc_filt$
+| stats sum(host_count) AS Total_Hosts by signature
+| sort -Total_Hosts
+| head 10</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$,$tok_logname$">
+    <panel depends="$tok_logname$" id="pan_dd_label">
+      <html>
+        <center>
+          <h1>Drilldown Analysis - Event Counts Overall and Overtime - $tok_sev_label$ - Events - Selected EventID ($tok_eventid$) in the $tok_logname$ Event Log</h1>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$,$tok_logname$">
+    <panel>
+      <chart>
+        <title>Drilldown - Event Counts by Host Overall</title>
+        <search base="base_filtered_events">
+          <query>stats count by host
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <chart>
+        <title>Drilldown - Event Counts by SourceName Overall</title>
+        <search base="sub_filtered_events">
+          <query>stats count by SourceName
+| sort -count</query>
+        </search>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">pie</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Drilldown - Event Count by Host Overtime</title>
+        <search base="base_filtered_events">
+          <query>timechart count by host</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <chart>
+        <title>Drilldown - Event Count by SourceName Overtime</title>
+        <search base="sub_filtered_events">
+          <query>timechart count by SourceName</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$,$tok_logname$">
+    <panel depends="$tok_logname$" id="pan_dd_label_detail">
+      <html>
+        <center>
+          <h1>Drilldown Analysis - Raw Event Log Analysis - $tok_sev_label$ - Events - Selected EventID ($tok_eventid$) in the $tok_logname$ Event Log</h1>
+        </center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$,$tok_logname$">
+    <panel id="pan_dd_inputs">
+      <input type="dropdown" token="tok_dd_host_bs">
+        <label>Filter By Host</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>host</fieldForLabel>
+        <fieldForValue>host</fieldForValue>
+        <search base="base_filtered_events" id="dd_host_list">
+          <query>stats count by host | sort host</query>
+        </search>
+        <default>all</default>
+        <change>
+          <condition value="all">
+            <set token="tok_dd_host"></set>
+            <set token="tok_dd_host_label"></set>
+          </condition>
+          <condition>
+            <set token="tok_dd_host">host="$value$"</set>
+            <set token="tok_dd_host_label">(Host: $value$ )</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_dd_sourcename_bs">
+        <label>Filter By SourceName</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>SourceName</fieldForLabel>
+        <fieldForValue>SourceName</fieldForValue>
+        <search base="sub_filtered_events">
+          <query>search $tok_dd_punct$ $tok_dd_host$  $tok_dd_search$|stats count by SourceName | sort SourceName</query>
+        </search>
+        <default>all</default>
+        <change>
+          <condition value="all">
+            <set token="tok_dd_sourcename">SourceName=*</set>
+            <set token="tok_dd_sourcename_label"></set>
+          </condition>
+          <condition>
+            <set token="tok_dd_sourcename">SourceName="$value$"</set>
+            <set token="tok_dd_sourcename_label">(SourceName = $value$ )</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_dd_punct_bs">
+        <label>Filter By punct field</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>punct_label</fieldForLabel>
+        <fieldForValue>punct</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <search base="sub_filtered_events">
+          <query>search $tok_dd_sourcename$ $tok_dd_host$  $tok_dd_search$|stats count by punct | sort count | eval punct_label="(Count: ".count.") ".punct
+          | rex mode=sed field=punct "s/\\\/\\\\\\\/g"</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_dd_punct">punct="*"</set>
+          </condition>
+          <condition>
+            <set token="tok_dd_punct">punct="$value$"</set>
+          </condition>
+        </change>
+      </input>
+      <input type="radio" token="tok_show_raw_bs" searchWhenChanged="true">
+        <label>Message View</label>
+        <choice value="msg_sum">Message Summary</choice>
+        <choice value="msg_raw">Raw Message</choice>
+        <default>msg_sum</default>
+        <initialValue>msg_sum</initialValue>
+        <change>
+          <condition value="msg_sum">
+            <set token="tok_show_raw">| makemv delim="#|#" Message | table _time,Message</set>
+          </condition>
+          <condition>
+            <set token="tok_show_raw">| table _time,_raw</set>
+          </condition>
+        </change>
+      </input>
+    <input type="text" token="tok_dd_search_bs" searchWhenChanged="true">
+      <label>Extra Search Text</label>
+      <default></default>
+      <change>
+        <condition value="">
+          <set token="tok_dd_search"></set>
+        </condition>
+        <condition>
+          <set token="tok_dd_search">$value$</set>
+        </condition>
+      </change>
+    </input>
+    </panel>
+    <panel id="pan_dd_details">
+      <table>
+        <title>Drilldown Events - Selected EventID ($tok_eventid$) in the $tok_logname$ Event Log $tok_dd_sourcename_label$.</title>
+        <search base="sub_filtered_events">
+          <query>search $tok_dd_sourcename$ $tok_dd_punct$ $tok_dd_host$ $tok_dd_search$
+$tok_show_raw$</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hiddenstyle$">
+    <panel>
+      <html>
+        <style>
+#pan_overviewcc { width:100% !important; }          
+#pan_drilldowncc { width:100% !important; }
+#pan_dd_label { width:100% !important; height:50px !important;}
+#pan_ov_label { width:100% !important; height:50px !important;}
+#pan_dd_inputs { width:30% !important; height:550px !important;overflow:scroll !important;}
+#pan_dd_details { width:70% !important;height:550px !important;overflow:scroll !important;}
+#aachart_dd_top_left { width:50% !important; } 
+#aachart_dd_top_right { width:50% !important; }   
+#aachart_ov_top_left { width:50% !important; } 
+#aachart_ov_top_right { width:50% !important; }   
+#aachart_ov_bottom_left { width:50% !important; } 
+#aachart_ov_bottom_right { width:50% !important; }   
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

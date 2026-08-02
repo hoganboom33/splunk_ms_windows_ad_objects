@@ -1,0 +1,403 @@
+<form version="1.1">
+  <label>AD Objects - ML - Risk Overview</label>
+  <description>Model-driven entity risk from the AD_Obj_Risk KV Store collection. Populated by the AD_Obj_ML_*_Apply / _Alert scheduled searches. Requires MLTK 5.4+ for the DensityFunction and KMeans models.</description>
+  <init>
+    <set token="tok_lookback">-30d@d</set>
+    <set token="tok_risk_type">*</set>
+    <set token="tok_show_ai">true</set>
+    <unset token="tok_drill_entity"></unset>
+  </init>
+  <!-- Base: the whole risk collection, filtered to the selected lookback window and risk_type. -->
+  <search id="bs_risk">
+    <query>| inputlookup AD_Obj_Risk
+| eval last_scored=tonumber(last_scored), first_seen=tonumber(first_seen), risk_score=tonumber(risk_score)
+| where isnotnull(last_scored) AND last_scored&gt;=relative_time(now(),"$tok_lookback$")
+| search risk_type="$tok_risk_type$"
+| eval scored_day=strftime(last_scored,"%Y-%m-%d")
+| eval _time=last_scored</query>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="tok_lookback" searchWhenChanged="true">
+      <label>Lookback</label>
+      <choice value="-7d@d">Last 7 days</choice>
+      <choice value="-14d@d">Last 14 days</choice>
+      <choice value="-30d@d">Last 30 days</choice>
+      <choice value="-90d@d">Last 90 days</choice>
+      <default>-30d@d</default>
+      <initialValue>-30d@d</initialValue>
+    </input>
+    <input type="dropdown" token="tok_risk_type" searchWhenChanged="true">
+      <label>Risk Type</label>
+      <choice value="*">All Risk Types</choice>
+      <choice value="change_velocity">Change Velocity (T1098)</choice>
+      <choice value="peer_logon_deviation">Peer Logon Deviation (T1078.002)</choice>
+      <choice value="priv_path_change">Privilege Path Change (T1484/T1098)</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="tok_entity_type" searchWhenChanged="true">
+      <label>Entity Type</label>
+      <choice value="*">All</choice>
+      <choice value="user">User</choice>
+      <choice value="group">Group</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <!-- Phase 2 (GenAI): controls the adtriage narrative panel only. The panel
+         degrades to the deterministic template narrative on its own whenever
+         ad_obj_ai.conf has enabled=0, so "Auto" is safe on a stock install. -->
+    <input type="dropdown" token="tok_ai_mode" searchWhenChanged="true">
+      <label>Triage Narrative</label>
+      <choice value="auto">Auto (AI if enabled, else template)</choice>
+      <choice value="template">Template only (never call a model)</choice>
+      <choice value="off">Off (hide the narrative panel)</choice>
+      <default>auto</default>
+      <initialValue>auto</initialValue>
+      <change>
+        <condition value="off">
+          <unset token="tok_show_ai"></unset>
+        </condition>
+        <condition>
+          <set token="tok_show_ai">true</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Risk Rows Over Time by Risk Type</title>
+      <chart>
+        <search base="bs_risk">
+          <query>search entity_type="$tok_entity_type$"
+| timechart span=1d count by risk_type</query>
+        </search>
+        <option name="charting.axisTitleX.text">Scored Day</option>
+        <option name="charting.axisTitleY.text">Risk Rows</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+        <option name="charting.legend.placement">bottom</option>
+        <option name="charting.drilldown">all</option>
+        <option name="height">260</option>
+      </chart>
+    </panel>
+    <panel>
+      <title>Risk Rows and Mean Score by Risk Type</title>
+      <table>
+        <search base="bs_risk">
+          <query>search entity_type="$tok_entity_type$"
+| stats count AS risk_rows, dc(entity) AS entities, avg(risk_score) AS avg_risk_score, max(risk_score) AS max_risk_score, dc(scored_day) AS scored_days, values(mitre_technique_id) AS mitre_technique_id, values(model) AS model by risk_type
+| eval avg_risk_score=round(avg_risk_score,4), max_risk_score=round(max_risk_score,4)
+| eval rows_per_day=round(risk_rows/max(scored_days,1),2)
+| table risk_type,model,mitre_technique_id,risk_rows,entities,rows_per_day,avg_risk_score,max_risk_score
+| sort - risk_rows</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Top Risky Entities (click a row to load its evidence below)</title>
+      <table>
+        <search base="bs_risk">
+          <query>search entity_type="$tok_entity_type$"
+| stats max(risk_score) AS peak_risk_score, avg(risk_score) AS avg_risk_score, count AS risk_rows, dc(risk_type) AS distinct_risk_types, values(risk_type) AS risk_types, values(mitre_technique_id) AS mitre_technique_id, min(first_seen) AS first_seen, max(last_scored) AS last_scored by entity,entity_type,domain
+| eval peak_risk_score=round(peak_risk_score,4), avg_risk_score=round(avg_risk_score,4)
+| eval first_seen=strftime(first_seen,"%Y-%m-%d %H:%M:%S"), last_scored=strftime(last_scored,"%Y-%m-%d %H:%M:%S")
+| eval composite=round(peak_risk_score*distinct_risk_types,4)
+| table entity,entity_type,domain,composite,peak_risk_score,avg_risk_score,risk_rows,distinct_risk_types,risk_types,mitre_technique_id,first_seen,last_scored
+| sort - composite, - peak_risk_score
+| head 50</query>
+        </search>
+        <option name="count">20</option>
+        <option name="drilldown">row</option>
+        <option name="wrap">true</option>
+        <format type="color" field="peak_risk_score">
+          <colorPalette type="list">[#FFFFFF,#D6563C]</colorPalette>
+          <scale type="minMidMax" minType="number" minValue="0" midType="number" midValue="0.5" maxType="number" maxValue="1"></scale>
+        </format>
+        <drilldown>
+          <set token="tok_drill_entity">$row.entity$</set>
+        </drilldown>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Risk Evidence Drilldown $tok_drill_entity$</title>
+      <table>
+        <search base="bs_risk">
+          <query>search entity_type="$tok_entity_type$" entity="$tok_drill_entity$"
+| eval scored=strftime(last_scored,"%Y-%m-%d %H:%M:%S")
+| table scored,entity,entity_type,domain,risk_type,risk_score,mitre_technique_id,model,model_version,evidence
+| sort - scored, - risk_score</query>
+        </search>
+        <option name="count">25</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+      <html>
+        <div>
+          Rows are written by the AD_Obj_ML_ChangeVelocity_Apply, AD_Obj_ML_PeerGroup_Apply and AD_Obj_ML_PrivPath_Alert searches.
+          Select a row in "Top Risky Entities" to filter this panel; leave it unselected to see every entity in the window.
+        </div>
+      </html>
+    </panel>
+  </row>
+  <!-- Phase 2 (GenAI): who / what / when / blast-radius narrative for the risk rows.
+       `adtriage` is descriptive only, never executes anything, and falls back to a
+       deterministic rule-based paragraph (ai_status=template) whenever AI is disabled,
+       misconfigured, timed out, or returns output that fails schema validation - so
+       this panel is fully functional on a stock install with no AI configured.
+       Requires the ad_obj_can_use_ai capability; without it this panel alone errors. -->
+  <row depends="$tok_show_ai$">
+    <panel>
+      <title>Triage Narrative $tok_drill_entity$ (descriptive only - the KV values are shown beside it)</title>
+      <table>
+        <search base="bs_risk">
+          <query>search entity_type="$tok_entity_type$" entity="$tok_drill_entity$"
+| stats max(risk_score) AS risk_score, values(risk_type) AS risk_type, values(model) AS model, values(model_version) AS model_version, values(mitre_technique_id) AS mitre_technique_id, values(evidence) AS evidence, min(first_seen) AS first_seen, max(last_scored) AS last_scored, count AS risk_rows by entity,entity_type,domain
+| eval risk_type=mvjoin(risk_type,","), model=mvjoin(model,","), model_version=mvjoin(model_version,","), mitre_technique_id=mvjoin(mitre_technique_id,","), evidence=mvjoin(evidence," | ")
+| sort - risk_score
+| head 10
+| adtriage entity_field=entity mode="$tok_ai_mode$"
+| eval Narration=case(ai_status=="llm","AI narrative (model: ".ai_model.")",ai_status=="template","Rule-based template narrative (AI disabled)",true(),"Rule-based template narrative (fallback: ".ai_status.")")
+| eval scored=strftime(last_scored,"%Y-%m-%d %H:%M:%S")
+| table entity,entity_type,domain,risk_score,risk_type,mitre_technique_id,scored,Narration,ai_triage,model,model_version,evidence
+| rename ai_triage AS "Triage narrative"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+        <format type="color" field="risk_score">
+          <colorPalette type="list">[#FFFFFF,#D6563C]</colorPalette>
+          <scale type="minMidMax" minType="number" minValue="0" midType="number" midValue="0.5" maxType="number" maxValue="1"></scale>
+        </format>
+      </table>
+      <html>
+        <div>
+          The narrative is <b>descriptive, never prescriptive</b> - it restates what the model
+          scored and what the directory data shows, and recommends nothing. The underlying
+          risk_score, model, evidence and MITRE mapping stay on the row beside it so you always
+          see the source values. The <b>Narration</b> column states whether a model produced the
+          text or whether it is the deterministic template. Set <b>Triage Narrative</b> to
+          "Template only" to guarantee no model is contacted; see README.txt section
+          "5.0.0 GenAI / LLM (Phase 2)".
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Model Drift - Current 7 Days vs Prior 7 Days (mirrors AD_Obj_ML_Drift_Check)</title>
+      <table>
+        <search>
+          <query>| inputlookup AD_Obj_Risk
+| eval last_scored=tonumber(last_scored), risk_score=tonumber(risk_score)
+| where isnotnull(last_scored) AND last_scored&gt;=relative_time(now(),"-14d@d")
+| eval week_bucket=if(last_scored&gt;=relative_time(now(),"-7d@d"),"current","prior")
+| eval scored_day=strftime(last_scored,"%Y-%m-%d")
+| stats count AS risk_rows, dc(entity) AS entities, dc(scored_day) AS scored_days, avg(risk_score) AS avg_risk_score, values(model) AS model, values(model_version) AS model_version by risk_type,week_bucket
+| eval outlier_rate=round(risk_rows/max(scored_days,1),4)
+| stats max(eval(if(week_bucket=="current",outlier_rate,null()))) AS current_rate, max(eval(if(week_bucket=="prior",outlier_rate,null()))) AS prior_rate, max(eval(if(week_bucket=="current",entities,null()))) AS current_entities, max(eval(if(week_bucket=="prior",entities,null()))) AS prior_entities, max(eval(if(week_bucket=="current",avg_risk_score,null()))) AS current_avg_score, max(eval(if(week_bucket=="prior",avg_risk_score,null()))) AS prior_avg_score, values(model) AS model, values(model_version) AS model_version by risk_type
+| fillnull value=0 current_rate,prior_rate,current_entities,prior_entities,current_avg_score,prior_avg_score
+| eval rate_ratio=case(prior_rate==0 AND current_rate==0,1,prior_rate==0,99,true(),round(current_rate/prior_rate,4))
+| eval drift=if(rate_ratio&gt;3 OR rate_ratio&lt;0.3333,"true","false")
+| eval drift_direction=case(rate_ratio&gt;3,"increase",rate_ratio&lt;0.3333,"decrease",true(),"stable")
+| eval current_avg_score=round(current_avg_score,4), prior_avg_score=round(prior_avg_score,4)
+| eval score_delta=round(current_avg_score-prior_avg_score,4)
+| eval model=mvjoin(model,";"), model_version=mvjoin(model_version,";")
+| table risk_type,model,model_version,drift,drift_direction,rate_ratio,current_rate,prior_rate,current_entities,prior_entities,current_avg_score,prior_avg_score,score_delta
+| sort - rate_ratio</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+        <format type="color" field="drift">
+          <colorPalette type="map">{"true":#D6563C,"false":#65A637}</colorPalette>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Models and Schedules - Health</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/saved/searches splunk_server=local count=0
+| rename "eai:acl.app" AS app_context, "eai:acl.owner" AS owner
+| search app_context="ms_windows_ad_objects" title="AD_Obj_ML_*"
+| fields title,owner,cron_schedule,disabled,is_scheduled,next_scheduled_time
+| eval schedule_state=case(disabled=="1","Disabled (ship default)",is_scheduled=="1","Enabled - Scheduled",true(),"Enabled - Not Scheduled")
+| eval model=case(match(title,"ChangeVelocity"),"ad_obj_change_velocity_df (DensityFunction)",match(title,"PeerGroup"),"ad_obj_peer_kmeans (KMeans k=8)",match(title,"PrivPath"),"ad_obj_privpath_spl (SPL graph, no MLTK)",true(),"model ops")
+| join type=left title
+    [ search index=_internal sourcetype=scheduler app=ms_windows_ad_objects savedsearch_name="AD_Obj_ML_*" earliest=-14d latest=now
+    | stats latest(status) AS last_run_status, latest(_time) AS last_run_epoch, latest(result_count) AS last_result_count, avg(run_time) AS avg_run_time_sec, count AS runs_14d by savedsearch_name
+    | rename savedsearch_name AS title ]
+| eval last_run=if(isnull(last_run_epoch),"never",strftime(last_run_epoch,"%Y-%m-%d %H:%M:%S"))
+| eval last_run_status=if(isnull(last_run_status),"n/a",last_run_status)
+| eval avg_run_time_sec=if(isnull(avg_run_time_sec),0,round(avg_run_time_sec,1))
+| eval runs_14d=if(isnull(runs_14d),0,runs_14d)
+| table title,model,schedule_state,cron_schedule,next_scheduled_time,last_run,last_run_status,last_result_count,avg_run_time_sec,runs_14d
+| sort title</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">15</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Model Artifacts - Fitted MLTK Models Present in This App</title>
+      <table>
+        <search>
+          <query>| rest /servicesNS/-/-/data/lookup-table-files splunk_server=local count=0
+| rename "eai:acl.app" AS app_context, "eai:acl.sharing" AS sharing, "eai:acl.owner" AS owner
+| search app_context="ms_windows_ad_objects" title="__mlspl_ad_obj_*"
+| eval model=replace(title,"^__mlspl_(.*)\.mlmodel$","\1")
+| eval expected=case(model=="ad_obj_change_velocity_df","AD_Obj_ML_ChangeVelocity_Fit",model=="ad_obj_peer_kmeans","AD_Obj_ML_PeerGroup_Fit",true(),"unmapped")
+| table model,expected,title,sharing,owner,updated
+| sort model</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+      </table>
+      <html>
+        <div>
+          An empty table means no model has been fitted yet. Enable and run
+          <b>AD_Obj_ML_ChangeVelocity_Fit</b> and <b>AD_Obj_ML_PeerGroup_Fit</b> once at least 30 days of
+          "AD Objects - ML Feature - ..." rows exist in the summary index.
+        </div>
+      </html>
+    </panel>
+  </row>
+  <!-- Phase 3 (Validation): model evaluation against the labeled ground-truth eval
+       set in lookups/ms_ad_obj_ml_evalset.csv (transforms stanza ms_ad_obj_ml_evalset).
+       These panels mirror the AD_Obj_ML_Eval_Score scheduled search.  Matching is on
+       risk_type plus a normalised entity - lowercased with the DOMAIN\ prefix stripped -
+       because change_velocity writes DOMAIN\account while the other two models write the
+       bare account name.  The numbers are only meaningful when AD_Obj_Risk was populated
+       by a replay of the labeled batch_data_eventgen corpus. -->
+  <row>
+    <panel>
+      <title>Model Evaluation - Precision / Recall / F1 by Risk Type (mirrors AD_Obj_ML_Eval_Score)</title>
+      <table>
+        <search>
+          <query>| inputlookup ms_ad_obj_ml_evalset
+| eval entity_norm=lower(mvindex(split(entity,"\\"),-1))
+| eval label=case(lower(expected_detection)=="true","positive",lower(expected_detection)=="false","negative",true(),"unlabeled")
+| where label!="unlabeled"
+| fields scenario_id,risk_type,entity_norm,label,severity
+| append
+    [| inputlookup AD_Obj_Risk
+    | eval last_scored=tonumber(last_scored), risk_score=tonumber(risk_score)
+    | where isnotnull(last_scored) AND last_scored&gt;=relative_time(now(),"$tok_lookback$")
+    | eval entity_norm=lower(mvindex(split(entity,"\\"),-1))
+    | stats max(risk_score) AS detected_score, count AS detected_rows by risk_type,entity_norm]
+| stats values(label) AS label, max(detected_score) AS detected_score, sum(detected_rows) AS detected_rows by risk_type,entity_norm
+| eval detected=if(isnull(detected_score),0,1), labeled=if(isnull(label),0,1)
+| eval outcome=case(label=="positive" AND detected==1,"TP",label=="positive" AND detected==0,"FN",label=="negative" AND detected==1,"FP",label=="negative" AND detected==0,"TN",labeled==0 AND detected==1,"FP_UNLABELED",true(),"NA")
+| stats count(eval(outcome=="TP")) AS true_positives, count(eval(outcome=="FP")) AS false_positives, count(eval(outcome=="FN")) AS false_negatives, count(eval(outcome=="TN")) AS true_negatives, count(eval(outcome=="FP_UNLABELED")) AS false_positives_unlabeled, count(eval(labeled==1)) AS labeled_scenarios by risk_type
+| eval precision=if((true_positives+false_positives)==0,null(),round(true_positives/(true_positives+false_positives),4))
+| eval recall=if((true_positives+false_negatives)==0,null(),round(true_positives/(true_positives+false_negatives),4))
+| eval f1=if(isnull(precision) OR isnull(recall) OR (precision+recall)==0,null(),round(2*precision*recall/(precision+recall),4))
+| eval precision_incl_unlabeled=if((true_positives+false_positives+false_positives_unlabeled)==0,null(),round(true_positives/(true_positives+false_positives+false_positives_unlabeled),4))
+| eval false_positive_rate=if((false_positives+true_negatives)==0,null(),round(false_positives/(false_positives+true_negatives),4))
+| eval model=case(risk_type=="change_velocity","ad_obj_change_velocity_df",risk_type=="peer_logon_deviation","ad_obj_peer_kmeans",risk_type=="priv_path_change","ad_obj_privpath_spl",true(),"unmapped")
+| table risk_type,model,labeled_scenarios,true_positives,false_positives,false_negatives,true_negatives,false_positives_unlabeled,precision,recall,f1,precision_incl_unlabeled,false_positive_rate
+| sort risk_type</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+        <format type="color" field="f1">
+          <colorPalette type="list">[#D6563C,#F8BE34,#65A637]</colorPalette>
+          <scale type="minMidMax" minType="number" minValue="0" midType="number" midValue="0.5" maxType="number" maxValue="1"></scale>
+        </format>
+        <format type="color" field="recall">
+          <colorPalette type="list">[#D6563C,#F8BE34,#65A637]</colorPalette>
+          <scale type="minMidMax" minType="number" minValue="0" midType="number" midValue="0.5" maxType="number" maxValue="1"></scale>
+        </format>
+        <format type="color" field="precision">
+          <colorPalette type="list">[#D6563C,#F8BE34,#65A637]</colorPalette>
+          <scale type="minMidMax" minType="number" minValue="0" midType="number" midValue="0.5" maxType="number" maxValue="1"></scale>
+        </format>
+      </table>
+      <html>
+        <div>
+          <b>Read these numbers only after a labeled corpus replay.</b> precision / recall / f1
+          are computed over the entities named in <b>lookups/ms_ad_obj_ml_evalset.csv</b> only.
+          <b>false_positives_unlabeled</b> counts risk rows for entities the eval set says nothing
+          about - on a clean corpus replay those are real false positives and
+          <b>precision_incl_unlabeled</b> is the honest figure; on live production data they are
+          simply unlabeled and that column should be ignored. An empty table means the eval-set
+          lookup is present but no model has written to AD_Obj_Risk in the selected lookback.
+          There is <b>no production-validated false-positive rate for these models</b> - this
+          harness is how you measure your own. See README.txt section
+          "5.0.0 Validation &amp; Release (Phase 3)".
+        </div>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Model Evaluation - False Positives and False Negatives (labeled scenarios)</title>
+      <table>
+        <search>
+          <query>| inputlookup ms_ad_obj_ml_evalset
+| eval entity_norm=lower(mvindex(split(entity,"\\"),-1))
+| eval label=case(lower(expected_detection)=="true","positive",lower(expected_detection)=="false","negative",true(),"unlabeled")
+| where label!="unlabeled"
+| fields scenario_id,scenario_name,entity,entity_norm,entity_type,domain,risk_type,label,mitre_technique_id,severity,notes
+| append
+    [| inputlookup AD_Obj_Risk
+    | eval last_scored=tonumber(last_scored), risk_score=tonumber(risk_score)
+    | where isnotnull(last_scored) AND last_scored&gt;=relative_time(now(),"$tok_lookback$")
+    | eval entity_norm=lower(mvindex(split(entity,"\\"),-1))
+    | stats max(risk_score) AS detected_score, count AS detected_rows, values(model) AS detected_model, max(last_scored) AS detected_last by risk_type,entity_norm]
+| stats values(scenario_id) AS scenario_id, values(scenario_name) AS scenario_name, values(entity) AS labeled_entity, values(entity_type) AS entity_type, values(domain) AS domain, values(label) AS label, values(mitre_technique_id) AS mitre_technique_id, values(severity) AS severity, values(notes) AS notes, max(detected_score) AS detected_score, sum(detected_rows) AS detected_rows, values(detected_model) AS detected_model, max(detected_last) AS detected_last by risk_type,entity_norm
+| eval detected=if(isnull(detected_score),0,1), labeled=if(isnull(label),0,1)
+| eval outcome=case(label=="positive" AND detected==1,"TP",label=="positive" AND detected==0,"FN",label=="negative" AND detected==1,"FP",label=="negative" AND detected==0,"TN",labeled==0 AND detected==1,"FP_UNLABELED",true(),"NA")
+| search outcome IN ("FP","FN","FP_UNLABELED")
+| eval scenario_id=if(isnull(scenario_id),"(unlabeled entity)",scenario_id)
+| eval scenario_name=if(isnull(scenario_name),"not present in ms_ad_obj_ml_evalset",scenario_name)
+| eval detected_last=if(isnull(detected_last),"never",strftime(detected_last,"%Y-%m-%d %H:%M:%S"))
+| eval detected_score=if(isnull(detected_score),"-",detected_score)
+| fillnull value=0 detected_rows
+| table outcome,risk_type,scenario_id,scenario_name,entity_norm,labeled_entity,entity_type,domain,severity,mitre_technique_id,detected_model,detected_score,detected_rows,detected_last,notes
+| sort outcome,risk_type,scenario_id</query>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </search>
+        <option name="count">25</option>
+        <option name="drilldown">none</option>
+        <option name="wrap">true</option>
+        <format type="color" field="outcome">
+          <colorPalette type="map">{"FP":#D6563C,"FN":#F8BE34,"FP_UNLABELED":#708794}</colorPalette>
+        </format>
+      </table>
+      <html>
+        <div>
+          <b>FN</b> = a labeled positive scenario the model did not score (missed detection).
+          <b>FP</b> = a labeled benign scenario the model did score. <b>FP_UNLABELED</b> = a risk
+          row for an entity that is not in the eval set at all. The <b>notes</b> column states what
+          the scenario was designed to test, so a row here is a starting point for tuning
+          (`ms_ad_obj_risk_threshold` for change velocity, the peer_z floor and k for peer group,
+          the depth/change weights for privilege path) rather than a defect on its own.
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

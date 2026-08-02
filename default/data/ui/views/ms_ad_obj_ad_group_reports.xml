@@ -1,0 +1,628 @@
+<form stylesheet="ms_ad_obj_reports.css" version="1.1">
+  <label>AD Objects - Group - Reports</label>
+  <search id="base_obj_change">
+    <query>`ms_obj_changes_base_cat("Group*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$)
+| `ms_obj_md_group_change_cmb("$tok_group_lkp$")`
+| lookup $tok_group_lkp$ lookup_grp AS group OUTPUT cn,sAMAccountName,orig_cn,dn
+| eval lookup_grp=if(isnull(sAMAccountName),lower(group),mvappend(lower(dn),lower(cn),lower(sAMAccountName),lower(orig_cn)))
+| table time_group,adminuser,group,msad_action,Correlation_IDs,Change_Actions,Change_Summary,Change_Details,lookup_grp</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+  </search>
+  <search base="base_obj_change" id="sub_obj_change">
+    <query>stats values(lookup_grp) AS groups by msad_action
+| eval chg_trigger="$tok_chg_trigger$"
+| eval label=case(msad_action="enabled","Enabled",msad_action="created","Created",msad_action="disabled","Disabled",msad_action="modified","Modified",msad_action="deleted","Deleted",msad_action="moved","Moved",msad_action="added","Added",msad_action="removed","Removed")
+| eval label=if(isnull(label),msad_action,label)
+| eval obj_lnk_filt="| search sAMAccountName IN(\"".mvjoin(groups,"\",\"")."\")"
+| table msad_action,obj_lnk_filt,label
+| sort msad_action</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_action_input"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">3. No Drilldown Change Events Available for Selected Time Range. Adjust Time Range to view change results.</set>
+      </condition>
+      <condition>
+        <set token="show_action_input">True</set>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">4. Select MSAD Action.</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Time Range Report Search  -->
+  <search id="base_obj_time">
+    <query>$tok_report$($tok_group_lkp$,$tok_domain$,"$set_time_from$","$set_time_to$")`
+| eval whenChanged_epoch=strptime(whenChanged,"%m/%d/%y %a %I:%M %P")
+| eval whenCreated_epoch=strptime(whenCreated,"%m/%d/%y %a %I:%M %P")
+| eval whenDeleted_epoc=strptime(whenDeleted,"%m/%d/%y %a %I:%M %P")
+| sort -$tok_time_srt$
+| eval time_trigger="$tok_time_trigger$"</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_time_rep"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">3. No $tok_time_label$ Events for Selected Time Range. Adjust Time Range to view $tok_time_label$ results.</set>
+      </condition>
+      <condition>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3. Adjust Time Range for $tok_time_label$.</set>
+        <set token="show_time_rep">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Create Object Search Filters -->
+  <search id="base_obj_filt">
+    <query>| makeresults
+| eval filt_raw_text="([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_grp\",\"$tok_group_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn,objGUID,orig_cn\",\"raw_txt\")`])"
+| eval filt_raw_text_lbl="|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_grp\",\"$tok_group_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn,objGUID,orig_cn\",\"raw_txt\")`"
+| eval filt_link="| search lookup_grp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_grp\",\"$tok_group_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn,objGUID,orig_cn\",\"link\")`])"
+| eval filt_link_r_evt="| search lookup_grp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_grp\",\"$tok_group_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn,objGUID,orig_cn\",\"link\")`])"
+| eval filt_link_admon="| search lookup_grp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_grp\",\"$tok_group_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn,objGUID,orig_cn\",\"link\")`])"
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt,filt_raw_text_lbl,filt_link_admon</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_filt_raw_txt"></unset>
+        <unset token="tok_filt_link"></unset>
+        <unset token="tok_filt_link_r_evt"></unset>
+        <unset token="tok_filt_link_admon"></unset>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat("Group*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,orig_cn,objGUID,orig_cn,sAMAccountName","raw_txt")`])
+| search group_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,objGUID,orig_cn,sAMAccountName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_group("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,orig_cn,objGUID","raw_txt")`]) 
+| eval token=if(isnull(cn),if(isnull(dn),"$tok_sel_obj$",lower(dn)),lower(cn))
+| search token IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,orig_cn,dn,objGUID","link")`])</set>
+      </condition>
+      <condition>
+        <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+        <set token="tok_filt_link">$result.filt_link$</set>
+        <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+        <set token="tok_filt_link_admon">$result.filt_link_admon$</set>
+        <set token="tok_srch_filt_raw">$result.filt_raw_text_lbl$</set>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat("Group*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,orig_cn,objGUID,orig_cn,sAMAccountName","raw_txt")`])
+| search group_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,objGUID,orig_cn,sAMAccountName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_group("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,dn,orig_cn,objGUID","raw_txt")`]) 
+| eval token=if(isnull(cn),if(isnull(dn),"$tok_sel_obj$",lower(dn)),lower(cn))
+| search token IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_grp","$tok_group_lkp$","$tok_domain$","$tok_sel_obj$","cn,orig_cn,dn,objGUID","link")`])</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Domain List Search -->
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown Windows Change Events -->
+  <search base="base_obj_change" id="sub_dd_obj_search">
+    <query>search msad_action=$tok_action$
+$tok_filt_link$</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_dd_msg"></unset>
+        <unset token="show_dd_tbl"></unset>
+        <set token="show_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_dd_msg">True</set>
+        <set token="show_dd_tbl">True</set>
+        <set token="show_res_message">True</set>
+        <unset token="show_dd_warn"></unset>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown admon Events -->
+  <search id="base_obj_admon">
+    <query>`ms_obj_admon_flt_obj_type(ms_obj_md_admon_group("$tok_dc_val$"),ms_obj_admon_base_a_type)` $tok_filt_raw_txt$
+| eval lookup_grp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+$tok_filt_link_admon$</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_admon_dd_msg"></unset>
+        <unset token="show_admon_dd_tbl"></unset>
+        <set token="show_admon_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_admon_dd_msg">True</set>
+        <set token="show_admon_dd_tbl">True</set>
+        <unset token="show_admon_dd_warn"></unset>
+      </condition>
+    </done>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row id="rw_initial_filters">
+    <panel id="pan_initial_inputs">
+      <input type="dropdown" token="tok_sel_domain" searchWhenChanged="true">
+        <label>1. Select Domain</label>
+        <choice value="sel">Select Domain...</choice>
+        <initialValue>sel</initialValue>
+        <default>sel</default>
+        <search base="base_domain_search">
+          <query>table domain | sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_domain"></unset>
+            <unset token="show_rep_list"></unset>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the Target Domain to run the report against.</set>
+          </condition>
+          <condition>
+            <set token="show_message">True</set>
+            <set token="tok_user_domain_add">False</set>
+            <set token="tok_domain">$value$</set>
+            <set token="show_rep_list">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Select the Target Report from the "Select Report" dropdown.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="inp_tok_report" searchWhenChanged="true" depends="$show_rep_list$">
+        <label>2. Select Report</label>
+        <choice value="sel">Select Report...</choice>
+        <choice value="all_groups">All Groups</choice>
+        <choice value="new_groups">New Groups</choice>
+        <choice value="empty_groups">No Members</choice>
+        <choice value="deleted_groups">Deleted</choice>
+        <choice value="changed_groups">Changed</choice>
+        <choice value="large_groups">Large Groups</choice>
+        <choice value="nested_groups">Nested</choice>
+        <choice value="managed_groups">Managed</choice>
+        <choice value="not_managed_groups">Not Managed</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_report_label"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="tok_report"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_min_m_count"></unset>
+          </condition>
+          <condition value="all_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-all-groups("$tok_group_lkp$","$tok_domain$")`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="new_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">new_groups</set>
+            <set token="tok_time_label">New Groups</set>
+            <set token="tok_time_srt">whenCreated_epoch</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-new-groups</set>
+            <set token="show_time_input">True</set>
+            <set token="tok_chg_grp_filt"></set>
+            <set token="tok_action">created</set>
+            <set token="tok_action_lbl">Created</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="fields_time_rep">Group_Name,Type,whenCreated,distinguishedName,"# Members",whenChanged</set>
+            <set token="tok_res_message">4. Select Event Result Type</set>
+            <set token="tok_res_message_color">green</set>
+            <set token="tok_res_message_state">Info:</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="empty_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-empty-groups($tok_group_lkp$,$tok_domain$)`</set>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_min_m_count"></unset>
+          </condition>
+          <condition value="deleted_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">deleted_groups</set>
+            <set token="tok_time_label">Deleted Groups</set>
+            <set token="tok_time_srt">whenDeleted_epoch</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-deleted-groups</set>
+            <set token="show_time_input">True</set>
+            <set token="tok_chg_grp_filt"></set>
+            <set token="tok_action">deleted</set>
+            <set token="tok_action_lbl">Deleted</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="fields_time_rep">Group_Name,orig_cn,whenDeleted,distinguishedName,Type_Name,"Last Member Count",memberOf,whenCreated,whenChanged</set>
+            <set token="tok_res_message">4. Select Event Result Type</set>
+            <set token="tok_res_message_color">green</set>
+            <set token="tok_res_message_state">Info:</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="changed_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <unset token="show_res_type_input"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">changed_groups</set>
+            <set token="tok_time_srt">whenChanged_epoch</set>
+            <set token="tok_time_label">Changed Groups</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-changed-groups</set>
+            <set token="tok_chg_grp_filt"></set>
+            <set token="show_time_input">True</set>
+            <set token="tok_chg_trigger">changed_groups</set>
+            <set token="tok_action">*</set>
+            <set token="tok_action_lbl">All Changes</set>
+            <set token="nmb_res_type_input">5</set>
+            <set token="fields_time_rep">Group_Name,Type,distinguishedName,"# Members",whenCreated,whenChanged,whenDeleted</set>
+            <set token="tok_res_message">5. Select Event Result Type</set>
+            <set token="tok_res_message_color">green</set>
+            <set token="tok_res_message_state">Info:</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_regular_rep"></unset>
+          </condition>
+          <condition value="large_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <set token="tok_report_label">$label$</set>
+            <unset token="show_regular_rep"></unset>
+            <set token="show_min_m_count">True</set>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">3. Enter the minimum Member Count to filter for large groups</set>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="nested_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-nested-groups($tok_group_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="managed_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-managed-groups($tok_group_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="not_managed_groups">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_min_m_count"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-unmanaged-groups($tok_group_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="field3" searchWhenChanged="true" depends="$show_time_input$">
+        <label>3. Select Time Range</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <unset token="tok_sel_obj"></unset>
+          <unset token="show_res_type_input"></unset>
+          <eval token="set_time_from">strftime(relative_time(now(),'earliest'),"%m/%d/%y %I:%M %p")</eval>
+          <eval token="set_time_to">strftime(relative_time(now(),'latest'),"%m/%d/%y %I:%M %p")</eval>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_msad_action" searchWhenChanged="true" depends="$show_action_input$">
+        <label>4. Select MSAD Action</label>
+        <choice value="all">All</choice>
+        <search base="sub_obj_change" id="sub_change_actions">
+          <query></query>
+        </search>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>obj_lnk_filt</fieldForValue>
+        <change>
+          <condition value="all">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+            <set token="tok_chg_grp_filt"></set>
+            <set token="tok_action">*</set>
+            <set token="tok_action_lbl">All Changes</set>
+          </condition>
+          <condition>
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <set token="tok_chg_grp_filt">$value$</set>
+            <eval token="tok_action">lower($label$)</eval>
+            <set token="tok_action_lbl">$label$</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="tok_min_m_count" searchWhenChanged="true" depends="$show_min_m_count$">
+        <label>4. Select Min Member Count</label>
+        <default>200</default>
+        <initialValue>200</initialValue>
+      </input>
+      <html depends="$show_message$" id="inp_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="$tok_message_color$">
+              <i>
+                <b>$tok_message_state$ </b> $tok_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+    <panel id="pan_res_type_input" depends="$show_res_type_input$">
+      <input id="input_res_field_type" type="radio" token="input_tbl_res_flds" searchWhenChanged="true">
+        <label>$nmb_res_type_input$. Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <choice value="admon">Admon Events</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+        <change>
+          <condition value="Change_Summary">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Summary</set>
+          </condition>
+          <condition value="Change_Details">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Details</set>
+          </condition>
+          <condition value="admon">
+            <unset token="show_dd_details"></unset>
+            <set token="show_admon_dd_details">True</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_res_message$" id="inp_msg_res_field_type">
+          <p style="font-size:8;" id="inp_msg_res_p">
+            <font color="$tok_res_message_color$">
+              <i>
+                <b>$tok_res_message_state$ </b> $tok_res_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+  </row>
+  <row id="result_details_row">
+    <panel id="result_details_pan_list">
+      <table id="result_details_tbl_reg" depends="$show_regular_rep$">
+        <title>$tok_report_label$ - Groups</title>
+        <search>
+          <query>$tok_report$</query>
+          <earliest>$field3.earliest$</earliest>
+          <latest>$field3.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+      <table id="result_details_tbl_time" depends="$show_time_rep$">
+        <title>$tok_report_label$ - Groups - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_time">
+          <query>$tok_chg_grp_filt$| table $fields_time_rep$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <drilldown>
+          <unset token="show_dd_warn"></unset>
+          <unset token="show_admon_dd_details"></unset>
+          <unset token="show_message"></unset>
+          <set token="show_dd_details">True</set>
+          <set token="show_admon_dd_tbl">True</set>
+          <set token="tok_sel_obj">$row.Group_Name$</set>
+          <set token="form.input_tbl_res_flds">Change_Summary</set>
+          <set token="input_tbl_res_flds">Change_Summary</set>
+          <set token="tok_tbl_res_flds">Change_Summary</set>
+          <set token="show_res_type_input">True</set>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_time" depends="$show_time_rep$">
+          <p style="font-size:8;" id="rep_msg_p_time">
+            <font color="green">
+              <i>
+                <b>Click </b> on a Group in the above table to view $tok_action_lbl$ Event Details.</i> 
+            </font>
+          </p>
+        </html>
+      <table id="result_details_tbl_lg_grp" depends="$show_min_m_count$">
+        <title>$tok_report_label$ - Groups - (Minimum Member Count: $tok_min_m_count$)</title>
+        <search id="base_lg_grp_search">
+          <query>| `ms_obj_md_secrpt-large-groups($tok_group_lkp$,$tok_domain$,"$tok_min_m_count$")`</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">20</option>
+      </table>
+    </panel>
+    <panel id="result_details_pan_dd" depends="$show_dd_details$">
+      <table id="result_details_tbl_dd" depends="$show_dd_tbl$">
+        <title>"$tok_sel_obj$" - $tok_action_lbl$ Change Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="sub_dd_obj_search">
+          <query>table time_group,adminuser,group,Change_Actions,$tok_tbl_res_flds$
+| rename time_group AS Time_Minute_Group,adminuser as "Administrator",group as "Group_Name",Change_Details as "Change Details",Change_Summary as "Change Summary"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_dd" depends="$show_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw events for <b>All Windows Change</b> activities with Group ($tok_sel_obj$) within Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_warn" depends="$show_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No $tok_action_lbl$ events found for Group ($tok_sel_obj$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Raw Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Windows Change</b> activities with Group:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>Group:</b> $tok_sel_obj$</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+    <panel id="result_details_pan_admon_dd" depends="$show_admon_dd_details$">
+      <event id="result_details_tbl_admon_dd" depends="$show_admon_dd_tbl$">
+        <title>"$tok_sel_obj$" - admon Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_admon">
+          <query/>
+        </search>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </event>
+      <html id="result_details_msg_admon_dd" depends="$show_admon_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw <b>admon</b> events for <b>All Admon Change</b> activities with Group ($tok_sel_obj$) within Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_admon_warn" depends="$show_admon_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No Admon events found for Group ($tok_sel_obj$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Admon Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Admon Change</b> activities with Group:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>Group:</b> $tok_sel_obj$</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+  </row>
+</form>

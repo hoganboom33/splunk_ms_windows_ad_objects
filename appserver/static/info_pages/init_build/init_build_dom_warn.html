@@ -1,0 +1,328 @@
+﻿<div class="left-single-box">
+	<h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding: 0;"><i class="icon-warning" style="font-size:25px !important;color:red;">Warning: Missing Required Data Needed to build the AD Object Lookups</i></h1>
+	<p style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:italic;margin: 0;padding: 0;">The MS Windows AD Objects application can not complete the configuration because required data is missing.  Review the below troubleshooting steps to resolve the issue.</p>
+<center>
+<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:95% !important;display:table;">
+	<tr style="padding: 0px;margin: 0px;" class="ts_dom_lkp $tok_chk_d_dom_lkp_cls$">
+		<td style="text-align:left;border: 3px solid #DC4E41;margin-right: 0px;width:100% !important;display:table;">
+			<center>
+				<h3><i>Missing Active Directory Domain Details - Troubleshooting Steps</i></h3>
+				<h4>In order to build the AD Object Lookups leveraged by this application, AD Domain details need to be either collected or manually entered.  Below are the two options for either collecting the data used to automatically gather the AD Domain information or Manually Entering this data.</h4>
+			</center>
+			<details style="padding:0px !important;margin:0px !important;">
+				<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+					<i class="ms_obj_icon_steps"></i> <b>Option 1: <i>Auto Build using Collected ActiveDirectory Topology data:</i></b>
+				</summary>
+				<div class="modal-content">
+					<div class="modal-body">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+												<tr style="padding: 0px;margin: 0px;">
+													<td style="text-align:center;">
+														<center>
+															<h4>Follow the below troubleshooting Steps for resolving the issue of <b>missing the required Domain Health data</b></h4>
+															<table style="width:100%;">
+																<tr>
+																	<td style="padding:5px;">
+																		<ul class="note_lst">
+																		  <li class="mrk_note"><div class="li_content">Make Sure that atleast one (<i>Depends on Windows OS Version</i>) of the following inputs is enabled on the Active Directory Domain Controllers:</div></li>
+																		  <li class="mrk_note"><div class="li_content">If you renamed the Splunk pre-configured TA that was provided by the <b>MS Windows AD Objects</b> application (<i>Splunk_TA_windows_dc</i>), or you are using a different TA to collect the <code>sourcetype=MSAD:NT6:Health</code> data, then make sure you have updated the <code>[powershell://AD-Health]</code> input with the updated TA name for the <code>script</code> setting.</div></li>
+																		</ul>
+																	</td>
+																</tr>
+																<tr>
+																	<td style="text-align:left;padding:5px;">
+																		<span class="chk_step_filt obj_use_ds_n">
+																			<ol class="nbr_ts_list">
+																				<li class="nbr_ts_step"><div class="li_content">Login to one of your AD Domain Controllers</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Open File Explorer and navigate to <b>...\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows_dc\local</b> directory.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Running Wordpad in "RunAs Administrator" mode, open the <b>inputs.conf</b> file.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Search for the <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> input stanza</div>
+																					<ul class="note_lst">
+																						<li class="mrk_note">
+																							<div class="li_content">The <b>MSAD Health</b> data inputs are dependent on the Windows Version.  See the below input settings to determine which one needs to be enabled:
+																								<ul class="note_lst">
+																								<li class="mrk_arrow_r"><div class="li_content"><i>Health and Topology Information Windows (Version 2008)</i>:</div>
+			<pre>
+			[script://.\bin\runpowershell.cmd nt6-health.ps1]
+			source=Powershell
+			sourcetype=MSAD:NT6:Health
+			interval=300
+			disabled=0
+			index=msad</pre>                    
+																								</li>
+																								<li class="mrk_arrow_r"><div class="li_content">>Or <i>Health and Topology Information Windows (Version 2012r2 and 2016 +)</i>:</div>
+			<pre>
+			[powershell://AD-Health]
+			script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"
+			schedule = 0 */5 * ? * *
+			source=Powershell
+			sourcetype=MSAD:NT6:Health
+			disabled=0
+			index=msad</pre> 																				
+																								</li>
+																							</ul>
+																							</div>
+																						</li>
+																					</ul>
+																				</li>
+																				<li class="nbr_ts_step"><div class="li_content">Make sure the <b>disabled</b> setting is set to <code>disabled = 0</code> for input that matches your Windows Version</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Also, double check that the <b>index</b> setting matches the index that you created for your <b> AD Data</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Last check, if you are using a different name then <b>Splunk_TA_windows_dc</b> then you will need to update the <b>script</b> setting, (<b>script = & "$SplunkHome\etc\apps\<b style="color:red;">Splunk_TA_windows_dc</b>\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"</b> to the name you are using for the TA's folder.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">If you made any changes then <b>Restart</b> the Splunk Forwarder Service</div></li>
+																			</ol>
+																		</span>
+																		<span class="chk_step_filt obj_use_ds_n">
+																			<ol class="nbr_ts_list">
+																				<li class="nbr_ts_step"><div class="li_content">Login to one of your <b>Splunk Deployment Server</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Using terminal or File Explorer and navigate to <b>...\Splunk\etc\deployment-apps\Splunk_TA_windows_dc\local</b> directory.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Open the <b>inputs.conf</b> file.</div></li>
+																				<li class="nbr_ts_step">
+																					<div class="li_content">Search for the <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> input stanza</div>
+																					<ul class="note_lst">
+																						<li class="mrk_note">
+																							<div class="li_content">The <b>MSAD Health</b> data inputs are dependent on the Windows Version.  See the below input settings to determine which one needs to be enabled:
+																								<ul class="note_lst">
+																								<li class="mrk_arrow_r"><div class="li_content"><i>Health and Topology Information Windows (Version 2008)</i>:</div>
+			<pre>
+			[script://.\bin\runpowershell.cmd nt6-health.ps1]
+			source=Powershell
+			sourcetype=MSAD:NT6:Health
+			interval=300
+			disabled=0
+			index=msad</pre>                    
+																								</li>
+																								<li class="mrk_arrow_r"><div class="li_content">>Or <i>Health and Topology Information Windows (Version 2012r2 and 2016 +)</i>:</div>
+			<pre>
+			[powershell://AD-Health]
+			script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"
+			schedule = 0 */5 * ? * *
+			source=Powershell
+			sourcetype=MSAD:NT6:Health
+			disabled=0
+			index=msad</pre> 																				
+																								</li>
+																							</ul>
+																							</div>
+																						</li>
+																					</ul>
+																				</li>
+																				<li class="nbr_ts_step"><div class="li_content">Make sure the <b>disabled</b> setting is set to <code>disabled = 0</code> for input that matches your Windows Version</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Also, doublecheck that the <b>index</b> setting matches the index that you created for your <b> AD Data</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Last check, if you are using a different name then <b>Splunk_TA_windows_dc</b> then you will need to update the <b>script</b> setting, (<b>script = & "$SplunkHome\etc\apps\<b style="color:red;">Splunk_TA_windows_dc</b>\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"</b> to the name you are using for the TA's folder.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">If you made any changes then open a command line/terminal and navigate to <b>...\Splunk\bin\</b> directory and run the following command:
+			<pre>splunk reload deploy-server</pre>
+																				</div></li>
+																			</ol>
+																		</span>
+																	</td>
+																</tr>
+															</table>
+														</center>
+													</td>
+												</tr>			
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+				</div>
+			</details>
+			<details style="padding:0px !important;margin:0px !important;">
+				<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+					<i class="ms_obj_icon_steps"></i> <b>Option 2: <i>Manually enter AD Domain Details</i>:</b>
+				</summary>
+					<div class="modal-body">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+												<tr style="padding: 0px;margin: 0px;">
+													<td style="text-align:center;">
+														<center>
+															<h4>Follow the below troubleshooting Steps for manually entering in the required Active Directory Domain details into the <i>AD_Obj_Domain</i> lookup table.</h4>
+															<table style="width:100%;">
+																<tr>
+																	<td style="text-align:left;padding:5px;">
+																		<span class="chk_step_filt obj_use_ds_n">
+																			<ol class="nbr_ts_list">
+																				<li class="nbr_ts_step"><div class="li_content">Click <a id="show_add_domain" class="btn btn-mini sp-btn-gradient add_new_domain" href="#" data-toggle="tooltip" data-placement="top" title="Update Domain Lookup" data-token-json="{&quot;tok_show_man_domain_update&quot;:&quot;True&quot;}">Open Add Domain Form<span class="button-text"></span></a> to open the manual Domain Input form below.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Enter the AD Details into all of the input fields.
+																					<ul class="note_lst">
+																						<li class="mrk_arrow_r"><div class="li_content"><b>DC Host Name:</b> This is the name of one of the AD Domain Controllers for the Domain.</div></li>
+																						<li class="mrk_arrow_r"><div class="li_content"><b>Forest FQDN:</b>This is the <b>Root</b> level Fully Qualified Name. <b>(Ex: testdemo.local)</b></div></li>
+																						<li class="mrk_arrow_r"><div class="li_content"><b>Domain FQDN:</b>This is the <b>Domain</b> level Fully Qualified Name. <b>(Ex: contoso.testdemo.local)</b></div></li>
+																						<li class="mrk_arrow_r"><div class="li_content"><b>Domain NetBIOSName:</b>This is NetBIOSName for the Domain.  A Simple example is when a user logs in; for example a user logs in with <i>Contoso\joe_user</i>, the NetBIOSName is <b>Contoso</b></div></li>
+																						<li class="mrk_arrow_r"><div class="li_content"><b>Domain Site Name:</b>This is the Site Name for the AD Domain. <b>(Ex: Default-First-Site-Name)</b></div></li>
+																					</ul>																				
+																					</div>
+																				</li>
+																				<li class="nbr_ts_step"><div class="li_content">Click the <b>Add Above Values</b> button after entering in the required values for the individual AD Domain.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Repeat the Steps for each Active Directory Domain.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">After Entering in All of the required values for All of your target Active Directory Domains click the Rerun Check button below to open the <b>Lookup Builder table</b>.
+																					<ul>
+																						<li><img class="run_spin run_spin_dom_chk hidden" style="height:20px;width:20px;$tok_show_reload$" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/><a href="#" class="btn btn-mini" data-rerun-multi="f" data-rerun-srch="tok_dom_lkup_trigger">Rerun Check</a></li>
+																					</ul>
+																				</div></li>
+																			</ol>
+																		</span>
+																	</td>
+																</tr>
+															</table>
+														</center>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+			</details>
+		</td>
+	</tr>
+	<tr style="padding:10px;margin:10px;height:10px;"><td></td></tr>
+		<tr style="padding: 0px;margin: 0px;" class="ts_admon_sync $tok_chk_d_admon_sync_cls$">
+			<td style="text-align:left;border: 3px solid #DC4E41;margin-right: 0px;width:100% !important;display:table;">
+			<center>
+				<h3><i>Missing Active Directory admon Sync data - Troubleshooting Steps</i></h3>
+				<h4>To ensure that all of the Active Directory Objects are collected, and not just the Updated, Created, or Deleted ones, <b>admon <i>baseline</i></b> data needs to be collected.</h4><h4>This troubleshooting step is shown because <i>admon "Sync"</i> data was not found in the last 30days.   Follow the below steps to either adjust the time period to search for the <code>sourcetype="ActiveDirectory" admonEventType="Sync"</code> data, or to update/verify the <code>[admon://default]</code> input enabled on one of your AD Domain Controllers.</h4>
+			</center>
+				<details style="padding:0px !important;margin:0px !important;">
+					<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+						<i class="ms_obj_icon_steps"></i> <b>First: <i>Get Last Sync Time and Update Time Period Selection</i>:</b>
+					</summary>
+						<div class="modal-body">		
+							<div class="mod-body-box">
+								<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+									<tr style="padding: 0px;margin: 0px;">
+										<td style="text-align:center;">
+											<center>
+												<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+													<tr style="padding: 0px;margin: 0px;">
+														<td style="text-align:left;">
+																<p><b>Use the Sync Time Helper</b>
+																	<ul class="note_lst">		
+																		<li class="mrk_greater">
+																			<i class="icon-bulb" style="color:#f99d1c;font-size:15px;"></i>  <b>Retrieve the latest admon Sync Event Time</b>:
+																			<ol class="nbr_ts_list">
+																			  <li class="nbr_ts_step"><div class="li_content">Click <a class="btn btn-mini sp-btn-gradient" data-token-json="{&quot;tok_exec_time_helper&quot;: &quot;ms_obj_admon_get_begin_sync_t_val&quot;}">Use Sync Time Helper</a></div>.</li>
+																			  <li class="nbr_ts_step"><div class="li_content">It is important that you get the last time the <b>admon baseline</b> was collected, to ensure that all of the AD Objects (User/Group/Computer/OU/GPO) are added to the lookup.</div></li>
+																			  <li class="nbr_ts_step"><div class="li_content">Set the TimeSelector <i>Date Range - - Begin From - - Date Value</i> with value in the <b>Recommended_Sync_Start_Day</b> Column and set the End Date for today.</div></li>
+																			</ol>
+																		</li>
+																		<li class="mrk_arrow_r"><div class="li_content">Follow the <b>Option 2:</b> Steps below for verifying or updating the admon input.</div></li>
+																	  </ul>
+																	</p>					      
+																	<ul class="note_lst">
+																		<li class="mrk_note">
+																			<div class="li_content">
+																				<i>If you have a large AD Object count environment, and the building process is taking too long, it is recommended follow the steps outlined in the <b>Steps for Recollecting admon Base Line Data</b> to recollect the <i>"Baseline" admon data</i> for the individual Splunk Forwarder that is collecting admon data.</i>
+																			</div>
+																		</li>
+																		<li><div class="li_content">This will allow you to select a shorter time range for picking up the Sync data used to build the Lookups.</div></li>
+																	</ul>
+															<div style="$tok_time_helper_results$">
+																<table style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 3px;">
+																	<tr>
+																		<td style="padding:3px;border: 2px solid #e20082;" colspan="2"><h4>Time Helper Results</h4></td>
+																	</tr>
+																	<tr>
+																		<td style="padding:3px;border: 2px solid #e20082;">Message:</td>
+																		<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_msg$</i></td>
+																	</tr>
+																	<tr>
+																		<td style="padding:3px;border: 2px solid #e20082;">First Time for Sync Data:</td>
+																		<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_f_time$</i></td>
+																	</tr>
+																	<tr>
+																		<td style="padding:3px;border: 2px solid #e20082;">Last Time for Sync Data:</td>
+																		<td style="padding:3px;border: 2px solid #e20082;"><i>$tok_time_helper_l_time$</i></td>
+																	</tr>
+																</table>
+															</div>
+														</td>
+													</tr>									
+												</table>
+											</center>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</div>
+				</details>
+				<details style="padding:0px !important;margin:0px !important;">
+					<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+						<i class="ms_obj_icon_steps"></i> <b>Second: <i>Verify/Update admon input</i>:</b>
+					</summary>					
+						<div class="modal-body">		
+							<div class="mod-body-box">
+								<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+									<tr style="padding: 0px;margin: 0px;">
+										<td style="text-align:center;">
+											<ul class="note_lst">
+												<li class="mrk_important">
+													After performing the below steps, Wait about 15 - 30m, depending on the size and Domain count, before clicking the <b>Rerun Autocheck</b> button.
+												</li>
+											</ul>
+											<center>
+												<table style="width:100%;">
+													<tr>
+														<td style="padding:5px;">
+															<h4>The below steps walk through the quick process of recollecting the <b>required: <i>admon baseline</i></b> data.</h4>
+															<ul class="note_lst">
+															  <li class="mrk_note"><div class="li_content">The admon <b>baseline</b> data is <b style="color:red;">Only</b> collected the first time the input is enabled.</div></li>
+															  <li class="mrk_important"><div class="li_content">Make sure you do not have the <code>[admon://....]</code> data input enabled in any of the other TA's or in the \etc\apps\SplunkUniversalForwarder\local\inputs.conf. It should only be enabled in one place, otherwise the baseline setting could possible be overridden.</div></li>
+															</ul>
+														</td>
+													</tr>
+													<tr>
+														<td style="text-align:left;padding:5px;">
+															<ol class="nbr_ts_list">
+																<li class="nbr_ts_step"><div class="li_content">Login to the AD Domain Controller you deployed the <b>Splunk_TA_windows_admon</b> TA too.</div></li>
+																<li class="nbr_ts_step mrk_important"><div class="li_content"><b>Stop the Splunk Forwarder Service</b></div></li>
+																<li class="nbr_ts_step"><div class="li_content">Open File Explorer and navigate to <b>...\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows_admon\local</b> directory.</div></li>
+																<li class="nbr_ts_step"><div class="li_content">Running Wordpad in <b>"RunAs Administrator"</b> mode, open the <b>inputs.conf</b> file.</div></li>
+																<li class="nbr_ts_step"><div class="li_content">Verify that the <code>[admon:\\default]</code> input is enabled. See the below example:
+	<pre>
+	[admon://default]
+	disabled = 0
+	monitorSubtree = 1
+	baseline = 1
+	index=msad</pre>															
+																</div></li>
+																<li class="nbr_ts_step"><div class="li_content">If it wasn't enabled, then enable it (ie. <code>disabled = 0</code>) and save the changes.</div></li>
+																<li class="nbr_ts_step"><div class="li_content">Navigate into the <b style="color:red;">...\SplunkUniversalForwarder\var\lib\splunk\persistentstorage\ADMon\</b> directory.</div></li>
+																<li class="nbr_ts_step"><div class="li_content">Delete the <b>default.ini</b> file.</div>
+																	<ul class="note_lst">
+																		<li class="mrk_important"><div class="li_content">If you see more than one file then you must have <b>admon</b> input enabled in either <b>...\SplunkUniversalForwarder\etc\system\local</b> or in one of the applications under <b>...\SplunkUniversalForwarder\etc\apps</b> directory.</div></li>
+																		<li class="mrk_important"><div class="li_content">You can also run the command <code>splunk cmd btool inputs list admon://default --debug</code> from a command line, where you are executing from the <b>...\SplunkUniversalForwarder\bin</b> directory.</div></li> 
+																		<li class="mrk_important"><div class="li_content">Once you find where it is enabled, then delete the complete <code>[admon:\\...]</code> input stanza from that location.</div></li>
+																	</ul>																																		
+																</li>
+																<li class="nbr_ts_step"><div class="li_content"><b>Start</b> the Splunk Forwarder Service</div></li>
+															</ol>
+														</td>
+													</tr>
+												</table>
+											</center>
+										</td>
+									</tr>			
+								</table>
+							</div>
+						</div>
+					</details>
+			</td>
+		</tr>
+	</table>
+</center>
+</div>

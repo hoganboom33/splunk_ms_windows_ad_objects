@@ -1,0 +1,1378 @@
+05/06/2016 13:16:55.377
+dcName=DC2012R2.sedemo.local
+admonEventType=Deleted
+Names:
+	name=test_sales_laptop DEL:cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+	distinguishedName=CN=test_sales_laptop\0ADEL:cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4,CN=Deleted Objects,DC=sedemo,DC=local
+	cn=test_sales_laptop DEL:cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+Object Details:
+	sAMAccountName=TEST_SALES_LAPT$
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1640
+	userAccountControl=4128
+	objectGUID=cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+	whenChanged=01:16.55 PM, Fri 05/06/2016
+	whenCreated=01:16.10 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=33895
+	uSNCreated=33889
+	instanceType=4
+Additional Details:
+	isRecycled=TRUE
+	lastKnownParent=OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	isDeleted=TRUE
+05/06/2016 13:16:10.771
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Computer,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=test_sales_laptop
+	distinguishedName=CN=test_sales_laptop,OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	cn=test_sales_laptop
+Object Details:
+	sAMAccountType=805306369
+	sAMAccountName=TEST_SALES_LAPT$
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1640
+	primaryGroupID=515
+	pwdLastSet=01:16.10 PM, Fri 05/06/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=4128
+	objectGUID=cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+	whenChanged=01:16.10 PM, Fri 05/06/2016
+	whenCreated=01:16.10 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=33894
+	uSNCreated=33889
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	isCriticalSystemObject=FALSE
+	localPolicyFlags=0
+05/06/2016 13:16:10.755
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Computer,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=test_sales_laptop
+	distinguishedName=CN=test_sales_laptop,OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	cn=test_sales_laptop
+Object Details:
+	sAMAccountType=805306369
+	sAMAccountName=TEST_SALES_LAPT$
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1640
+	primaryGroupID=515
+	pwdLastSet=01:16.10 PM, Fri 05/06/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=4130
+	objectGUID=cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+	whenChanged=01:16.10 PM, Fri 05/06/2016
+	whenCreated=01:16.10 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=33892
+	uSNCreated=33889
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	isCriticalSystemObject=FALSE
+	localPolicyFlags=0
+05/06/2016 13:16:10.739
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Computer,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=test_sales_laptop
+	distinguishedName=CN=test_sales_laptop,OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	cn=test_sales_laptop
+Object Details:
+	sAMAccountType=805306369
+	sAMAccountName=TEST_SALES_LAPT$
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1640
+	primaryGroupID=515
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=4130
+	objectGUID=cab6344d-7433-4d6c-a2fb-d4d7d0a0d7a4
+	whenChanged=01:16.10 PM, Fri 05/06/2016
+	whenCreated=01:16.10 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=33890
+	uSNCreated=33889
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	isCriticalSystemObject=FALSE
+	localPolicyFlags=0
+05/06/2016 13:15:05.773
+dcName=DC2012R2.sedemo.local
+admonEventType=Deleted
+Names:
+	name=Test OU DEL:ecfa7196-d687-4e57-8488-72b7f8c6759f
+	distinguishedName=OU=Test OU\0ADEL:ecfa7196-d687-4e57-8488-72b7f8c6759f,CN=Deleted Objects,DC=sedemo,DC=local
+	ou=Test OU DEL:ecfa7196-d687-4e57-8488-72b7f8c6759f
+Object Details:
+	objectGUID=ecfa7196-d687-4e57-8488-72b7f8c6759f
+	whenChanged=01:15.05 PM, Fri 05/06/2016
+	whenCreated=01:14.16 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33887
+	uSNCreated=33884
+	instanceType=4
+Additional Details:
+	isRecycled=TRUE
+	lastKnownParent=OU=Company Groups,DC=sedemo,DC=local
+	isDeleted=TRUE
+05/06/2016 13:14:58.929
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Test OU
+	distinguishedName=OU=Test OU,OU=Company Groups,DC=sedemo,DC=local
+	ou=Test OU
+Object Details:
+	objectGUID=ecfa7196-d687-4e57-8488-72b7f8c6759f
+	whenChanged=01:14.58 PM, Fri 05/06/2016
+	whenCreated=01:14.16 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33886
+	uSNCreated=33884
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160506181416.0Z|16010101000000.0Z
+05/06/2016 13:14:16.587
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Test OU
+	distinguishedName=OU=Test OU,OU=Company Groups,DC=sedemo,DC=local
+	ou=Test OU
+Object Details:
+	objectGUID=ecfa7196-d687-4e57-8488-72b7f8c6759f
+	whenChanged=01:14.16 PM, Fri 05/06/2016
+	whenCreated=01:14.16 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33885
+	uSNCreated=33884
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 13:14:16.587
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Test OU
+	distinguishedName=OU=Test OU,OU=Company Groups,DC=sedemo,DC=local
+	ou=Test OU
+Object Details:
+	objectGUID=ecfa7196-d687-4e57-8488-72b7f8c6759f
+	whenChanged=01:14.16 PM, Fri 05/06/2016
+	whenCreated=01:14.16 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33884
+	uSNCreated=33884
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 13:13:58.681
+dcName=DC2012R2.sedemo.local
+admonEventType=Deleted
+Names:
+	name=Test Skills DEL:2f22c543-015f-48f5-aa2f-c5a4974d601a
+	distinguishedName=CN=Test Skills\0ADEL:2f22c543-015f-48f5-aa2f-c5a4974d601a,CN=Deleted Objects,DC=sedemo,DC=local
+	cn=Test Skills DEL:2f22c543-015f-48f5-aa2f-c5a4974d601a
+Object Details:
+	sAMAccountName=tskills
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1637
+	userAccountControl=512
+	objectGUID=2f22c543-015f-48f5-aa2f-c5a4974d601a
+	whenChanged=01:13.58 PM, Fri 05/06/2016
+	whenCreated=01:12.17 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33883
+	uSNCreated=33860
+	instanceType=4
+Additional Details:
+	isRecycled=TRUE
+	lastKnownParent=OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	isDeleted=TRUE
+05/06/2016 13:13:35.777
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tdev@sedemo.local
+	name=Test Dev
+	displayName=Test Dev
+	distinguishedName=CN=Test Dev,OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	givenName=Test
+	sn=Dev
+	cn=Test Dev
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tdev
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1639
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=db1a14fe-e6f4-4e2d-9b7a-c0514854ddb1
+	whenChanged=01:13.35 PM, Fri 05/06/2016
+	whenCreated=01:13.35 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33882
+	uSNCreated=33876
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 13:12:57.702
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=taccounting@sedemo.local
+	name=Test Accounting
+	displayName=Test Accounting
+	distinguishedName=CN=Test Accounting,OU=Accounting,OU=Company Groups,DC=sedemo,DC=local
+	givenName=Test
+	sn=Accounting
+	cn=Test Accounting
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=taccounting
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1638
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=54eb552d-535d-41b3-b118-4bfa7c7aaf92
+	whenChanged=01:12.57 PM, Fri 05/06/2016
+	whenCreated=01:12.57 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33874
+	uSNCreated=33868
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 13:12:17.812
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tskills@sedemo.local
+	name=Test Skills
+	displayName=Test Skills
+	distinguishedName=CN=Test Skills,OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	givenName=Test
+	sn=Skills
+	cn=Test Skills
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tskills
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1637
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=2f22c543-015f-48f5-aa2f-c5a4974d601a
+	whenChanged=01:12.17 PM, Fri 05/06/2016
+	whenCreated=01:12.17 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33866
+	uSNCreated=33860
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 13:11:23.779
+dcName=DC2012R2.sedemo.local
+admonEventType=Deleted
+Names:
+	name={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E} DEL:9ac5aafe-c3ee-42b6-b810-66137243109e
+	distinguishedName=CN={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}\0ADEL:9ac5aafe-c3ee-42b6-b810-66137243109e,CN=Deleted Objects,DC=sedemo,DC=local
+	cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E} DEL:9ac5aafe-c3ee-42b6-b810-66137243109e
+Object Details:
+	objectGUID=9ac5aafe-c3ee-42b6-b810-66137243109e
+	whenChanged=01:11.23 PM, Fri 05/06/2016
+	whenCreated=12:54.41 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33858
+	uSNCreated=33846
+	instanceType=4
+Additional Details:
+	isRecycled=TRUE
+	lastKnownParent=CN=Policies,CN=System,DC=sedemo,DC=local
+	isDeleted=TRUE
+05/06/2016 13:11:13.467
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Developement
+	distinguishedName=OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	ou=Developement
+Object Details:
+	objectGUID=5aab1076-20de-4232-a585-047350a6a011
+	whenChanged=01:11.13 PM, Fri 05/06/2016
+	whenCreated=12:52.20 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33854
+	uSNCreated=33833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160506175220.0Z|16010101000000.0Z
+	gPLink=[LDAP://cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},cn=policies,cn=system,DC=sedemo,DC=local;0]
+05/06/2016 12:54:41.811
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Developement
+	distinguishedName=OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	ou=Developement
+Object Details:
+	objectGUID=5aab1076-20de-4232-a585-047350a6a011
+	whenChanged=12:54.41 PM, Fri 05/06/2016
+	whenCreated=12:52.20 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33852
+	uSNCreated=33833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160506175220.0Z|16010101000000.0Z
+	gPLink=[LDAP://cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E},cn=policies,cn=system,DC=sedemo,DC=local;0][LDAP://cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},cn=policies,cn=system,DC=sedemo,DC=local;0]
+05/06/2016 12:54:41.811
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	displayName=Test_Dev_Ops
+	distinguishedName=CN={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+Object Details:
+	objectGUID=9ac5aafe-c3ee-42b6-b810-66137243109e
+	whenChanged=12:54.41 PM, Fri 05/06/2016
+	whenCreated=12:54.41 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33851
+	uSNCreated=33846
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:54:41.795
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	displayName=New Group Policy Object
+	distinguishedName=CN={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+Object Details:
+	objectGUID=9ac5aafe-c3ee-42b6-b810-66137243109e
+	whenChanged=12:54.41 PM, Fri 05/06/2016
+	whenCreated=12:54.41 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33850
+	uSNCreated=33846
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:54:41.780
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	displayName=New Group Policy Object
+	distinguishedName=CN={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+Object Details:
+	objectGUID=9ac5aafe-c3ee-42b6-b810-66137243109e
+	whenChanged=12:54.41 PM, Fri 05/06/2016
+	whenCreated=12:54.41 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33849
+	uSNCreated=33846
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:54:41.764
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+	distinguishedName=CN={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={5DD5DD7F-38AC-4250-9C4F-B8A16CB35D9E}
+Object Details:
+	objectGUID=9ac5aafe-c3ee-42b6-b810-66137243109e
+	whenChanged=12:54.41 PM, Fri 05/06/2016
+	whenCreated=12:54.41 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33846
+	uSNCreated=33846
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:59.297
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=Dev_Ops_GPO
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.59 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33845
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}]
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=4
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:59.297
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=Dev_Ops_GPO
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.59 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33844
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}]
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=3
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:58.422
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=Dev_Ops_GPO
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.58 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33843
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}]
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=2
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:58.406
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=Dev_Ops_GPO
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.58 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33842
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}]
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=1
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:21.298
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Developement
+	distinguishedName=OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	ou=Developement
+Object Details:
+	objectGUID=5aab1076-20de-4232-a585-047350a6a011
+	whenChanged=12:53.21 PM, Fri 05/06/2016
+	whenCreated=12:52.20 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33841
+	uSNCreated=33833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160506175220.0Z|16010101000000.0Z
+	gPLink=[LDAP://cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},cn=policies,cn=system,DC=sedemo,DC=local;0]
+05/06/2016 12:53:21.298
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=Dev_Ops_GPO
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.21 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33840
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:21.282
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=New Group Policy Object
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.21 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33839
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=0
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:21.267
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	displayName=New Group Policy Object
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.21 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33838
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:53:21.236
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+	distinguishedName=CN={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={D2E4586F-26C8-4663-BB99-1B4FDC5E94E8}
+Object Details:
+	objectGUID=cbe57e70-c2df-469b-9dff-44e87a0a813c
+	whenChanged=12:53.21 PM, Fri 05/06/2016
+	whenCreated=12:53.21 PM, Fri 05/06/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=33835
+	uSNCreated=33835
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	showInAdvancedViewOnly=TRUE
+05/06/2016 12:52:20.457
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Developement
+	distinguishedName=OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	ou=Developement
+Object Details:
+	objectGUID=5aab1076-20de-4232-a585-047350a6a011
+	whenChanged=12:52.20 PM, Fri 05/06/2016
+	whenCreated=12:52.20 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33834
+	uSNCreated=33833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:52:20.457
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Developement
+	distinguishedName=OU=Developement,OU=Company Groups,DC=sedemo,DC=local
+	ou=Developement
+Object Details:
+	objectGUID=5aab1076-20de-4232-a585-047350a6a011
+	whenChanged=12:52.20 PM, Fri 05/06/2016
+	whenCreated=12:52.20 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33833
+	uSNCreated=33833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:52:00.707
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Accounting
+	distinguishedName=OU=Accounting,OU=Company Groups,DC=sedemo,DC=local
+	ou=Accounting
+Object Details:
+	objectGUID=39664d31-0e0e-4c92-89a3-fbe2f4782c7f
+	whenChanged=12:52.00 PM, Fri 05/06/2016
+	whenCreated=12:52.00 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33832
+	uSNCreated=33831
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:52:00.707
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Accounting
+	distinguishedName=OU=Accounting,OU=Company Groups,DC=sedemo,DC=local
+	ou=Accounting
+Object Details:
+	objectGUID=39664d31-0e0e-4c92-89a3-fbe2f4782c7f
+	whenChanged=12:52.00 PM, Fri 05/06/2016
+	whenCreated=12:52.00 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33831
+	uSNCreated=33831
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:51:41.130
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Company Groups
+	distinguishedName=OU=Company Groups,DC=sedemo,DC=local
+	ou=Company Groups
+Object Details:
+	objectGUID=f55b560f-0ec9-4d17-a0dd-97f7d692e401
+	whenChanged=12:51.41 PM, Fri 05/06/2016
+	whenCreated=03:24.06 PM, Mon 04/11/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33830
+	uSNCreated=32947
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160411202406.0Z|20160411202406.0Z|16010101000000.0Z
+	gPLink=[LDAP://cn={06E98FEF-6AB6-4B5D-B4DE-67B41DD00D9E},cn=policies,cn=system,DC=sedemo,DC=local;2][LDAP://cn={F833CC48-D80E-4639-BD27-AEB0935D5C8C},cn=policies,cn=system,DC=sedemo,DC=local;0]
+	description=This is for Company Groups.
+05/06/2016 12:51:41.130
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales
+	distinguishedName=OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	ou=Sales
+Object Details:
+	objectGUID=792fd00c-861d-4852-83fb-8b464daa0455
+	whenChanged=12:51.41 PM, Fri 05/06/2016
+	whenCreated=12:51.41 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33829
+	uSNCreated=33828
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:51:41.130
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales
+	distinguishedName=OU=Sales,OU=Company Groups,DC=sedemo,DC=local
+	ou=Sales
+Object Details:
+	objectGUID=792fd00c-861d-4852-83fb-8b464daa0455
+	whenChanged=12:51.41 PM, Fri 05/06/2016
+	whenCreated=12:51.41 PM, Fri 05/06/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=33828
+	uSNCreated=33828
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:51:17.022
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tgow@sedemo.local
+	name=Todd Gow
+	displayName=Todd Gow
+	distinguishedName=CN=Todd Gow,CN=Users,DC=sedemo,DC=local
+	givenName=Todd
+	sn=Gow
+	cn=Todd Gow
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tgow
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1635
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=2d0137d2-3c7a-4fa6-9a8f-122ff2aaff28
+	whenChanged=12:51.17 PM, Fri 05/06/2016
+	whenCreated=12:48.08 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33827
+	uSNCreated=33803
+	instanceType=4
+Additional Details:
+	mail=tgow@splunk.com
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Sales_Management,CN=Users,DC=sedemo,DC=local|CN=Sales,CN=Users,DC=sedemo,DC=local
+	physicalDeliveryOfficeName=Plano
+	description=Oh Shamwow can I be like you when I am older much much older
+05/06/2016 12:51:08.928
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tgow@sedemo.local
+	name=Todd Gow
+	displayName=Todd Gow
+	distinguishedName=CN=Todd Gow,CN=Users,DC=sedemo,DC=local
+	givenName=Todd
+	sn=Gow
+	cn=Todd Gow
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tgow
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1635
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=2d0137d2-3c7a-4fa6-9a8f-122ff2aaff28
+	whenChanged=12:51.08 PM, Fri 05/06/2016
+	whenCreated=12:48.08 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33826
+	uSNCreated=33803
+	instanceType=4
+Additional Details:
+	mail=tgow@splunk.com
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Sales_Management,CN=Users,DC=sedemo,DC=local|CN=Sales,CN=Users,DC=sedemo,DC=local
+	description=Oh Shamwow can I be like you when I am older much much older
+05/06/2016 12:49:29.541
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales_Management
+	distinguishedName=CN=Sales_Management,CN=Users,DC=sedemo,DC=local
+	cn=Sales_Management
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Sales_Management
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1636
+	objectGUID=521e754e-4243-4259-a1a9-fc4dafc57cf9
+	whenChanged=12:49.29 PM, Fri 05/06/2016
+	whenCreated=12:48.55 PM, Fri 05/06/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=33824
+	uSNCreated=33817
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=-2147483646
+	member=CN=Todd Gow,CN=Users,DC=sedemo,DC=local|CN=Jason Earnest,CN=Users,DC=sedemo,DC=local
+05/06/2016 12:49:09.026
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales_Management
+	distinguishedName=CN=Sales_Management,CN=Users,DC=sedemo,DC=local
+	cn=Sales_Management
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Sales_Management
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1636
+	objectGUID=521e754e-4243-4259-a1a9-fc4dafc57cf9
+	whenChanged=12:49.09 PM, Fri 05/06/2016
+	whenCreated=12:48.55 PM, Fri 05/06/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=33821
+	uSNCreated=33817
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=-2147483646
+	member=CN=Jason Earnest,CN=Users,DC=sedemo,DC=local
+05/06/2016 12:48:55.683
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales_Management
+	distinguishedName=CN=Sales_Management,CN=Users,DC=sedemo,DC=local
+	cn=Sales_Management
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Sales_Management
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1636
+	objectGUID=521e754e-4243-4259-a1a9-fc4dafc57cf9
+	whenChanged=12:48.55 PM, Fri 05/06/2016
+	whenCreated=12:48.55 PM, Fri 05/06/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=33817
+	uSNCreated=33817
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=-2147483646
+05/06/2016 12:48:31.325
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Sales
+	distinguishedName=CN=Sales,CN=Users,DC=sedemo,DC=local
+	cn=Sales
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Sales
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1615
+	objectGUID=2cd0ed41-2397-4d5a-8ec6-4f78df2854c5
+	whenChanged=12:48.31 PM, Fri 05/06/2016
+	whenCreated=09:55.46 AM, Mon 05/02/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=33814
+	uSNCreated=33542
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=-2147483646
+	member=CN=Todd Gow,CN=Users,DC=sedemo,DC=local|CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local
+05/06/2016 12:48:08.654
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tgow@sedemo.local
+	name=Todd Gow
+	displayName=Todd Gow
+	distinguishedName=CN=Todd Gow,CN=Users,DC=sedemo,DC=local
+	givenName=Todd
+	sn=Gow
+	cn=Todd Gow
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tgow
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1635
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=2d0137d2-3c7a-4fa6-9a8f-122ff2aaff28
+	whenChanged=12:48.08 PM, Fri 05/06/2016
+	whenCreated=12:48.08 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33809
+	uSNCreated=33803
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:48:08.654
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tgow@sedemo.local
+	name=Todd Gow
+	displayName=Todd Gow
+	distinguishedName=CN=Todd Gow,CN=Users,DC=sedemo,DC=local
+	givenName=Todd
+	sn=Gow
+	cn=Todd Gow
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tgow
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1635
+	primaryGroupID=513
+	pwdLastSet=12:48.08 PM, Fri 05/06/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=546
+	objectGUID=2d0137d2-3c7a-4fa6-9a8f-122ff2aaff28
+	whenChanged=12:48.08 PM, Fri 05/06/2016
+	whenCreated=12:48.08 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33806
+	uSNCreated=33803
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:48:08.654
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=tgow@sedemo.local
+	name=Todd Gow
+	displayName=Todd Gow
+	distinguishedName=CN=Todd Gow,CN=Users,DC=sedemo,DC=local
+	givenName=Todd
+	sn=Gow
+	cn=Todd Gow
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=tgow
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1635
+	primaryGroupID=513
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=546
+	objectGUID=2d0137d2-3c7a-4fa6-9a8f-122ff2aaff28
+	whenChanged=12:48.08 PM, Fri 05/06/2016
+	whenCreated=12:48.08 PM, Fri 05/06/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33804
+	uSNCreated=33803
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+05/06/2016 12:47:30.797
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=jsanchez@sedemo.local
+	name=Jaime Sanchez
+	displayName=Jaime Sanchez
+	distinguishedName=CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local
+	givenName=Jaime
+	sn=Sanchez
+	cn=Jaime Sanchez
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=Jaime Sanchez
+	logonCount=13
+	accountExpires=0
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1001
+	primaryGroupID=513
+	pwdLastSet=10:50.30 AM, Tue 10/13/2015
+	lastLogon=12:47.49 PM, Thu 04/07/2016
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=1
+	codePage=1252
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=70f39139-ef4a-4d96-a829-4e474491d673
+	whenChanged=12:47.30 PM, Fri 05/06/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33801
+	uSNCreated=8198
+	instanceType=4
+Additional Details:
+	mail=jsanchez@splunk.com
+	msDS-SupportedEncryptionTypes=0
+	lastLogonTimestamp=12:47.49 PM, Thu 04/07/2016
+	dSCorePropagationData=20151013160830.0Z|20151013155319.0Z|16010101000416.0Z
+	adminCount=1
+	logonHours=<binary>
+	memberOf=CN=Accounting_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=Sales_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=Legal_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=TechSupport_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=HR_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=Accounting_DL,CN=Users,DC=sedemo,DC=local|CN=Accounting,CN=Users,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Users,CN=Builtin,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	physicalDeliveryOfficeName=plano
+	description=The Intern in disguise
+05/06/2016 12:46:47.646
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=bob_admin@sedemo.local
+	name=bob admin
+	displayName=bob admin
+	distinguishedName=CN=bob admin,CN=Users,DC=sedemo,DC=local
+	givenName=bob
+	sn=admin
+	cn=bob admin
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=bob_admin
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1631
+	primaryGroupID=513
+	pwdLastSet=10:47.41 AM, Mon 05/02/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66050
+	objectGUID=2a1b2522-5423-4964-8136-9efec3434990
+	whenChanged=12:46.47 PM, Fri 05/06/2016
+	whenCreated=10:47.41 AM, Mon 05/02/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33800
+	uSNCreated=33626
+	instanceType=4
+Additional Details:
+	msDS-SupportedEncryptionTypes=0
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Accounting_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=Accounting,CN=Users,DC=sedemo,DC=local
+	physicalDeliveryOfficeName=San Francisco
+	description=Oh Bob why are you not Jim.
+05/06/2016 12:46:13.742
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=bad_admin@sedemo.local
+	name=bad admin
+	displayName=bad admin
+	distinguishedName=CN=bad admin,CN=Users,DC=sedemo,DC=local
+	givenName=bad
+	sn=admin
+	cn=bad admin
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=bad_admin
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1633
+	primaryGroupID=513
+	pwdLastSet=10:48.48 AM, Mon 05/02/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=514
+	objectGUID=68391e0e-e66a-436a-98d0-004bb100d7b5
+	whenChanged=12:46.13 PM, Fri 05/06/2016
+	whenCreated=10:48.48 AM, Mon 05/02/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33799
+	uSNCreated=33640
+	instanceType=4
+Additional Details:
+	mail=tgow@splunk.com
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Accounting_Admins_DL,CN=Users,DC=sedemo,DC=local
+	physicalDeliveryOfficeName=Plano
+	description=Todd Gow What Are You Doing?
+05/06/2016 12:45:37.776
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=jearnest@sedemo.local
+	name=Jason Earnest
+	displayName=Jason Earnest
+	distinguishedName=CN=Jason Earnest,CN=Users,DC=sedemo,DC=local
+	givenName=Jason
+	sn=Earnest
+	cn=Jason Earnest
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=jearnest
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1610
+	primaryGroupID=513
+	pwdLastSet=02:06.19 PM, Tue 04/19/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=438e8ffa-5dfd-417f-8f64-47080ab81a6a
+	whenChanged=12:45.37 PM, Fri 05/06/2016
+	whenCreated=02:06.19 PM, Tue 04/19/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33798
+	uSNCreated=33301
+	instanceType=4
+Additional Details:
+	mail=jearnest@splunk.com
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Sales_DL,CN=Users,DC=sedemo,DC=local|CN=Accounting,CN=Users,DC=sedemo,DC=local
+	physicalDeliveryOfficeName=Plano
+	description=The man who knows a man, that once was the man.
+05/06/2016 12:44:49.778
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=shogan@sedemo.local
+	name=Steve Hogan
+	displayName=Steve Hogan
+	distinguishedName=CN=Steve Hogan,CN=Users,DC=sedemo,DC=local
+	givenName=Steve
+	sn=Hogan
+	cn=Steve Hogan
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=shogan
+	logonCount=169
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1603
+	primaryGroupID=513
+	pwdLastSet=12:49.07 PM, Thu 04/07/2016
+	lastLogon=12:43.42 PM, Fri 05/06/2016
+	lastLogoff=0
+	badPasswordTime=12:33.46 PM, Thu 04/21/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=58eb64e2-0632-434d-9ad1-4656976b32ac
+	whenChanged=12:44.49 PM, Fri 05/06/2016
+	whenCreated=12:49.07 PM, Thu 04/07/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33797
+	uSNCreated=16437
+	instanceType=4
+Additional Details:
+	mail=shogan@splunk.com
+	lastLogonTimestamp=09:53.54 AM, Mon 05/02/2016
+	dSCorePropagationData=20160407184049.0Z|16010101000000.0Z
+	adminCount=1
+	memberOf=CN=Mailroom_DL,CN=Users,DC=sedemo,DC=local|CN=Finance_Admins_DL,CN=Users,DC=sedemo,DC=local|CN=Accounting,CN=Users,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	telephoneNumber=2149141295
+	physicalDeliveryOfficeName=Plano
+	description=Just a dude who likes to Splunk
+05/03/2016 11:05:59.565
+dcName=DC2012R2.sedemo.local
+admonEventType=Update
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=bob_user@sedemo.local
+	name=bob user
+	displayName=bob user
+	distinguishedName=CN=bob user,CN=Users,DC=sedemo,DC=local
+	givenName=bob
+	sn=user
+	cn=bob user
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=bob_user
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1632
+	primaryGroupID=513
+	pwdLastSet=10:48.12 AM, Mon 05/02/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=839faa31-b599-4530-9b5b-4686d9d28a2c
+	whenChanged=11:05.59 AM, Tue 05/03/2016
+	whenCreated=10:48.12 AM, Mon 05/02/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=33741
+	uSNCreated=33633
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	memberOf=CN=Accounting,CN=Users,DC=sedemo,DC=local
+	description=Contractor for Accounting

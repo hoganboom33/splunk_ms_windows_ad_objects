@@ -1,0 +1,635 @@
+<form script="ms_ad_obj_lkp_v.js,ms_ad_obj_audit_report.js" stylesheet="ms_ad_obj_lkp_view.css" version="1.1">
+  <label>AD Objects - Group Policy - Lookup</label>
+  <!-- Troubleshoot - add ,showtokens.js to script -->
+  <init>		  
+		<set token="tok_inp_list_bps_min">1000</set>
+		<set token="tok_inp_list_max">5000</set>
+		<set token="tok_obj_type_lbl"></set>
+		<set token="tok_obj_filt_cnt">Pending</set>
+		<set token="tok_fld_val_cnt">Pending</set>
+		<set token="tok_fld_filt_lbl"></set>
+		<set token="tok_sel_srch_filt_fld"></set>
+		<set token="tok_sel_srch_filt_obj"></set>
+		<set token="tok_message_color">green</set>
+		<set token="tok_message_state">1.</set>
+		<set token="tok_message"> Select Target Domain for GPO Lookup.</set>
+	</init>
+<!-- Base Domain List Search -->
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Get Lookup Names for Selected Domain Search -->
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+  </search>
+<!-- Base Object Lookup Search --> 
+  <search id="base_ad_obj_lookup">
+    <query>| inputlookup AD_Obj_GPO WHERE domain="$tok_domain$"
+| makemv delim="|" objectClass
+| makemv delim="####" dSCorePropagationData
+| fillnull value=""
+| eval key_val=_key
+| table *</query>
+    <earliest>0</earliest>
+    <latest></latest>
+  </search>
+  <!-- Field Value Count Check within Selected Field Search --> 
+  <search base="base_ad_obj_lookup" id="sub_init_fld_val">
+    <query>$tok_srch_fmt_fld_cnt$
+| eval trigger="$tok_srch_trg_bs_fld$"
+| eventstats count AS total
+| eval total=tostring(total,"commas")</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="tokshowfldvallist"></unset>
+        <unset token="tok_srch_filt_fld_val"></unset>
+        <unset token="tok_trg_srch_fld_val"></unset>
+        <unset token="tokshowfldfilt"></unset>
+        <unset token="tokshowrestblbase"></unset>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_max$">
+        <set token="tok_fld_val_cnt">$result.total$</set>
+        <set token="tokshowfldfilt">True</set>
+        <unset token="tokshowfldvallist"></unset>
+        <unset token="tokshowfldbyp"></unset>
+        <set token="tok_srch_filt_fld_val">*</set>
+        <set token="tok_srch_trg_filt_fld_val">True</set>
+        <set token="tok_tab_1_label">$tok_sel_fld_lbl$ Counts ($result.total$)</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">4.</set>
+        <set token="tok_message"> Warning - $result.total$ Field Values Returned which is &gt; than set Dropdown List Max ($tok_inp_list_max$). Enter a filter (* for a wildcard) in the "Filter Field Value List" input to reduce the returned Field Values count.</set>
+        <set token="tokshowrestblbase">true</set>
+        <set token="tok_tab_1">active</set>
+        <unset token="tok_tab_2"></unset>
+        <unset token="tok_tab_3"></unset>
+        <set token="tokshowtabs">True</set>
+        <set token="tok_obj_filter_nmb">6</set>
+        <set token="tok_obj_bypass_nmb">7</set>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_bps_min$">
+        <unset token="tokshowfldvallist"></unset>
+        <set token="tok_fld_val_cnt">$result.total$</set>
+        <set token="tokshowfldfilt">True</set>
+        <set token="tok_srch_filt_fld_val">*</set>
+        <set token="tok_srch_trg_filt_fld_val">True</set>
+        <set token="tokshowfldbyp">True</set>
+        <set token="tok_inp_fld_val_nmb">6</set>
+        <set token="tok_tab_1">active</set>
+        <unset token="tok_tab_2"></unset>
+        <unset token="tok_tab_3"></unset>
+        <set token="tokshowtabs">True</set>
+        <set token="tok_tab_1_label">$tok_sel_fld_lbl$ Counts ($result.total$)</set>
+        <set token="tok_message_color">#DA742E</set>
+        <set token="tok_message_state">4 + 5.</set>
+        <set token="tok_message"> Warning - $result.total$ Field Values Returned. This is &gt; than the set Dropdown List Bypass Min of ($tok_inp_list_bps_min$). Enter a filter (* for a wildcard) in the "Filter Field Value List" input to reduce the returned Field Values count or click the "Yes" option in the "Bypass Large List" input (Slow List Results Possible).</set>
+        <set token="tokshowrestblbase">true</set>
+        <set token="tok_tab_1">active</set>
+        <unset token="tok_tab_2"></unset>
+        <unset token="tok_tab_3"></unset>
+        <set token="tokshowtabs">True</set>
+        <set token="tok_obj_filter_nmb">6</set>
+        <set token="tok_obj_bypass_nmb">7</set>
+      </condition>
+      <condition>
+        <set token="tok_fld_val_cnt">$result.total$</set>
+        <set token="tok_srch_filt_fld_val">*</set>
+        <set token="tok_srch_trg_filt_fld_val">$result.total$</set>
+        <unset token="tokshowfldbyp"></unset>
+        <unset token="tokshowfldfilt"></unset>
+        <set token="tok_inp_fld_val_nmb">4</set>
+        <set token="tok_obj_filter_nmb">5</set>
+        <set token="tok_obj_bypass_nmb">6</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Object Count Check within Selected Field Value Search -->  
+  <search base="sub_init_fld_val" id="sub_srch_fld_val_list">
+    <query>search $tok_sel_fld_lbl$="$tok_srch_filt_fld_val$"
+| eval trigger="$tok_srch_trg_filt_fld_val$"
+| eventstats count as list_total</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="tokshowfldvallist"></unset>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning</set>
+        <set token="tok_message">4. Warning - 0 Field Values Returned. Adjust Filter to return matching field values.</set>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_max$">
+        <set token="tok_fld_val_cnt">$result.list_total$</set>
+        <set token="tokshowfldfilt">True</set>
+        <unset token="tokshowfldbyp"></unset>
+        <unset token="tokshowfldvallist"></unset>
+        <set token="tok_tab_1_label">$tok_sel_fld_lbl$ Counts ($result.list_total$)</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">4.</set>
+        <set token="tok_message"> Warning - $result.list_total$ Field Values Returned. This is &gt; than the set Dropdown List Max of ($tok_inp_list_max$). Enter a Filter (GPO's cn,displayName,name, or orig_cn; * for a wildcard) in the in the "Filter GPO List" input  input to reduce the returned GPO list count.</set>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_bps_min$">
+        <set token="tok_fld_val_cnt">$result.total$</set>
+        <set token="tokshowfldfilt">True</set>
+        <set token="tokshowfldbyp">True</set>
+        <unset token="tokshowfldvallist"></unset>
+        <set token="tokshowrestblbase">true</set>
+        <set token="tok_tab_1_label">$tok_sel_fld_lbl$ Counts ($result.list_total$)</set>
+        <set token="tok_message_color">#DA742E</set>
+        <set token="tok_message_state">4.</set>
+        <set token="tok_message"> $result.list_total$ Field Values Returned. This is &gt; than the set Dropdown List Bypass Min of ($tok_inp_list_bps_min$). Enter a Filter (GPO's cn,displayName,name, or orig_cn; * for a wildcard) in the in the "Filter GPO List" input  input to reduce the returned GPO list count or click the "Yes" option in the "Bypass Large List" input (Slow List Results Possible).</set>
+        <set token="tok_inp_obj_filt_val_nmb">5</set>
+      </condition>
+      <condition>
+        <set token="tok_fld_val_cnt">$result.total$</set>
+        <set token="tokshowfldvallist">true</set>
+        <set token="tokshowrestblbase">true</set>
+        <set token="tok_tab_1_label">$tok_sel_fld_lbl$ Counts ($result.list_total$)</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">4.</set>
+        <set token="tok_message"> Select one of the Field Values to Filter the GPO List.  ($result.list_total$ Returned Field Values)</set>
+        <set token="tok_tab_1">active</set>
+        <unset token="tok_tab_2"></unset>
+        <unset token="tok_tab_3"></unset>
+        <set token="tokshowtabs">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Final Object Filter Search -->
+  <search base="base_ad_obj_lookup" id="sub_filt_obj_det"> 
+    <query>search $tok_sel_srch_filt_fld$ $tok_sel_srch_filt_obj$ 
+| eval trigger="$tok_trg_check$"
+| eventstats count as obj_total
+| eval inp_obj_lst_msg=if(obj_total&gt;=$tok_inp_list_bps_min$,"(\0020\26A0\0020\0020 ".toString(obj_total,"commas")."  ) GPOs","( ".toString(obj_total,"commas")."  ) GPOs")
+| eval inp_obj_filt_msg=if(obj_total&gt;=$tok_inp_list_max$,"(\0020\2297\0020\0020 ".toString(obj_total,"commas")." GPOs). Filter Required",if(obj_total&gt;=$tok_inp_list_bps_min$,"(\0020\26A0\0020\0020 ".toString(obj_total,"commas")." GPOs). Filter Suggested","(\0020\0020 ".toString(obj_total,"commas")." GPOs). Filter Optional"))</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+          <unset token="tokshowfldvallist"></unset>
+          <set token="tok_message_color">red</set>
+          <set token="tok_message_state">Warning</set>
+          <set token="tok_message"> - 0 Values Returned for filter, Adjust Filter to return matching filter.</set>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_max$">
+        <set token="tokshowresdettbl">true</set>
+        <unset token="tokshowresdetmsg"></unset>
+        <set token="tokshowobjfilt">true</set>
+        <unset token="tokshowobjbyp"></unset>
+        <unset token="tokshowobjlist"></unset>
+        <set token="tok_tgr_sub_obj_list">True</set>
+        <set token="tok_obj_filt_cnt">$job.resultCount$</set>
+        <set token="tok_tab_2_label">Filtered Counts ($tok_obj_type_lbl$ $result.obj_total$)</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning</set>
+        <set token="tok_message"> - $result.obj_total$ GPO Values Returned. This is &gt; than the set Dropdown List Max of ($tok_inp_list_max$). Enter a Filter (GPO's cn,displayName,name, or orig_cn; * for a wildcard) in the "Filter GPO List" input to reduce the returned GPO list count.</set>
+        <set token="tok_obj_filt_lbl">$result.inp_obj_filt_msg$</set>
+        <set token="tok_obj_list_msg">\0020\26A0\0020\0020  $result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_label_msg">$result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_msg_color">red</set>      
+        <set token="tok_tab_2">active</set>
+        <unset token="tok_tab_1"></unset>
+        <unset token="tok_tab_3"></unset>
+      </condition>
+      <condition match="$job.resultCount$ > $tok_inp_list_bps_min$">
+        <set token="tokshowresdettbl">true</set>
+        <unset token="tokshowresdetmsg"></unset>
+        <set token="tokshowobjfilt">true</set>
+        <set token="tokshowobjbyp">true</set>
+        <unset token="tokshowobjlist"></unset>
+        <set token="tok_tgr_sub_obj_list">True</set>
+        <set token="tok_obj_filt_cnt">$job.resultCount$</set>
+        <set token="tok_tab_2_label">Filtered Counts ($tok_obj_type_lbl$ $result.obj_total$)</set>
+        <set token="tok_message_color">#DA742E</set>
+        <set token="tok_message_state">Warning</set>
+        <set token="tok_message"> - $result.obj_total$ GPO Values Returned. This is &gt; than the set Dropdown List Bypass Min of ($tok_inp_list_bps_min$). Enter a Filter (GPO's cn,displayName,name, or orig_cn; * for a wildcard) in the "Filter GPO List" input to reduce the returned GPO list count or click the "Yes" option in the "Bypass Large List" input (Slow List Results Possible).</set>
+        <set token="tok_obj_filt_lbl">$result.inp_obj_filt_msg$</set>
+        <set token="tok_obj_list_msg">\0020\26A0\0020\0020  $result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_label_msg">$result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_msg_color">#DA742E</set>  
+        <set token="tok_tab_2">active</set>
+        <unset token="tok_tab_1"></unset>
+        <unset token="tok_tab_3"></unset>
+      </condition>
+      <condition>
+        <set token="tokshowresdettbl">true</set>
+        <unset token="tokshowresdetmsg"></unset>
+        <unset token="tokshowobjbyp"></unset>
+        <set token="tokshowobjlist">true</set>
+        <set token="tok_tgr_sub_obj_list">True</set>
+        <set token="tok_obj_filt_cnt">$job.resultCount$</set>
+        <set token="tok_tab_2_label">Filtered Counts ($tok_obj_type_lbl$ $result.obj_total$)</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Last Step.</set>
+        <set token="tok_message"> Select a GPO from the GPO Dropdown Input to view the individual GPO's Details.</set>
+        <set token="tok_obj_filt_lbl">$result.inp_obj_filt_msg$</set>
+        <set token="tok_obj_list_msg">\0020\26A0\0020\0020  $result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_label_msg">$result.inp_obj_lst_msg$</set>
+        <set token="tok_obj_list_msg_color">green</set>    
+        <set token="tok_tab_2">active</set>
+        <unset token="tok_tab_1"></unset>
+        <unset token="tok_tab_3"></unset>
+        <set token="tokshowtabs">True</set>
+      </condition>
+    </done>
+  </search>
+<!-- Search to populate Domain Object Lists -->
+  <search base="sub_filt_obj_det" id="sub_obj_list">
+    <query>eval label=if(isnull(displayName),cn,displayName),trigger="$tok_tgr_sub_obj_list$"
+| sort 0 -label
+| stats count by label,key_val 
+| sort label
+| makemv delim="|" label</query>
+  </search>
+  <!-- LDAP View Search -->
+  <search id="audit_query" base="sub_filt_obj_det">
+        <query>search key_val="$tok_sel_obj$"
+| fields - inp_obj_lst_msg - inp_obj_filt_msg - trigger - obj_total
+| fields *</query>
+   </search> 
+	<search base="audit_query" id="sub_obj_id_vals">
+	  <query>transpose
+| sort column
+| rename column AS "AD Field", "row 1" AS "Value"</query>
+	</search> 
+<fieldset submitButton="false" autoRun="true">
+  </fieldset>
+  <row id="rw_initial_filters">
+    <panel id="pan_initial_inputs">
+      <input type="dropdown" token="input_tok_domain" searchWhenChanged="true">
+        <label>1. Select Domain</label>
+        <choice value="sel">Select Domain</choice>
+        <search base="base_domain_search">
+          <query>table domain | sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_domain"></unset>
+            <unset token="tokshowfilttype"></unset>
+          </condition>
+          <condition>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+          	<unset token="tok_trg_check"></unset>
+            <unset token="tokshowfldlist"></unset>
+            <unset token="tokshowfldfilt"></unset>
+            <unset token="tokshowfldlbyp"></unset>
+            <unset token="tokshowfldvallist"></unset>
+            <unset token="tokshowobjlist"></unset>
+            <unset token="tokshowobjfilt"></unset>
+            <unset token="tokshowobjbyp"></unset>
+            <unset token="tokshowresobj"></unset>
+            <unset token="tokshowresfld"></unset>
+            <unset token="tokshowtabs"></unset>
+            <set token="tok_domain">$value$</set>
+            <set token="tokshowfilttype">True</set>
+        	<set token="tok_message_color">green</set>
+        	<set token="tok_message_state">2.</set>
+        	<set token="tok_message"> Select the type of filter you would like to use for finding the target GPOs lookup details.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" searchWhenChanged="true" token="tok_filt_type" depends="$tokshowfilttype$">
+        <label>2. Filter Type</label>
+        <choice value="by_fld">By Lookup Fields</choice>
+        <choice value="obj">By GPO</choice>
+        <default></default>
+        <initialValue></initialValue>
+      </input>
+      <input id="input_fld_list" type="dropdown" token="inp_tok_sel_fld" searchWhenChanged="true" depends="$tokshowfldlist$">
+        <label>3. Select Field</label>
+        <choice value="sel">Select Lookup Field...</choice>
+        <search base="base_ad_obj_lookup">
+          <query>`ms_obj_fldsum_list`</query>
+        </search>
+        <fieldForLabel>fldid</fieldForLabel>
+        <fieldForValue>fldid</fieldForValue>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <unset token="remove_tok_sel_fld_lbl"></unset>
+            <unset token="remove_tok_srch_fmt_fld_cnt"></unset>
+          </condition>
+          <condition>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+            <unset token="tok_tgr_sub_obj_list"></unset>
+            <set token="tok_srch_fmt_fld_cnt">`ms_ad_obj_lkp_filt_cnts($value$)`</set>
+            <set token="tok_sel_srch_filt_obj"></set>
+            <set token="tok_srch_trg_bs_fld">$value$</set>
+            <set token="tok_srch_trg_filt_fld_val">$value$</set>
+            <set token="tok_sel_fld_msg_lbl">$value$</set>
+            <set token="tok_sel_fld_lbl">$value$</set>
+            <set token="inp_tok_sel_fld_val">sel</set>
+            <set token="form.inp_tok_sel_fld_val">sel</set>
+            <unset token="inp_obj_filt"></unset>
+            <unset token="form.inp_obj_filt"></unset>
+            <set token="tok_obj_type_lbl">$value$</set>
+            <set token="tok_obj_type_fld_lbl">$value$</set>
+            <set token="tok_shw_res_tbl_bs">True</set>
+            <unset token="tokshowresseltbl"></unset>
+            <set token="tokshowresdetmsg">True</set>
+            <unset token="tokshowresdettbl"></unset>
+            <set token="tokshowresselmsg">True</set>
+            <unset token="tokshowfldfilt"></unset>
+            <unset token="tokshowfldlbyp"></unset>
+            <unset token="tokshowfldvallist"></unset>
+            <unset token="tokshowobjlist"></unset>
+            <unset token="tokshowobjfilt"></unset>
+            <unset token="tokshowobjbyp"></unset>
+            <unset token="tok_bypass_fld"></unset>
+          </condition>
+        </change>
+      </input>
+      <input id="input_fld_filt" type="text" token="inp_fld_filt" searchWhenChanged="true" depends="$tokshowfldfilt$">
+        <label>4. Filter Field Values List</label>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)>0">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+            <set token="tok_srch_filt_fld_val">$value$</set>
+            <set token="tok_srch_trg_filt_fld_val">$value$</set>
+            <set token="inp_tok_sel_fld_val">sel</set>
+            <set token="form.inp_tok_sel_fld_val">sel</set>
+            <unset token="tokshowresseltbl"></unset>
+            <set token="tokshowresdetmsg">True</set>
+            <unset token="tokshowresdettbl"></unset>
+            <set token="tokshowresselmsg">True</set>
+            <unset token="tokshowfldvallist"></unset>
+            <unset token="tokshowobjlist"></unset>
+            <unset token="tokshowobjfilt"></unset>
+            <unset token="tokshowobjbyp"></unset>
+            <unset token="tok_bypass_fld"></unset>
+          </condition>
+          <condition>
+            <set token="remove_inp_tok_sel_fld_val">sel</set>
+            <set token="form.remove_inp_tok_sel_fld_val">sel</set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_fld_byp" type="radio" token="tok_bypass_fld" depends="$tokshowfldbyp$">
+        <label>5. Bypass Large List</label>
+        <choice value="yes">Yes</choice>
+        <default></default>
+        <initialValue></initialValue>
+        <change>
+          <condition value="yes">
+            <set token="tok_srch_trg_filt_fld_val">$value$</set>
+            <set token="tokshowfldvallist">true</set>
+            <set token="tokshowresdettbl">true</set>
+            <set token="tok_sel_srch_filt_obj"></set>
+            <unset token="tokshowresdetmsg"></unset>            
+          </condition>
+        </change>
+      </input>
+      <input id="input_fld_val_list" type="dropdown" token="inp_tok_sel_fld_val" searchWhenChanged="true" depends="$tokshowfldvallist$">
+        <label>$tok_inp_fld_val_nmb$. Select Field Value (OU Count)</label>
+        <choice value="sel">Select Field Value...</choice>
+        <search base="sub_srch_fld_val_list" id="tmp_field_list">
+          <query>eval srch_filt=if($tok_sel_fld_lbl$=="#Empty#","$tok_sel_fld_lbl$=\"\"","$tok_sel_fld_lbl$=\"".$tok_sel_fld_lbl$."\"")</query>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>srch_filt</fieldForValue>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <set token="remove_tok_shw_res_obj_filt_msg">True</set>
+            <unset token="remove_tok_shw_res_obj_filt_tbl"></unset>
+          </condition>
+          <condition>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+            <unset token="tokshowobjfilt"></unset>
+            <set token="tok_sel_srch_filt_fld">$value$</set>
+            <set token="tok_obj_type_lbl">$value$</set>
+            <set token="tok_obj_type_fld_lbl">$value$</set>
+            <set token="inp_tok_obj">sel</set>
+            <set token="form.inp_tok_obj">sel</set>
+            <unset token="inp_obj_filt"></unset>
+            <unset token="form.inp_obj_filt"></unset>
+            <set token="tok_trg_check">$label$</set>
+            <set token="tokshowrestblbase">True</set>
+          	<unset token="tokshowresseltbl"></unset>
+            <set token="tokshowresselmsg">True</set>
+          	<unset token="tokshowresdetmsg"></unset>
+            <set token="tokshowresdettbl">True</set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_obj_filt" type="text" token="inp_obj_filt" searchWhenChanged="true" depends="$tokshowobjfilt$">
+        <label>$tok_obj_filter_nmb$. Filter GPO List</label>
+        <initialValue></initialValue>
+        <change>
+          <condition match="len($value$)>0">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+            <set token="tok_sel_srch_filt_obj">[| `ms_obj_ss_filt_pre_base("$value$","cn,displayName,name,orig_cn")`]</set>
+            <set token="tok_obj_type_lbl">$tok_obj_type_fld_lbl$ $value$</set>
+            <set token="tok_trg_check">$value$</set>
+            <set token="inp_tok_obj">sel</set>
+            <set token="form.inp_tok_obj">sel</set>
+            <set token="tokshowrestblbase">True</set>
+          	<unset token="tokshowresdetmsg"></unset>
+            <set token="tokshowresdettbl">True</set>
+          	<unset token="tokshowresseltbl"></unset>
+            <set token="tokshowresselmsg">True</set>
+          </condition>
+          <condition>
+            <set token="rem_tok_obj_type_lbl"></set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_obj_byp" type="radio" token="tok_bypass_obj" depends="$tokshowobjbyp$">
+        <label>$tok_obj_bypass_nmb$. Bypass Large List</label>
+        <choice value="yes">Yes</choice>
+        <default></default>
+        <initialValue></initialValue>
+        <change>
+          <condition value="yes">
+            <set token="tokshowobjlist">true</set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_obj_list" type="dropdown" token="inp_tok_obj" searchWhenChanged="true" depends="$tokshowobjlist$">
+        <label>Last Step. Select GPO</label>
+        <choice value="sel">Select...</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <search base="sub_obj_list" id="obj_list">
+          <query></query>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>key_val</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_sel_obj_lbl"></unset>
+          	<unset token="tokshowresseltbl"></unset>
+            <set token="tokshowresselmsg">True</set>
+          </condition> 
+          <condition>
+          	<unset token="tokshowresselmsg"></unset>
+            <set token="tokshowresseltbl">True</set>
+            <set token="tok_sel_obj">$value$</set>
+            <set token="tok_sel_obj_lbl">$label$</set>
+            <set token="tok_message_color"></set>
+            <set token="tok_message_state"></set>
+            <set token="tok_message"></set>
+            <set token="tok_tab_3">active</set>
+            <unset token="tok_tab_1"></unset>
+            <unset token="tok_tab_2"></unset>
+          </condition>
+        </change>
+      </input>
+      <html depends="$tok_message_state$" id="inp_msg">
+        <p style="font-size:8;" id="inp_msg_p">
+          <font color="$tok_message_color$">
+            <i>
+             <b>$tok_message_state$ </b> $tok_message$</i> 
+          </font>
+        </p>
+      </html>
+  </panel>
+</row>
+  <row id="tabs_row" depends="$tokshowtabs$">
+    <panel>
+      <title></title>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_tab_1_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">$tok_tab_1_label$</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Filtered Details ($tok_obj_filt_cnt$ GPOs)</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Selected GPO Details</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tokshowtabs$,$tok_tab_1$">
+    <panel id="result_details_pan_fld_cnts" depends="$tokshowrestblbase$">
+      <table depends="$tokshowresfld$">
+        <title>Field ($tok_sel_fld_lbl$) Values - Total $tok_fld_val_cnt$:</title>
+        <search base="sub_init_fld_val">
+          <query>table $tok_sel_fld_lbl$,count
+| search $tok_sel_fld_lbl$="$tok_srch_filt_fld_val$"
+| sort -count</query>
+          <done>
+            <set token="remove_tok_fld_val_cnt">$job.resultCount$</set>
+          </done>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">15</option>
+      </table>
+      <table depends="$tokshowresobj$">
+        <title>Filtered GPO ($tok_obj_type_lbl$) List:</title>
+        <search base="sub_filt_obj_det">
+          <query>table cn,displayName,name,orig_cn,lc
+| sort displayName</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">15</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tokshowtabs$,$tok_tab_2$">
+    <panel id="msg_obj_list_details" depends="$tokshowresdetmsg$">
+      <html depends="$tokshowresfld$">
+        <h2>
+          <font color="blue">Info</font> <i>- Select A Field <b>Value</b> for the Selected Field (<b>$tok_sel_fld_msg_lbl$</b>) to view the list of matching GPOs.</i>
+        </h2> 
+      </html>
+      <html depends="$tokshowresobj$">
+        <h2>
+          <font color="blue">Info</font> <i>- Enter A Filter <b>Value</b> for the (<b>$tok_obj_filter_nmb$. Filter GPO List</b>) to view the list of matching GPOs.</i>
+        </h2> 
+      </html>
+    </panel>
+    <panel id="result_details_pan_filt_obj" depends="$tokshowresdettbl$">
+      <title>Filtered GPOs ($tok_obj_type_lbl$) Details</title>
+      <table depends="$tokshowresfld$" id="restblflddet">
+        <search base="sub_filt_obj_det" id="sub_res_det_fld_srch">
+          <query>fields - inp_obj_lst_msg - inp_obj_filt_msg - trigger - obj_total
+| table $tok_sel_fld_lbl$,cn,displayName,name,orig_cn,* | sort cn</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+      <table depends="$tokshowresobj$" id="restblobjdet">
+        <search base="sub_filt_obj_det" id="sub_res_det_obj_srch">
+          <query>fields - inp_obj_lst_msg - inp_obj_filt_msg - trigger - obj_total
+| table cn,displayName,name,orig_cn,lc,* | sort cn</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>  
+    </panel>
+  </row>
+  <row depends="$tokshowtabs$,$tok_tab_3$">
+    <panel id="msg_obj_sel_details">
+      <html id="msg_ldap_details" depends="$tokshowresselmsg$">
+        <h2>
+          <font color="blue">Info</font> <i>- Complete the Filter Inputs above and then Select an individual GPO from the <b>Last Step. Select User</b> dropdown to view the GPOs LDAP Information.</i>
+        </h2>
+      </html>
+    </panel>
+    <panel id="result_details_pan_sel_obj_tbl" depends="$tokshowresseltbl$">
+      <title>Individual Selected GPO ($tok_sel_obj_lbl$) Lookup Table Values</title>
+      <table id="restblobjsel">
+        <search base="sub_obj_id_vals">
+          <query></query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">15</option>
+      </table>
+    </panel>
+    <panel id="result_details_pan_sel_obj_ldp" depends="$tokshowresseltbl$">
+      <title>AD LDAP Details for GPO ($tok_sel_obj_lbl$)</title>
+      <html id="restblobjselldp">
+        <div id="audit_report"/>
+      </html>
+    </panel>
+  </row>
+  <row depends="$hidden$">
+    <panel>
+      <html>
+        <style>
+#input_obj_filt::after {content: '$tok_obj_filt_lbl$';font-style: italic !important;font-size: 10px !important;color:$tok_obj_list_msg_color$ !important;display: inline-block;width: 100% !important;}
+#input_obj_list label::after {content: '\0020$tok_obj_list_label_msg$';font-style: italic !important;font-size: 10px !important;color:$tok_obj_list_msg_color$ !important;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

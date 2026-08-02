@@ -1,0 +1,478 @@
+﻿<div class="right-head-box">
+	<h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding:10;">
+		<span id="i_lbl_depl_step_inst_uf"><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b style="color:#f99d1c;">Deployment Tasks:</b> <i>Install the Splunk Universal Forwarders software on the target Windows Systems</i></span>
+		<span id="i_lbl_depl_step_man_ta"><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b style="color:#f99d1c;">Deployment Tasks:</b> <i>Manually Copy the pre-configured Windows TA's to the target windows systems.</i></span>
+		<span id="i_lbl_depl_step_ta_cc"><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b style="color:#f99d1c;">Deployment Tasks:</b> <i>Install the Splunk Cloud Credentials app on the Splunk Universal Forwarders.</i></span>
+	</h1>
+</div>
+<div class="right-body-box">
+			<table class="depl_tasks_details"  style="padding:0px;border: 4px solid #e20082;margin: 0px;width:100% !important;display:table;">
+				<tr style="padding: 0px;margin: 0px;">
+					<td style="padding:0px;margin: 0px;">
+						<div id="depl_step_inst_uf" class="d_t_steps_details">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<center><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b>Install the Splunk Universal Forwarder on the Target Systems</b></center>
+														<h4>We will now cover the steps to enable and configure the <b>Receiving Port</b> on your Splunk Indexer(s) using the Splunk Web console.</h4>
+														<ul class="note_lst"><li class="mrk_note"> Now you need to install a Universal Forwarder on each of the Windows servers from which you want data. The easiest way to do this is to run the installer on your server.</li></ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+													  <ul>
+														<li><b>Configure a receiver using the command line:</b>
+															<ol class="nbr_ts_list">
+																<li class="nbr_ts_step"><div class="li_content"> <i>If you didn't previously Download the Splunk Universal Forwarder, then <a class="external text" href="https://www.splunk.com/en_us/download/universal-forwarder.html" target="_blank" rel="noopener noreferrer"><i class="icon-external" style="height:20px;color:#40A540;"/> Click Here</a> to download it to your local system.  You can then copy it to a network share that the target systems have access to.</i></div></li>
+																<li class="nbr_ts_step"><div class="li_content"> Double-click the MSI file to start the installation.</div></li>
+																<li class="nbr_ts_step"><div class="li_content"> (Optional) To view the license agreement, click the "View License Agreement" button.</div></li>
+																<li class="nbr_ts_step"><div class="li_content"> Select the <b>Check this box to accept the License Agreement</b> check box.</div></li>
+																<li class="nbr_ts_step">
+																	<div class="li_content"> 
+																		<span class="depl_uf_inst_ele cloud obj_use_hf_n obj_inp_ds_hf_same_n"> <b>Uncheck</b> the <b style="color:#DC4E41;">Use this UniversalForwarder with on-premises Splunk Enterprise...</b> checkbox <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_1"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></span>
+																		<span class="depl_uf_inst_ele cloud obj_use_hf_y obj_inp_ds_hf_same_n"> <b>Check</b> the <b style="color:#DC4E41;">Use this UniversalForwarder with on-premises Splunk Enterprise...</b> checkbox  <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_11"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></span>
+																		<span class="depl_uf_inst_ele cloud obj_use_hf_n obj_inp_ds_hf_same_y"> <b>Check</b> the <b style="color:#DC4E41;">Use this UniversalForwarder with on-premises Splunk Enterprise...</b> checkbox  <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_11"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></span>																		
+																		<span class="depl_uf_inst_etype ent"><b>Check</b> the <b style="color:#DC4E41;">Use this UniversalForwarder with on-premises Splunk Enterprise...</b> checkbox <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_11"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></span>
+																	</div>
+																</li>
+																<li class="nbr_ts_step"><div class="li_content"> To change any of the default installation settings, click the <b>"Customize Options"</b> button and open the below toggle view <b>Customize Options</b> to see the steps.  Otherwise, click <b>Next</b> to proceed to the next steps.
+																	<details style="padding:0px !important;margin:0px !important;">
+																		<summary class="ms_obj_summary_steps" style="width:380px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																			<i class="ms_obj_icon_steps"/><b>"Customize Options"</b>  
+																		</summary>
+																		<ol class="nbr_ts_lista">
+																			<li class="nbr_ts_stepa"><div class="li_content"> (Optional) Click <b>Change</b> to specify a different installation directory.  <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_2"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div></li>
+																			<span class="depl_uf_inst_etype ent">
+																				<li class="nbr_ts_stepa">
+																					<div class="li_content"> (Optional) Select an SSL certificate to verify the identity of this machine.<div class="splk_uf_type ent"> <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_3"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div>
+																						<ul class="note_lst">
+																							<li class="mrk_note">Depending on your certificate requirements, you might need to specify a password and a Root Certificate Authority (CA) certificate to verify the identity of the certificate. If not, these fields can be left blank.</li>
+																						</ul>
+																					</div>
+																				</li>
+																			</span>
+																			<li class="nbr_ts_stepa"><div class="li_content"><i class="icon-warning" style="height:25px;color:#DC4E41;" /> Select the <b>Local System (Recommended)</b> or <b>Domain Account</b> check box and click <b>Next <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_4"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></b>
+																				<ul class="note_lst">
+																					<li class="mrk_note"><div class="li_content">If you specify <i class="icon-star" style="height:25px;color:#DC4E41;" /> <b>Local System</b>, the installer displays the <b>Enable Windows Inputs</b> dialog box.</div></li>
+																					<li class="mrk_note"><div class="li_content">If you specify <b>Domain account</b>, the installer displays a second dialog box where you enter domain and user information.</div></li>
+																				</ul>
+																			</div></li>
+																			<li class="nbr_ts_stepa"><div class="li_content"> If you selected "Domain account", the installer displays a dialog box for user name and password credentials. Enter the user name and password into the <b>User name</b> and <b>Password</b> fields. Specify the user name in <code>domain\username</code> format only, or the installation can fail. <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_5"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button>
+																				<ul class="note_lst">
+																					<li class="mrk_arrow_r"><div class="li_content"> Enter the password again in the <b>Confirm password</b> field.</div></li>
+																					<li class="mrk_arrow_r"><div class="li_content"> To add the domain user you specified to the local Administrators group, select the "Add user as local administrator" check box and click <b>Next</b>. The installer adds the domain user you specified to the local Administrators group. 
+																							<ul>
+																								<li>If you do not select the "Add user as local administrator" check box, the universal forwarder installs in "low-privilege" mode. See "Run the universal forwarder in low-privilege mode" later in this topic for additional information and caveats.</li>
+																							</ul>	
+																					</div></li>
+																				</ul>
+																			</div></li>
+																				<li class="nbr_ts_stepa"><div class="li_content"> <i class="icon-warning" style="height:25px;color:#DC4E41;" > <b>Do Not Enable</b> any of these inputs</i>.  This will be done by the pre-defined TA's that will be deployed to the target Systems. Click <b>Next</b>. <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_6"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div></li>
+																			</ol>											
+																			<h4>End of Customization Steps:</h4>
+																		</details>
+																	   </div>
+																	</li>
+																<li class="nbr_ts_step">
+																  <div class="li_content"> <i class="icon-info" style="height:25px;color:#DC4E41;" /> Create credentials for the Splunk administrator user, then click <b>Next</b>. <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_7"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button>
+																	<ul class="note_lst"><li class="mrk_note"><div class="li_content"> You must complete this action, as installation of the universal forwarder cannot proceed without it. If you do not specify a username, the universal forwarder installer creates the <code>admin</code> user during the installation process.</div></li></ul>
+																</div></li>
+																<span class="depl_uf_inst_ele obj_use_ds_y obj_inp_ds_hf_same_y">
+																	<li class="nbr_ts_step"><div class="li_content"> In the In the <b>Deployment Server</b> field, enter the name of the deployment server. For example, <b>win2016-splk-ds</b>. As a best practice, include the full DNS name.  For the port, enter port <b>8089</b> to allow the Universal Forwarder to communicate with the deployment server. Then click <b>Next</b>.</div></li>
+																</span>
+																<span class="depl_uf_inst_ele obj_use_ds_y obj_inp_ds_hf_same_n">
+																	<li class="nbr_ts_step"><div class="li_content"> In the <b>Deployment Server</b> pane, leave the value blank since you are not leveraging a Splunk Deployment Server, and click <b>Next</b>. <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_8"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div></li>
+																</span>
+																<span class="depl_uf_inst_ele ent obj_use_hf_n obj_inp_ds_hf_same_n">
+																	<li class="nbr_ts_step"><div class="li_content"> In the <b>Receiving Indexer</b> pane, enter a host name or IP address and the receiving port for the Splunk Indexer(s) that you want the universal forwarder to send data to and click <b>Next</b>.</div></li>
+																</span>
+																<span class="depl_uf_inst_ele ent obj_use_hf_y obj_inp_ds_hf_same_y">
+																	<li class="nbr_ts_step"><div class="li_content"> In the <b>Receiving Indexer</b> pane, enter a host name or IP address and the receiving port for the Splunk Heavy/Gateway Forwarder that you want the universal forwarder to send data to and click <b>Next</b>.</div></li>
+																</span>
+																<span class="depl_uf_inst_ele cloud obj_use_hf_y obj_inp_ds_hf_same_y">
+																	<li class="nbr_ts_step"><div class="li_content"> In the <b>Receiving Indexer</b> pane, enter a host name or IP address and the receiving port for the Splunk Heavy/Gateway Forwarder that you want the universal forwarder to send data to and click <b>Next</b>.</div></li>
+																</span>
+																<span class="depl_uf_inst_ele cloud obj_use_hf_n obj_inp_ds_hf_same_n">
+																	<li class="nbr_ts_step"><div class="li_content"> In the <b>Receiving Indexer</b> pane, leave the value blank and click <b>Next</b>.<button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_9"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div></li>
+																</span>
+																<li class="nbr_ts_step"><div class="li_content"> Click <b>Install</b> to proceed. <button class="btn btn-mini" data-t-mod-id="prep_task_pop_inst_uf_ss_11"><i class="icon-visible" style="height:15px;color:#00A4FD;" ></i></button></div></li>					
+																<li class="nbr_ts_step"><div class="li_content"> The installer runs and displays the <b>Installation Completed</b> dialog. The universal forwarder starts automatically.</div></li>
+																<li class="nbr_ts_step"><div class="li_content"> From the Control Panel, confirm that the <code>SplunkForwarder</code> service runs.</div></li>
+															</ol>
+														</li>
+													</ul>
+												</td>
+											</tr>
+										</table>
+									</center>
+								</td>
+							</tr>
+						</table>
+						</div>
+						<div id="depl_step_man_ta" class="d_t_steps_details">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<center><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b>Copy the Pre-Defined TA's to your target Windows Systems.</b></center>
+														<h4>Complete the below 3 steps while leveraging the table above each step for guidance.</h4>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<div class="nbr_d_list">
+														  <table style="width:100%;">
+															<tr>
+															  <td style="vertical-align:top;border: 4px solid #f99d1c;">
+																<table style="width:100%;">
+																  <tr>
+																	<td style="vertical-align:middle;text-align:center;width:4%;" rowspan="3"><div class="nbr_d_step"></div></td>
+																	<td style="text-align:center;border-left: 3px solid #40A540;border-bottom: 3px solid #40A540;width:96%;">
+																		<ul class="note_lst">
+																			<li><div class="li_content"><center><h4><i>Validate</i> - Network Share with previously prepared Windows TA's (<b style="color:#40A540;">\\Network_Share\Splunk UF TAs\</b>)</h4></center></div></li>
+																		</ul>
+																	</td>
+																  </tr>
+																  <tr>
+																	<td style="text-align:left;vertical-align:top;border-left: 3px solid #40A540;border-top: 3px solid #40A540;width:96%;">
+																		<ul class="note_lst">
+																			  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img><b>  \\Network_Share</b>
+																				  <ul class="note_lst">
+																					<li><b><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img>  ...\Splunk UF TAs</b>
+																						<ul class="note_lst">
+																							<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\Base Windows</b>
+																								<ul class="note_lst">
+																									<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows</b></li>
+																								</ul>
+																							</li>
+																							<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\Domain Controllers</b>
+																								<ul class="note_lst">
+																									<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows</b></li>
+																									<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows_dc</b></li>
+																								</ul>
+																							</li>
+																							<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\AD admon Monitor</b>
+																								<ul class="note_lst">
+																									<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows_admon</b></li>
+																								</ul>
+																							</li>
+																						</ul>
+																					</li>
+																				 </ul>
+																			</li>
+																		</ul>
+																	</td>
+																  </tr>
+																  <tr style="border-top: 3px solid #f99d1c;">
+																	<td style="text-align:left;vertical-align:top;border-left: 3px solid #e20082;border-right: 3px solid #e20082;width:96%;">
+																		<div class="nbr_d_lista">
+																			<ol style="list-style: none;">
+																				<li><div class="nbr_d_stepa mrk_important"><div class="li_content">First, review the above list, <b>\\Network Share\Splunk UF TAs\</b>, against your directory, if it is different then review the previous <b>Preparation Task: <i>Prepare the TA Examples for Deploying to your Splunk Universal Forwarders</i></b> to verify all the steps were completed.</div></div></li>
+																			</ol>
+																		</div>
+																	</td>
+																  </tr>                                    														    
+																</table>
+															  </td>       
+															</tr>
+															<tr><td><br /></td></tr>
+															<tr>
+															  <td style="vertical-align:top;border: 4px solid #f99d1c;">
+																	<table style="width:100%;">
+																	  <tr>
+																		<td style="vertical-align:middle;text-align:center;width:4%;" rowspan="4"><div class="nbr_d_step"></div></td>
+																		<td style="text-align:center;border-left: 3px solid #40A540;border-bottom: 3px solid #40A540;width:96%;" colspan="2">
+																			<ul class="note_lst">
+																				<li><div class="li_content"><center><h4>Deploy Windows TA's to all targeted AD Domain Controllers</h4></center></div></li>
+																			</ul>
+																		</td>
+																	</tr>
+																	<tr>
+																		<td style="text-align:center;border-left: 3px solid #40A540;border-bottom: 3px solid #40A540;width:43%;">
+																		  <h3><b style="color:#40A540;">\\Network_Share\Splunk UF TAs\Domain Controllers\</b></h3>
+																		</td>
+																		<td style="text-align:center;border-left: 3px solid #e20082;border-bottom: 3px solid #e20082;border-right: 3px solid #e20082;width:43%;">
+																		  <h3><i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i> <b style="color:#e20082;">...\Splunk_UniversalForwarder\etc\apps\</b></h3>
+																		</td>
+																	  </tr>
+																	  <tr>
+																		<td style="text-align:left;vertical-align:top;border-left: 3px solid #40A540;border-top: 3px solid #40A540;width:43%;">
+																			<ul class="note_lst">
+																				  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img><b>  \\Network_Share</b>
+																					  <ul class="note_lst">
+																						<li><b><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img>  ...\Splunk UF TAs</b>
+																							<ul class="note_lst">
+																								<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\Domain Controllers</b>
+																									<ul class="note_lst">
+																										<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows</b> <i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i></li>
+																										<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows_dc</b> <i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i></li>
+																									</ul>
+																								</li>
+																								<li><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\AD admon Monitor</b>
+																									<ul class="note_lst">
+																										<li><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows_admon</b> <i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i></li>
+																									</ul>
+																								</li>
+																							</ul>
+																						</li>
+																					 </ul>
+																				</li>
+																			</ul>
+																		</td>
+																		<td style="text-align:left;vertical-align:top;border-left: 3px solid #e20082;border-right: 3px solid #e20082;width:43%;">
+																			<ul class="note_lst">
+																			  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\SplunkUniversalForwarder</b>
+																				<ul class="note_lst">
+																				  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\etc</b>
+																					<ul class="note_lst">
+																					  <li><i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Target Folder to paste to." style="height:15px;width:25px;"></img><b style="height:25px;color:#e20082;">  ...\apps</b></li>
+																					</ul>
+																				  </li>
+																				</ul>
+																			  </li>
+																			</ul>
+																		</td>
+																	  </tr>
+																	  <tr style="border-top: 3px solid #f99d1c;">
+																		<td style="text-align:left;vertical-align:top;border-left: 3px solid #e20082;border-right: 3px solid #e20082;" colspan="2">
+																			<div class="nbr_d_lista">
+																				<ol style="list-style: none;padding-left:5px;margin-left: 5px;">
+																					<li><div class="nbr_d_stepa"><div class="li_content">Login to the target AD Domain Controller Server</div></div></li>
+																					<li><div class="nbr_d_stepa"><div class="li_content">Using a file explorer, navigate to the <b>\\Network_Share\Splunk UF TAs\Domain Controllers\</b> directory.</div></div></li>
+																					<li><div class="nbr_d_stepa"><div class="li_content">Copy both the complete <b style="height:25px;color:#40A540;">Splunk_TA_windows</b> <b>AND</b> <b style="height:25px;color:#40A540;">Splunk_TA_windows_dc</b> folders.</div></div></li>
+																					<li><div class="nbr_d_stepa"><div class="li_content">Paste them on the local system in the <b style="color:#e20082;">...\Splunk_UniversalForwarder\etc\apps\</b> directory.</div></div></li>
+																					<li>
+																						<div class="nbr_d_stepa mrk_important">
+																							<div class="li_content"><i class="icon-star" style="height:25px;color:#DC4E41;" >Required:</i>  Complete the following addition steps on <b style="height:25px;color:red;">Only One</b> of your AD Domain Controllers <b style="height:25px;color:red;">Per AD Domain</b>:
+																								<div class="nbr_d_listb">
+																									<ol style="list-style: none;">
+																										<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Using a file explorer, navigate to the <b>\\Network_Share\Splunk UF TAs\AD admon Monitor\</b> directory.</div></div></li>
+																										<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Copy the complete <b style="height:25px;color:#40A540;">Splunk_TA_windows_admon</b> folder.</div></div></li>
+																										<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Paste it on the local system in the <b style="color:#e20082;;">...\Splunk_UniversalForwarder\etc\apps\</b> directory.</div></div></li>
+																									</ol>
+																									<ul class="note_lst">
+																										<li class="mrk_note">
+																											<div class="li_content">You can use a <b>Member Server (<i>Non-Domain Controller</i>)</b> for collecting the <b>admon</b> data instead of an AD Domain Controller, but it does have some con's, such as slower extraction speeds and requiring the Splunk Universal Forwarder to run as an AD Domain Account.</div>
+																										</li>
+																									</ul>
+																								</div>
+																							</div>
+																						</div>
+																					</li>
+																					<li><div class="nbr_d_stepa"><div class="li_content">Restart the <b>Splunk Forwarder Service</b>.</div></div></li>
+																				</ol>
+																			</div>
+																		</td>
+																	  </tr>
+																	</table>
+															  </td>
+															</tr>
+															<tr><td><br /></td></tr>
+															<tr>
+															  <td style="vertical-align:top;border: 4px solid #f99d1c;">
+																<table style="width:100%;">
+																  <tr>
+																	<td style="vertical-align:middle;text-align:center;width:4%;" rowspan="4"><div class="nbr_d_step"></div></td>
+																	<td style="text-align:center;border-left: 3px solid #40A540;border-bottom: 3px solid #40A540;width:96%;" colspan="2">
+																		<ul class="note_lst">
+																			<li><div class="li_content"><center><h4>Deploy Windows TA's to all targeted Member Servers</h4></center></div></li>
+																		</ul>
+																	</td>
+																</tr>
+																<tr>
+																	<td style="text-align:center;border-left: 3px solid #40A540;border-bottom: 3px solid #40A540;width:43%;">
+																	  <h3><b style="color:#40A540;">\\Network_Share\Splunk UF TAs\Base Windows\</b></h3>
+																	</td>
+																	<td style="text-align:center;border-left: 3px solid #e20082;border-bottom: 3px solid #e20082;border-right: 3px solid #e20082;width:43%;">
+																	  <h3><i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i> <b style="color:#e20082;">...\Splunk_UniversalForwarder\etc\apps\</b></h3>
+																	</td>
+																  </tr>
+																  <tr>
+																	<td style="text-align:left;vertical-align:top;border-left: 3px solid #40A540;border-top: 3px solid #40A540;width:43%;">
+																		<ul class="note_lst">
+																			  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img><b>  \\Network_Share</b>
+																				  <ul class="note_lst">
+																					<li><b><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source directory path." style="height:15px;width:25px;"></img>  ...\Splunk UF TAs</b>
+																						<ul class="note_lst">
+																							<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\Base Windows</b>
+																								<ul class="note_lst">
+																									<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img> <b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows</b> <i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i></li>
+																								</ul>
+																							</li>
+																							<li><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b>  ...\AD admon Monitor</b>
+																								<ul class="note_lst">
+																									<li><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#40A540;">  ...\Splunk_TA_windows_admon</b> <i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i></li>
+																								</ul>
+																							</li>
+																						</ul>
+																					</li>
+																				 </ul>
+																			</li>
+																		</ul>
+																	</td>
+																	<td style="text-align:left;vertical-align:top;border-left: 3px solid #e20082;border-right: 3px solid #e20082;width:43%;">
+																		<ul class="note_lst">
+																		  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\SplunkUniversalForwarder</b>
+																			<ul class="note_lst">
+																			  <li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\etc</b>
+																				<ul class="note_lst">
+																				  <li><i class="icon-arrow-right" style="height:25px;width:30px;color:#e20082;"></i> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Target Folder to paste to." style="height:15px;width:25px;"></img><b style="height:25px;color:#e20082;">  ...\apps</b></li>
+																				</ul>
+																			  </li>
+																			</ul>
+																		  </li>
+																		</ul>
+																	</td>
+																  </tr>
+																  <tr style="border-top: 3px solid #f99d1c;">
+																	<td style="text-align:left;vertical-align:top;border-left: 3px solid #e20082;border-right: 3px solid #e20082;" colspan="2">
+																		<div class="nbr_d_lista">
+																			<ol style="list-style: none;padding-left:5px;margin-left: 5px;">
+																				<li><div class="nbr_d_stepa"><div class="li_content">Login to the target Windows Member Server (Non-AD Domain Controller)</div></div></li>
+																				<li><div class="nbr_d_stepa"><div class="li_content">Using a file explorer, navigate to the <b>\\Network_Share\Splunk UF TAs\Base Windows\</b> directory.</div></div></li>
+																				<li><div class="nbr_d_stepa"><div class="li_content">Copy the complete <b style="height:25px;color:#40A540;">Splunk_TA_windows</b> folder.</div></div></li>
+																				<li><div class="nbr_d_stepa"><div class="li_content">Paste it on the local system in the <b style="color:#e20082;">...\Splunk_UniversalForwarder\etc\apps\</b> directory.</div></div></li>
+																				<li>
+																					<div class="nbr_d_stepa mrk_important">
+																						<div class="li_content"><i class="icon-star" style="height:25px;color:#DC4E41;" /> Only do this step if you <b>did not</b> deploy the <b>Splunk_TA_windows_admon</b> TA to one of your AD Domain Controllers in <b>Step 2</b>. Perform the below steps on <b style="color:red;">Only one Member Server Per AD Domain</b>:
+																							<div class="nbr_d_listb">
+																								<ol style="list-style: none;">
+																									<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Using a file explorer, navigate to the <b>\\Network_Share\Splunk UF TAs\AD admon Monitor\</b> directory.</div></div></li>
+																									<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Copy the complete <b style="height:25px;color:#40A540;">Splunk_TA_windows_admon</b> folder.</div></div></li>
+																									<li><div class="nbr_d_stepb mrk_important"><div class="li_content">Paste it on the local system in the <b style="color:#e20082;;">...\Splunk_UniversalForwarder\etc\apps\</b> directory.</div></div></li>
+																								</ol>
+																								<ul class="note_lst">
+																									<li class="mrk_note">
+																										<div class="li_content">If you choose to use a Member Server for collecting the <b>admon</b> data, then you will need to update the Splunk Forwarder service to run as an AD account that has <b>Read</b> rights to the Active Directory.</div>
+																									</li>
+																								</ul>
+																							</div>
+																						</div>
+																					</div>
+																				</li>
+																				<li><div class="nbr_d_stepa"><div class="li_content">Restart the <b>Splunk Forwarder Service</b>.</div></div></li>
+																			</ol>
+																		</div>
+																	</td>
+																  </tr>                                    														    
+																</table>
+															  </td>       
+															</tr>
+															<tr><td><br /></td></tr>
+															<tr>
+															  <td style="vertical-align:top;text-align:center;border: 3px solid #e20082;"> 
+																<h4><b><i class="icon-check" style="height:30px;width:30px;color:#40A540;"></i> <i>Validate Configuration:</i></b> Review the below table to verify the correct Windows TA's were deployed to the correct systems.</h4>
+																<table style="width:100%;">
+																  <tr>
+																	<td style="vertical-align:top;border: 2px solid #e20082;">
+																	  <center>
+																		<table style="width:100%;">
+																		  <tr>
+																			<td style="text-align:center;border: 2px solid #e20082;">
+																				<center><h4>AD Domain Controllers</h4></center>
+																			</td>
+																			<td style="text-align:center;border: 2px solid #e20082;">
+																				<center><h4>Member Servers</h4></center>
+																			</td>
+																		  </tr>
+																		  <tr>
+																		  	<td style="text-align:left;vertical-align:top;border: 3px solid #e20082;">
+																				<ul class="note_lst">
+																		  			<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\SplunkUniversalForwarder\etc\apps</b>
+																						<ul class="note_lst">
+																				  			<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;padding-left:15px;"></img><b style="height:25px;color:#e20082;">  ...\Splunk_TA_windows</b></li>
+																				  			<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;padding-left:15px;"></img><b style="height:25px;color:#e20082;">  ...\Splunk_TA_windows_dc</b></li>
+																				  			<li><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#e20082;">  ...\Splunk_TA_windows_admon</b></li>
+																				  		</ul>
+																				  	</li>
+																				</ul>
+																			</td>
+																		  	<td style="text-align:left;vertical-align:top;border: 3px solid #e20082;">
+																				<ul class="note_lst">
+																		  			<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder.png" class="image" title="The graphic shows the Target directory path." style="height:15px;width:25px;"></img><b>  ...\SplunkUniversalForwarder\etc\apps</b>
+																						<ul class="note_lst">
+																				  			<li><img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;padding-left:25px;"></img><b style="height:25px;color:#e20082;">  ...\Splunk_TA_windows</b></li>
+																				  			<li><i class="icon-warning" style="height:25px;color:#DC4E41;" /><i class="icon-star" style="height:25px;color:#DC4E41;" /> <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_tgt.png" class="image" title="The graphic shows the Source Folder to copy." style="height:15px;width:25px;"></img><b style="height:25px;color:#e20082;">  ...\Splunk_TA_windows_admon</b></li>
+																				  		</ul>
+																				  	</li>
+																				</ul>
+																			</td>
+																		  </tr>
+																		  <tr>
+																		  	<td style="text-align:left;vertical-align:top;border: 3px solid #e20082;" colspan="2">
+																		  		<center><h4><i class="icon-warning" style="height:25px;color:#DC4E41;" />The <i class="icon-star" style="height:25px;color:#DC4E41;" >Splunk_TA_windows_admon</i> TA needs to be on only <b style="height:25px;color:#DC4E41;" >one</b> system per AD Domain, either a single AD Domain Controller <b>OR</b> Member Server per domain.</h4></center>
+																		  	</td>
+																		  </tr>
+																		</table>
+																	  </center>
+																	</td>
+																  </tr>
+																</table>
+															  </td>																			
+															</tr>
+														</table>
+														</div>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+						<div id="depl_step_ta_cc" class="d_t_steps_details">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<center><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b>Install the Splunk Cloud Credentials App</b></center>
+														<h4>We will now cover the steps to install the <b>Splunk Cloud Credentials</b> Application on the Splunk Universal Forwarder(s).</h4>
+														<ul class="note_lst">
+														  <li class="mrk_note"><div class="li_content">If you didn't previously download the <b>Splunk Cloud Credentials App</b> Click 	<button class="btn btn-mini" data-t-mod-id="prep_task_pop_dl_cc_istr_1"><i class="icon-visible" style="height:15px;color:#00A4FD;"></i></button> for instructions.</div></li>
+														  <li class="mrk_note"> If you already have the <b>Splunk Cloud Credentials App</b> installed on your Splunk Universal Forwarder, then skip to this step.</li>
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<ol class="nbr_ts_list">
+															<li class="nbr_ts_step"><div class="li_content">Login to your <b style="color:#DC4E41;">Splunk Universal Forwarder </b>system.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Using File Explorer, open the <b>Network Share</b> where you downloaded the <b>Splunk Cloud Credentials App</b></div></li>
+															<li class="nbr_ts_step"><div class="li_content">Copy the <b>splunkclouduf.spl</b> file and paste it into the <b>$SPLUNK_HOME/etc/apps/ (<i>Ex: C:\Program Files\SplunkUniversalForwarder\etc\apps</i>)</b> directory on your forwarder.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Open a command prompt window in <b>RunAs Administrator</b> mode and navigate into the <b>$SPLUNK_HOME/bin/ (<i>Ex: C:\Program Files\SplunkUniversalForwarder\bin</i>)</b> directory.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Run the following command:
+																<ul class="note_lst">
+																	<li class="mrk_note"><div class="li_content">Replace the <b>&lt;full path to splunkclouduf.spl&gt;</b> with the location of your $SPLUNK_HOME/etc/apps directory.</div></li>
+																	<li class="mrk_note"><div class="li_content">Replace the <b>&lt;username&gt;:&lt;password&gt;</b> with the <b>Splunk</b> username and password used when you installed the Splunk Universal Forwarder</div></li>
+																	<li>
+<pre>splunk install app &lt;full path to splunkclouduf.spl&gt; -auth &lt;username&gt;:&lt;password&gt;</pre>
+																	</li>
+																	<li class="mrk_note"><div class="li_content">Example: <code>splunk install app "C:\Program Files\SplunkUniversalForwarder\etc\apps\splunkclouduf.spl" -auth admin:myPassw0rd</code></div></li>
+																</ul>
+															</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Restart your forwarder with the following command: 
+<pre>splunk restart.</pre>
+															</div></li>
+														</ol>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</td>
+				</tr>
+			</table>	
+	</div>

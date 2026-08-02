@@ -1,0 +1,264 @@
+﻿<div class="right-box" style="max-height:600px !important;overflow:scroll;">
+	<div class="compl_step_details Completion_52" id="comp_step_details_3">
+        <center>
+          <h1>
+            <a class="btn sp-btn-gradient" style="$tok_build_all$" data-token-json="{&quot;tok_exec_user_build&quot;: &quot;`ms_ad_user_base(ms_ad_user_build)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_all&quot;: &quot;display:none;.&quot;,&quot;tok_show_inputs&quot;: &quot;undefined&quot;}" id="btn_build_all">Click to Build All AD Lookups
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_individual$" data-token-json="{&quot;tok_exec_user_build&quot;: &quot;`ms_ad_user_base(ms_ad_user_build)`&quot;,&quot;tok_status_user_build&quot;: &quot;Running&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual&quot;: &quot;display:none;.&quot;,&quot;tok_show_inputs&quot;: &quot;undefined&quot;}" id="btn_build_all">Click to Build AD_Obj_User Lookup First
+              <i class="icon-lightning"/>
+            </a>
+            <a class="btn sp-btn-gradient" style="$tok_build_migrate$" data-token-json="{&quot;tok_exec_user_build&quot;: &quot;|`ms_ad_user_base_migrate`&quot;,&quot;tok_status_user_build&quot;: &quot;Migrating&quot;,&quot;tok_msg_user_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_migrate&quot;: &quot;display:none;.&quot;,&quot;tok_show_inputs&quot;: &quot;undefined&quot;}" id="btn_build_all">Click to Migrate All AD Lookups
+              <i class="icon-rotate"/>
+            </a>
+          </h1>
+        
+        <table style="width:80%;border: 4px solid #e20082;padding: 2px;margin: 2px;overflow: auto !important;height:500px !important;">
+          <tr style="border: 3px solid #f99d1c;">
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;font-weight:500;">Lookup</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;font-weight:500;">Build Status</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;font-weight:500;">Object Count</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;font-weight:500;">Status Message</th>
+            <th style="border: 3px solid #f99d1c;padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;font-weight:500;">View Results</th>
+          </tr>
+          <tr class="build Success">
+            <td class="build Success" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:25px;font-weight:500;">AD_Obj_Domain</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build Success"> (Success)</i>
+              </td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_domain_build$</td>    
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">Initial Building of the AD_Obj_Domain Lookup is successfully completed.</td>
+            <td class="build Success" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:20px;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ Success" href="search?q=%7C%20inputlookup%20AD_Obj_Domain&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+              </td>
+          </tr>          
+          <tr class="build $tok_status_user_build$">
+            <td class="build $tok_status_user_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_Users</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_user_build$"> ($tok_status_user_build$)</i>
+              </td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_user_build$</td>    
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_user_build$</td>
+            <td class="build $tok_status_user_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_user_build$" href="search?q=%7C%20inputlookup%20AD_Obj_User&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_user_build$" href="search?q=%60ms_ad_user_base%28ms_ad_user_build%29%60%0A%7C%20eval%20_key%3Ddomain.%22%23%22.objectGUID%0A%7C%20outputlookup%20AD_Obj_User&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+              </td>
+          </tr>
+          <tr class="build $tok_status_computer_build$">
+            <td class="build $tok_status_computer_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_Computers</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_computer_build$"> ($tok_status_computer_build$)</i>
+              </td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_computer_build$</td>
+            <td class="build $tok_status_computer_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:20px;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_computer_build$" href="search?q=%7C%20inputlookup%20AD_Obj_Computer&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_computer_build$" href="search?q=%60ms_ad_computer_base%28ms_ad_computer_build%29%60%0A%7C%20eval%20_key%3Ddomain.%22%23%22.objectGUID%0A%7C%20outputlookup%20AD_Obj_Computer&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient" style="$tok_build_individual_computer$" data-token-json="{&quot;tok_exec_computer_build&quot;: &quot;`ms_ad_computer_base(ms_ad_computer_build)`&quot;,&quot;tok_status_computer_build&quot;: &quot;Running&quot;,&quot;tok_msg_computer_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_computer&quot;: &quot;display:none;.&quot;}">Build AD_Obj_Computer Lookup</a>
+              </td>            
+          </tr>          
+          <tr class="build $tok_status_group_build$">
+            <td class="build $tok_status_group_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_Group</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_group_build$"> ($tok_status_group_build$)</i>
+              </td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_group_build$</td> 
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_group_build$</td>
+            <td class="build $tok_status_group_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_group_build$" href="search?q=%7C%20inputlookup%20AD_Obj_Group&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_group_build$" href="search?q=%60ms_ad_group_base%28ms_ad_group_build%29%60%0A%7C%20eval%20_key%3Ddomain.%22%23%22.objectGUID%0A%7C%20outputlookup%20AD_Obj_Group&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_group_build$" href="search?q=%7C%20`ms_ad_gpo_link_update`&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient" style="$tok_build_individual_group$" data-token-json="{&quot;tok_exec_group_build&quot;: &quot;`ms_ad_group_base(ms_ad_group_build)`&quot;,&quot;tok_status_group_build&quot;: &quot;Running&quot;,&quot;tok_msg_group_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_group&quot;: &quot;display:none;.&quot;}">Build AD_Obj_Group Lookup</a>
+              </td>
+          </tr>
+          <tr class="build $tok_status_ou_build$">
+            <td class="build $tok_status_ou_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;;font-size:25px;font-weight:500;">AD_Obj_OU</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_ou_build$"> ($tok_status_ou_build$)</i>
+              </td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_ou_build$</td>
+            <td class="build $tok_status_ou_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_ou_build$" href="search?q=%7C%20inputlookup%20AD_Obj_OU&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_ou_build$" href="search?q=%60ms_ad_ou_base%28ms_ad_ou_build%29%60%0A%7C%20eval%20_key%3Ddomain.%22%23%22.objectGUID%0A%7C%20outputlookup%20AD_Obj_OU&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient" style="$tok_build_individual_ou$" data-token-json="{&quot;tok_exec_ou_build&quot;: &quot;`ms_ad_ou_base(ms_ad_ou_build)`&quot;,&quot;tok_status_ou_build&quot;: &quot;Running&quot;,&quot;tok_msg_ou_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_ou&quot;: &quot;display:none;.&quot;}">Build AD_Obj_OU Lookup</a>
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_build$">
+            <td class="build $tok_status_gpo_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_GPO</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_gpo_build$"> ($tok_status_gpo_build$)</i>
+              </td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_gpo_build$</td>
+            <td class="build $tok_status_gpo_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_gpo_build$" href="search?q=%7C%20inputlookup%20AD_Obj_GPO&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_gpo_build$" href="search?q=%60ms_ad_gpo_base%28ms_ad_gpo_build%29%60%0A%7C%20eval%20_key%3Ddomain.%22%23%22.objectGUID%0A%7C%20outputlookup%20AD_Obj_GPO&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient" style="$tok_build_individual_gpo$" data-token-json="{&quot;tok_exec_gpo_build&quot;: &quot;`ms_ad_gpo_base(ms_ad_gpo_build)`&quot;,&quot;tok_status_gpo_build&quot;: &quot;Running&quot;,&quot;tok_msg_gpo_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_gpo&quot;: &quot;display:none;.&quot;}">Build AD_Obj_GPO Lookup</a>
+              </td>
+          </tr>
+          <tr class="build $tok_status_gpo_ou_link$">
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_GPO and AD_Obj_OU Links</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_gpo_ou_link$"> ($tok_status_gpo_ou_link$)</i>
+              </td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_gpo_ou_link$</td>
+            <td class="build $tok_status_gpo_ou_link$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_gpo_ou_link$" href="search?q=%7C%20inputlookup%20AD_Obj_Domain&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_gpo_ou_link$" href="search?q=%7C%20%60ms_ad_gpo_link_update%60&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+              </td>
+          </tr>     
+          <tr class="build $tok_status_admin_audit_build$">
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:20px;padding-right:10px;vertical-align:middle;text-align:left;font-size:25px;font-weight:500;">AD_Obj_Admin_Audit</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">
+                <i class="build $tok_status_admin_audit_build$"> ($tok_status_admin_audit_build$)</i>
+              </td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:25px;">$tok_count_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;font-size:15px;">$tok_msg_admin_audit_build$</td>
+            <td class="build $tok_status_admin_audit_build$" style="padding-left:10px;padding-right:10px;vertical-align:middle;text-align:center;">
+                <a class="btn btn-mini sp-btn-gradient build $tok_result_btn_run$ $tok_status_admin_audit_build$" href="search?q=%7C%20inputlookup%20AD_Obj_Admin_Audit&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">View Lookup</a>
+                <a class="btn btn-mini sp-btn-gradient fbuild $tok_result_btn_run$ $tok_status_admin_audit_build$" href="search?q=%60ms_ad_obj_admin_audit_build_all%60&amp;display.general.type=statistics&amp;display.page.search.tab=statistics" target="_blank">Analyze Failed Search</a>
+                <a class="btn btn-mini sp-btn-gradient" style="$tok_build_individual_admin_audit$" data-token-json="{&quot;tok_exec_admin_audit_build&quot;: &quot;`ms_AD_Obj_Admin_Audit_build`&quot;,&quot;tok_status_admin_audit_build&quot;: &quot;Running&quot;,&quot;tok_msg_admin_audit_build&quot;: &quot;Executing... Please Wait.&quot;,&quot;tok_build_individual_admin_audit&quot;: &quot;display:none;.&quot;}">Build AD_Obj_Admin_Audit Lookup</a>               
+              </td>
+          </tr>           
+        </table>
+	</center>
+	<style>
+i.build {
+  font-size: 25px !important; 
+  color:#f99d1c !important;
+}
+i.build:before {
+  content: "\2301";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+i.build.Pending {
+  font-size: 25px !important; 
+  color:#00A4FD !important;
+}
+i.build.Pending:before {
+  content: "\231A";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+i.build.Migrating {
+  font-size: 25px !important; 
+  color:#f99d1c !important;
+}
+i.build.Migrating:before {
+  content: "\21BB";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+i.build.Next {
+  font-size: 25px !important; 
+  color:#e20082 !important;
+}
+i.build.Next:before {
+  content: "\2691";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+i.build.Warning {
+  font-size: 25px !important; 
+  color:#DC4E41 !important;
+}
+i.build.Warning:before {
+  content: "\26A0";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+i.build.Success {
+  font-size: 25px !important; 
+  color:#49B849 !important;
+}
+i.build.Success:before {
+  content: "\ECD3";
+  font-family: Splunk Icons;
+  font-style: normal;
+  font-weight: 400;
+  text-decoration: inherit;
+  line-height: inherit;
+}
+
+td.build {
+  border: 2px solid #00A4FD;
+  color:#00A4FD !important;
+  font-color:#00A4FD !important;
+}
+
+td.build.Success {
+  border: 2px solid #49B849;
+  color:#49B849 !important;
+  font-color:#49B849 !important;
+}
+
+td.build.Warning {
+  border: 2px solid #DC4E41;
+  color:#DC4E41 !important;
+  font-color:#DC4E41 !important;
+}
+
+td.build.Migrating {
+  border: 2px solid #f99d1c;
+  color:#f99d1c !important;
+  font-color:#f99d1c !important;
+}
+
+td.build.Next {
+  border: 2px solid #e20082;
+  color:#e20082 !important;
+  font-color:#e20082 !important;
+}
+
+td.build.Running {
+  border: 2px solid #f99d1c;
+  color:#f99d1c !important;
+  font-color:#f99d1c !important;
+}
+
+tr.build {
+  border: 3px solid #f99d1c;
+}
+
+tr.build.Success {
+  border: 3px solid #49B849;
+}
+
+tr.build.Warning {
+  border: 3px solid #DC4E41;
+}
+
+tr.build.Next {
+  border: 3px solid #e20082;
+}
+
+a.build {display:none;}
+a.fbuild {display:none;}
+a.build.completed.Success {display:inline;}
+a.fbuild.completed.Warning {display:inline;}
+</style>	
+	</div>
+</div>

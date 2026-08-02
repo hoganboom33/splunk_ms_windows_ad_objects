@@ -1,0 +1,173 @@
+<form version="1.1">
+  <label>AD Objects - Admin - Change Overview</label>
+  <search id="base_admin_change">
+    <query>| tstats count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY ms_ad_obj_audit_changes.change_action, ms_ad_obj_audit_changes.change_category, ms_ad_obj_audit_changes.src_user 
+| rename ms_ad_obj_audit_changes.change_category AS Change_Category,ms_ad_obj_audit_changes.src_user AS Admin_User, ms_ad_obj_audit_changes.change_action AS Change_Action
+| eval Admin_User=lower(Admin_User)
+| table data_child, Change_Category, Admin_User, Change_Action,count</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_search" searchWhenChanged="true">
+      <label>Select Search By Criteria</label>
+      <choice value="obj_type">Object Type</choice>
+      <choice value="change_action">Change Action</choice>
+      <choice value="src_user">Administrators</choice>
+      <default>obj_type</default>
+      <initialValue>obj_type</initialValue>
+      <change>
+        <condition value="obj_type">
+          <set token="tok_label">Object Type</set>
+          <set token="tok_time_srch">change_category</set>
+          <set token="tok_ovr_srch">Change_Category</set>
+          <set token="tok_show_admins">True</set>
+          <unset token="tok_time_admin_srch"></unset>
+        </condition>
+        <condition value="change_action">
+          <set token="tok_label">Change Action</set>
+          <set token="tok_time_srch">change_action</set>
+          <set token="tok_ovr_srch">Change_Action</set>
+          <set token="tok_show_admins">True</set>
+          <unset token="tok_time_admin_srch"></unset>
+        </condition>
+        <condition value="src_user">
+          <set token="tok_label">All Administrators</set>
+          <set token="tok_time_admin_srch">src_user</set>
+          <set token="tok_ovr_srch">Admin_User</set>
+          <set token="tok_admin_sel">*</set>
+          <unset token="form.tok_admin_user"></unset>
+          <unset token="tok_show_admins"></unset>
+          <unset token="tok_time_srch"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_admin_user" searchWhenChanged="true" depends="$tok_show_admins$">
+      <label>Select Specific Administrator</label>
+      <choice value="all">All</choice>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <fieldForLabel>Admin_User</fieldForLabel>
+      <fieldForValue>Admin_User</fieldForValue>
+      <search base="base_admin_change">
+        <query>stats count by Admin_User
+| table Admin_User
+| sort Admin_User</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_admin_sel">*</set>
+          <set token="tok_user_label"></set>
+        </condition>
+        <condition>
+          <set token="tok_admin_sel">$value$</set>
+          <set token="tok_user_label">(Admin - $value$)</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Group Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Group" OR Change_Category="Group Membership"| stats sum(count)</query>
+        </search>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>User Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="User"  | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Computer Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Computer" | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Group Policy Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Group Policy" | stats sum(count) AS count
+| eval count=if(isnull(count),"No GPO Changes",count)</query>
+        </search>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>OU Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="OU" | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <chart>
+        <title>Total AD Changes by $tok_label$ $tok_user_label$ - Overall</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$"
+    | table $tok_ovr_srch$,count          
+    | stats sum(count) AS Total_Changes by $tok_ovr_srch$
+    | sort -Total_Changes</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart rejects="$tok_time_admin_srch$">
+        <title>Total AD Changes by $tok_label$  $tok_user_label$ - Overtime</title>
+        <search>
+          <query>| tstats count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY _time,ms_ad_obj_audit_changes.$tok_time_srch$,ms_ad_obj_audit_changes.src_user
+| search ms_ad_obj_audit_changes.src_user="$tok_admin_sel$"
+| rename ms_ad_obj_audit_changes.$tok_time_srch$ AS $tok_ovr_srch$
+| timechart span=1d count by $tok_ovr_srch$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+      <chart depends="$tok_time_admin_srch$">
+        <title>Total AD Changes by $tok_label$ - Overtime</title>
+        <search>
+          <query>| tstats count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY _time,ms_ad_obj_audit_changes.$tok_time_admin_srch$
+| rename ms_ad_obj_audit_changes.$tok_time_admin_srch$ AS $tok_ovr_srch$
+| timechart span=1d count by $tok_ovr_srch$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+</form>

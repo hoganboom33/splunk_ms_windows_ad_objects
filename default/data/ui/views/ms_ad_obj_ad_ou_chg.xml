@@ -1,0 +1,70 @@
+<form version="1.1">
+  <label>AD Objects - OU - Changes</label>
+  <search id="base_ou_chg_search">
+    <query>`ms_obj_changes_base_cat(OU)`
+| eval dest_ou_dn=if(isnull(New_DN),DN,New_DN)
+| rex field=dest_ou_dn "(?i)ou\=(?&lt;ou_name&gt;[^\,]+)"
+| rex field=Value max_match=0 "\{(?&lt;chg_gp_guid&gt;[^\}]+)"
+| fillnull value="NA" chg_gp_guid,dir_svcs_action,signature,LDAP_Display_Name,gpo_name,DN,Old_DN,New_DN,Correlation_ID
+| mvexpand chg_gp_guid
+| eval chg_gplink=if(LDAP_Display_Name=="gPLink","{".chg_gp_guid."}","")
+| eval Value=if(isnull(Value),AttributeValue,Value)
+| join type=left chg_gplink [| inputlookup AD_Obj_GPO | fields cn,displayName | rex field=cn "^(?&lt;chg_gplink&gt;[^(\s|$)]+)" | dedup chg_gplink | table chg_gplink, displayName | rename displayName AS gpo_name]
+| table _time,ou_name,dest_ou_dn,src_nt_domain,src_user,LDAP_Display_Name,dir_svcs_action, chg_gp_guid,gpo_name,EventCode,signature,DN,Old_DN,New_DN,Value,msad_action,Correlation_ID
+| eval mod_summary=if(LDAP_Display_Name=="gPLink" AND isnotnull(gpo_name),"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Linked GPO: ".gpo_name."| - Target Linked GPO ID: ".chg_gp_guid,"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Attribute Value: ".Value)
+| eval chg_summary=case(EventCode=5137,"OU Created:| - Event Correlation ID: ".Correlation_ID."| - DN: ".DN,EventCode=5138,"OU Undeleted:| - Event Correlation ID: ".Correlation_ID." - ",EventCode=5139,"OU Moved:| - Event Correlation ID: ".Correlation_ID."| - From: ".Old_DN."| - To: ".New_DN,EventCode=5141,"OU Deleted:| - Event Correlation ID: ".Correlation_ID,EventCode=5136 OR EventCode=4662,"OU Modified: | - Event Correlation ID: ".Correlation_ID."|".mod_summary)
+| table _time,ou_name,dest_ou_dn,msad_action,EventCode,signature,src_nt_domain,src_user,chg_summary
+| makemv delim="|" chg_summary</query>
+    <earliest>$tok_time.earliest$</earliest>
+    <latest>$tok_time.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="tok_chg_type" searchWhenChanged="true">
+      <label>Select Change Type</label>
+      <choice value="*">All</choice>
+      <choice value="moved">Moved</choice>
+      <choice value="created">Created</choice>
+      <choice value="deleted">Deleted</choice>
+      <choice value="modified">Modified</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="tok_admin" searchWhenChanged="true">
+      <label>Select Administrator</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>src_user</fieldForLabel>
+      <fieldForValue>src_user</fieldForValue>
+      <search base="base_ou_chg_search">
+        <query>| dedup src_user | sort src_user</query>
+      </search>
+    </input>
+    <input type="time" token="tok_time" searchWhenChanged="true">
+      <label>Select Time Range</label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>Change Events Results</title>
+      <table>
+        <search base="base_ou_chg_search">
+          <query>search msad_action="$tok_chg_type$" src_user="$tok_admin$"
+| rename msad_action AS "OU Action",src_nt_domain AS "Admin Domain",src_user AS "Admin User",ou_name AS OU,dest_ou_dn AS "OU DN",chg_summary AS "Change Details"</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

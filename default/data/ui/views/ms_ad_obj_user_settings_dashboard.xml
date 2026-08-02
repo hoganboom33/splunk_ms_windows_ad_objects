@@ -1,0 +1,319 @@
+<form version="1.1">
+  <label>Ad Objects - User - Account Settings</label>
+  <init>
+      	<unset token="show_results"></unset>
+      	<set token="show_pending">True</set>
+  </init>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_search">
+	  <query>| inputlookup $tok_user_lkp$ WHERE domain="$tok_domain$"
+| fields domain, sAMAccountName, userAccountControl, uac_details,domain, distinguishedName,whenChanged,whenCreated
+| table domain, sAMAccountName, userAccountControl, uac_details,domain, distinguishedName,whenChanged,whenCreated
+| eval uac_details=replace(mvjoin(uac_details,":"),"([\r\n]+)",":")
+| makemv delim=":" uac_details
+| search [| makeresults | eval uac_details=replace("$tok_trust_acct$,$tok_trust_del$,$tok_norm_acct$,$tok_state$,$tok_pwd_expired$,$tok_smartcard$,$tok_sensitive$,$tok_pwd_not_expire$,$tok_pwd_not_req$,$tok_pwd_store_rev$,$tok_pwd_kerb_des$,$tok_pwd_kerb_preauth$,$tok_pwd_kerb_no_pac$,$tok_pwd_kerb_for_other$","#empty#","")
+| makemv delim="," uac_details
+| eval mfilt_uac=mvfilter(match(uac_details,"^\w+"))
+| eval search=if(isnull(mfilt_uac),"","uac_details=\"".mvjoin(mfilt_uac,"\" AND uac_details=\"")."\"")
+| table search]
+| sort 0 sAMAccountName 
+| rename sAMAccountName AS "user", uac_details AS userAccountControl_Details
+	  </query>
+	  <earliest>0</earliest>
+	  <latest></latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+      	<unset token="show_results"></unset>
+      	<set token="show_pending">True</set>
+      </condition>
+      <condition>
+      	<unset token="show_pending"></unset>
+      	<set token="show_results">True</set>
+      </condition>
+    </done>
+	</search>
+  <fieldset submitButton="false">
+    <html>
+       <h3>Choose User Account Type and State <a href="http://www.selfadsi.org/ads-attributes/user-userAccountControl.htm" class="btn btn-mini" target="_blank" style="font-size:20px;height:20px;color:#e20082;"><i class="icon-info-circle"/></a> <a href="https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts/dd302fd1-0aa7-406b-ad91-2a6b35738557?redirectedfrom=MSDN" class="btn btn-mini" target="_blank" style="font-size:20px;height:20px;color:#e20082;"><i class="icon-info-circle"/></a></h3>
+    </html>
+    <input type="dropdown" token="input_tok_domain" searchWhenChanged="true">
+      <label>1. Select Domain</label>
+      <choice value="sel">Select Domain</choice>
+      <search base="base_domain_search">
+        <query>table domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_domain"></unset>
+          <unset token="tok_show_filters"></unset>
+        </condition>
+        <condition>
+          <set token="tok_domain">$value$</set>
+          <set token="tok_show_filters">True</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_type" type="radio" token="tok_type" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>User Type:</label>
+      <choice value="all">All</choice>
+      <choice value="normal">Normal User Account</choice>
+      <choice value="trust">Interdomain Trust Account</choice>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <change>
+        <condition value="all">
+          <set token="tok_norm_acct">#empty#</set>
+          <set token="tok_trust_acct">#empty#</set>
+        </condition>
+        <condition value="normal">
+          <set token="tok_norm_acct">Normal User Account</set>
+          <set token="tok_trust_acct">#empty#</set>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+        <condition value="trust">
+          <set token="tok_norm_acct">#empty#</set>
+          <set token="tok_trust_acct">InterDomain Trust Account</set>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_state"  type="radio" token="tok_state" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>User Account:</label>
+      <choice value="#empty#">All</choice>
+      <choice value="Enabled">Enabled</choice>
+      <choice value="Disabled">Disabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_pwd_expired"  type="radio" token="tok_pwd_expired" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Password Expired:</label>
+      <choice value="#empty#">No</choice>
+      <choice value="Password has Expired">Yes</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <html depends="$tok_show_filters$">
+       <h3>Choose User Account Settings</h3>
+    </html>
+    <input id="user_sml_smartcard" type="radio" token="tok_smartcard" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>SmartCard Required:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Smart Card Required">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_trust_del" type="radio" token="tok_trust_del" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Trusted for Delegation:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Trusted for Delegation">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>   
+    <input id="user_sensitive" type="radio" token="tok_sensitive" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Sensitive - Can't Delegate:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Sensitive - Not Delegated">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input> 
+    <input id="user_sml_pwd_not_expire" type="radio" token="tok_pwd_not_expire" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Pwd Does Not Expire:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Password Does Not Expire">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_pwd_not_req" type="radio" token="tok_pwd_not_req" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Pwd Not Required:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Password Not Required">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_pwd_store_rev" type="radio" token="tok_pwd_store_rev" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Pwd Store Reversable:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Store Password using reversible encryption">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_sml_pwd_kerb_des" type="radio" token="tok_pwd_kerb_des" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Use Kerberos DES:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Kerberos authentication DES only">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_pwd_kerb_preauth" type="radio" token="tok_pwd_kerb_preauth" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Don't Use Kerberos Pre-Auth:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Kerberos Does Not Require Pre-Auth">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_pwd_kerb_no_pac" type="radio" token="tok_pwd_kerb_no_pac" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Request Kerberos Ticket without PAC data:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Request Kerberos Ticket without PAC data">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>
+    <input id="user_pwd_kerb_for_other" type="radio" token="tok_pwd_kerb_for_other" searchWhenChanged="true" depends="$tok_show_filters$">
+      <label>Request Kerberos Ticket for other user:</label>
+      <choice value="#empty#">Disabled</choice>
+      <choice value="Can request a Kerberos ticket on behalf of another user">Enabled</choice>
+      <default>#empty#</default>
+      <initialValue>#empty#</initialValue>
+      <change>
+        <condition value="#empty#">
+        </condition>
+        <condition>
+          <set token="tok_base_trigger">$tok_user_lkp$</set>
+        </condition>
+      </change>
+    </input>    
+  </fieldset>
+  <row depends="$tok_show_filters$">
+    <panel>
+      <html depends="$show_pending$"><center><h2><b><i class="icon-info-circle" ></i>  Select a Setting above to see the results, if one was selected then no results where returned</b></h2></center></html>
+      <table depends="$show_results$">
+        <search base="base_search">
+          <query>
+          </query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hiddenstyle$">
+  	<panel>
+  		<html>
+  			<style>
+  				#user_type {width: 250px !important}
+  				#user_pwd_kerb_no_pac {width: 290px !important}
+  				#user_pwd_kerb_for_other {width: 290px !important}
+  				#user_sensitive {width: 170px !important}
+  				[ID^=user_] {margin-right: 0px !important;}
+  				[ID^=user_sml_] {width: 150px !important}
+  				[CLASS^=OptionStyles_] {height: 20px !important;}		        
+  			</style>
+  		</html>
+  	</panel>
+  </row>
+</form>

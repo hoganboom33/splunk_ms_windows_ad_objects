@@ -1,0 +1,340 @@
+<form isVisible="true" script="splunk_management_console:common_control.js" version="1.1">
+  <label>AD Object - Lookup Fields Information</label>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="tok_show_app_ad_obj_details" searchWhenChanged="true">
+      <label>Select AD Object Category:</label>
+      <choice value="app_ad_obj_user">User AD Attributes</choice>
+      <choice value="app_ad_obj_group">Group AD Attributes</choice>
+      <choice value="app_ad_obj_computer">Computer AD Attributes</choice>
+      <choice value="app_ad_obj_ou">OU AD Attributes</choice>
+      <choice value="app_ad_obj_gpo">GPO AD Attributes</choice>
+      <default>app_ad_obj_user</default>
+      <initialValue>app_ad_obj_user</initialValue>
+      <change>
+        <condition value="app_ad_obj_user">
+          <set token="show_app_ad_obj_user">true</set>
+          <unset token="show_app_ad_obj_group"></unset>
+          <unset token="show_app_ad_obj_computer"></unset>
+          <unset token="show_app_ad_obj_ou"></unset>
+          <unset token="show_app_ad_obj_gpo"></unset>
+        </condition>
+        <condition value="app_ad_obj_group">
+          <set token="show_app_ad_obj_group">true</set>
+          <unset token="show_app_ad_obj_user"></unset>
+          <unset token="show_app_ad_obj_computer"></unset>
+          <unset token="show_app_ad_obj_ou"></unset>
+          <unset token="show_app_ad_obj_gpo"></unset>
+        </condition>
+        <condition value="app_ad_obj_computer">
+          <set token="show_app_ad_obj_computer">true</set>
+          <unset token="show_app_ad_obj_user"></unset>
+          <unset token="show_app_ad_obj_group"></unset>
+          <unset token="show_app_ad_obj_ou"></unset>
+          <unset token="show_app_ad_obj_gpo"></unset>
+        </condition>
+        <condition value="app_ad_obj_ou">
+          <set token="show_app_ad_obj_ou">true</set>
+          <unset token="show_app_ad_obj_user"></unset>
+          <unset token="show_app_ad_obj_group"></unset>
+          <unset token="show_app_ad_obj_computer"></unset>
+          <unset token="show_app_ad_obj_gpo"></unset>
+        </condition>
+        <condition value="app_ad_obj_gpo">
+          <set token="show_app_ad_obj_gpo">true</set>
+          <unset token="show_app_ad_obj_user"></unset>
+          <unset token="show_app_ad_obj_group"></unset>
+          <unset token="show_app_ad_obj_computer"></unset>
+          <unset token="show_app_ad_obj_ou"></unset>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html depends="$show_app_ad_obj_user$">
+        <center>
+          <h1>User AD Object Attributes</h1><h3>(<i><a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|person|organizationalPerson|user&quot;)" target="_blank">objectClass="top|person|organizationalPerson|user"</a></i>)</h3>
+        </center>     
+        <p>
+          <i>Below is the list of User AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_User" target="_blank">AD_Obj_Users</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                   
+        <table border="1">
+<tr><td><center><b>Attribute Name</b></center></td><td><center><b>Object Description</b></center></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675098%28v=vs.85%29.aspx" target="_blank">accountExpires</a></b></td><td><i>The date when the account expires. This value represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of 0 or 0x7FFFFFFFFFFFFFFF (9223372036854775807) indicates that the account never expires.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675212%28v=vs.85%29.aspx" target="_blank">adminCount</a></b></td><td><i>Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675243%28v=vs.85%29.aspx" target="_blank">badPasswordTime</a></b></td><td><i>The last time and date that an attempt to log on to this account was made with a password that is not valid. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last time a incorrect password was used is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675244%28v=vs.85%29.aspx" target="_blank">badPwdCount</a></b></td><td><i>The number of times the user tried to log on to the account using an incorrect password. A value of 0 indicates that the value is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a></b></td><td><i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675451%28v=vs.85%29.aspx" target="_blank">codePage</a></b></td><td><i>Specifies the code page for the user's language of choice.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675466%28v=vs.85%29.aspx" target="_blank">countryCode</a></b></td><td><i>Specifies the country/region code for the user's language of choice.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a></b></td><td><i>The DS-Core-Propagation-Data attribute is for internal use only.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a></b></td><td><i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a></b></td><td><i>displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675719%28v=vs.85%29.aspx" target="_blank">givenName</a></b></td><td><i>Contains the given name (first name) of the user.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a></b></td><td><i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a></b></td><td><i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a></b></td><td><i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a></b></td><td><i>Is the object recycled. For use with AD Recycle Bin</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a></b></td><td><i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676823%28v=vs.85%29.aspx" target="_blank">lastLogon</a></b></td><td><i>The last time the user logged on. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last logon time is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676824%28v=vs.85%29.aspx" target="_blank">lastLogonTimestamp</a></b></td><td><i>This is the time that the user last logged into the domain. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). Whenever a user logs on, the value of this attribute is read from the DC. If the value is older [ current_time - msDS-LogonTimeSyncInterval ], the value is updated. The initial update after the raise of the domain functional level is calculated as 14 days minus random percentage of 5 days.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676843%28v=vs.85%29.aspx" target="_blank">lockoutTime</a></b></td><td><i>The date and time (UTC) that this account was locked out. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the account is not currently locked out.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676845%28v=vs.85%29.aspx" target="_blank">logonCount</a></b></td><td><i>The number of times the account has successfully logged on. A value of 0 indicates that the value is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676846%28v=vs.85%29.aspx" target="_blank">logonHours</a></b></td><td><i>The hours that the user is allowed to logon to the domain.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a></b></td><td><i>The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677827%28v=vs.85%29.aspx" target="_blank">msDS-SupportedEncryptionTypes</a></b></td><td><i>The encryption algorithms supported by user, computer or trust accounts. (Note  The KDC uses this information while generating a service ticket for this account. Services and Computers can automatically update this attribute on their respective accounts in Active Directory, and therefore need write access to this attribute.)</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a></b></td><td><i>name = Guy Thomas.  Exactly the same as CN.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a></b></td><td><i>Defines the Active Directory Schema category. For example, objectCategory = Person</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a></b></td><td><i>Usually, User, or Computer</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a></b></td><td><i>The unique identifier for an object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a></b></td><td><i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679375%28v=vs.85%29.aspx" target="_blank">primaryGroupID</a></b></td><td><i>Contains the relative identifier (RID) for the primary group of the user. By default, this is the RID for the Domain Users group.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679430%28v=vs.85%29.aspx" target="_blank">pwdLastSet</a></b></td><td><i>The date and time that the password for this account was last changed. This value is stored as a large integer that represents the number of 100 nanosecond intervals since January 1, 1601 (UTC). If this value is set to 0 and the User-Account-Control attribute does not contain the UF_DONT_EXPIRE_PASSWD flag, then the user must set the password at the next logon.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a></b></td><td><i>This is a mandatory property, sAMAccountName = guyt.  The old NT 4.0 logon name, must be unique in the domain. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a></b></td><td><i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679785%28v=vs.85%29.aspx" target="_blank">servicePrincipalName</a></b></td><td><i>List of principal names used for mutual authentication with an instance of a service on this computer.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679827%28v=vs.85%29.aspx" target="_blank">showInAdvancedViewOnly</a></b></td><td><i>TRUE if this attribute is to be visible in the Advanced mode of the UI.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679872%28v=vs.85%29.aspx" target="_blank">sn</a></b></td><td><i>The user's surname (family name or last name).</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a></b></td><td><i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a></b></td><td><i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680832%28v=vs.85%29.aspx" target="_blank">userAccountControl</a></b></td><td><i>Used to disable an account.  A value of 514 disables the account, while 512 makes the account ready for logon. (Ex. Enable (512) / disable account (514))</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680857%28v=vs.85%29.aspx" target="_blank">userPrincipalName</a></b></td><td><i>userPrincipalName = guyt@CP.com  Often abbreviated to UPN, and looks like an email address.  Very useful for logging on especially in a large Forest.  Note UPN must be unique in the forest.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680868%28v=vs.85%29.aspx" target="_blank">userWorkstations</a></b></td><td><i>Contains the NetBIOS or DNS names of the computers running Windows NT Workstation or Windows 2000 Professional from which the user can log on. Each NetBIOS name is separated by a comma. Multiple names should be separated by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a></b></td><td><i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a></b></td><td><i>The date when this object was created. This value is replicated and is in the global catalog.</i></td></tr>
+<tr><td align="center"><b>domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>host</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i></td></tr>
+<tr><td align="center"><b>src_nt_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>uac_bin_map</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the converted binary value for the userAccountControl value. It is used for determining the settings configured for the User Account.</i></td></tr>          
+<tr><td align="center"><b>uac_details</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the text string values from the uac_binmap field, displaying the User Account Settings configured for the User Account.</i></td></tr>          
+<tr><td align="center"><b>evt_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the User Account admon event.</i></td></tr>          
+<tr><td align="center"><b>deleted_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the User Account.</i></td></tr>          
+<tr><td align="center"></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i></td></tr>
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_group$">
+        <center>
+          <h1>Group AD Object Attributes</h1><h3>(<i><a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|group&quot;)" target="_blank">objectClass="top|group"</a></i>)</h3>
+        </center>       
+        <p>
+          <i>Below is the list of Group AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_Group" target="_blank">AD_Obj_Group</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                 
+        <table border="1">
+          <tr><td><center><b>Attribute Name</b></center></td><td><center><b>Object Description</b></center></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675212%28v=vs.85%29.aspx" target="_blank">adminCount</a></b></td><td><i>Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a></b></td><td><i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a></b></td><td><i>The DS-Core-Propagation-Data attribute is for internal use only.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a></b></td><td><i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a></b></td><td><i>"displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a></b></td><td><i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a></b></td><td><i>"If TRUE, the object hosting this attribute must be replicated during installation of a new replica."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a></b></td><td><i>"If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a></b></td><td><i>Is the object recycled. For use with AD Recycle Bin</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a></b></td><td><i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a></b></td><td><i>"The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a></b></td><td><i>name = Guy Thomas.  Exactly the same as CN.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a></b></td><td><i>"Defines the Active Directory Schema category. For example, objectCategory = Person"</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a></b></td><td><i>"Usually, User, or Computer</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a></b></td><td><i>The unique identifier for an object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a></b></td><td><i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a></b></td><td><i>"This is a mandatory property, sAMAccountName = guyt.  The old NT 4.0 logon name, must be unique in the domain. "</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a></b></td><td><i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a></b></td><td><i>"The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a></b></td><td><i>"The update sequence number (USN) assigned at object creation. See also, USN-Changed"</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a></b></td><td><i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a></b></td><td><i>The date when this object was created. This value is replicated and is in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675935%28v=vs.85%29.aspx" target="_blank">groupType</a></b></td><td><i>Contains a set of flags that define the type and scope of a group object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677097%28v=vs.85%29.aspx" target="_blank">member</a></b></td><td><i>The list of users that belong to the group.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679376%28v=vs.85%29.aspx" target="_blank">primaryGroupToken</a></b></td><td><i>"A computed attribute that is used in retrieving the membership list of a group, such as Domain Users. The complete membership of such groups is not stored explicitly for scaling reasons."</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a></b></td><td><i>An integer value that contains flags that define additional properties of the class.</i></td></tr>
+<tr><td align="center"><b>DomainDNSName</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i></td></tr>
+<tr><td align="center"><b>domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i></td></tr>
+<tr><td align="center"><b>host</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.  "</i></td></tr>
+<tr><td align="center"><b>src_nt_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i></td></tr>
+<tr><td align="center"><b>member_dn</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Contains the same information as the member field.</i></td></tr>
+<tr><td align="center"><b>member_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Contains the extracted member domain information from the member field.</i></td></tr>
+<tr><td align="center"><b>member_name</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Contains the extracted member name information from the member field.</i></td></tr>
+<tr><td align="center"><b>membercount</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Contains the count of members in the member field.</i></td></tr>
+<tr><td align="center"><b>mv_combo</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Holder for future testing.</i></td></tr>
+<tr><td align="center"><b>member_type</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Holder for future testing.</i></td></tr>
+<tr><td align="center"><b>evt_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the Group Account admon event.</i></td></tr>          
+<tr><td align="center"><b>deleted_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the Group Account.</i></td></tr>          
+<tr><td align="center"><b>new_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i></td></tr>
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_gpo$">
+        <center>
+          <h1>Group Policy AD Object Attributes</h1><h3>(<i><a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|container|groupPolicyContainer&quot;)" target="_blank">objectClass="top|container|groupPolicyContainer"</a></i>)</h3>
+        </center>
+        
+        <p>
+          <i>Below is the list of Group Policy AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_GPO" target="_blank">AD_Obj_GPO</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>  
+                  
+        <table border="1">      
+<tr><td><center><b>Attribute Name</b></center></td><td><center><b>Object Description</b></center></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a></b></td><td><i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a></b></td><td><i>displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a></b></td><td><i>The DS-Core-Propagation-Data attribute is for internal use only.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675677%28v=vs.85%29.aspx" target="_blank">flags</a></b></td><td><i>To be used by the object to store bit information.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675722%28v=vs.85%29.aspx" target="_blank">gPCFileSysPath</a></b></td><td><i>True if the object is enabled.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675723%28v=vs.85%29.aspx" target="_blank">gPCFunctionalityVersion</a></b></td><td><i>The version of the Group Policy Editor that created this object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675724%28v=vs.85%29.aspx" target="_blank">gPCMachineExtensionNames</a></b></td><td><i>Used by the Group Policy Object for computer policies.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a></b></td><td><i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a></b></td><td><i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a></b></td><td><i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a></b></td><td><i>Is the object recycled. For use with AD Recycle Bin</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a></b></td><td><i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a></b></td><td><i>name = Guy Thomas.  Exactly the same as CN.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a></b></td><td><i>Defines the Active Directory Schema category. For example, objectCategory = Person</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a></b></td><td><i>Usually, User, or Computer</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a></b></td><td><i>The unique identifier for an object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a></b></td><td><i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a></b></td><td><i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a></b></td><td><i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a></b></td><td><i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a></b></td><td><i>The date when this object was created. This value is replicated and is in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a></b></td><td><i>An integer value that contains flags that define additional properties of the class.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680897%28v=vs.85%29.aspx" target="_blank">versionNumber</a></b></td><td><i>A general purpose version number.</i></td></tr>
+<tr><td align="center"><b>domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>DomainDNSName</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>host</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i></td></tr>
+<tr><td align="center"><b>lc</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using distinguishedName to create the lc field used for linking GPO to containers and OUs.</i></td></tr>
+<tr><td align="center"><b>src_nt_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>     
+<tr><td align="center"><b>evt_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the GPO admon event.</i></td></tr>          
+<tr><td align="center"><b>deleted_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the GPO Account.</i></td></tr>          
+<tr><td align="center"></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i></td></tr>
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_computer$">
+        <center>
+          <h1>Computer AD Object Attributes</h1><h3>(<i><a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|person|organizationalPerson|user|computer&quot;)" target="_blank">objectClass="top|person|organizationalPerson|user|computer"</a></i>)</h3>
+        </center>       
+        <p>
+          <i>Below is the list of Computer AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_Computer" target="_blank">AD_Obj_Computer</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                  
+        <table border="1">         
+<tr><td><center><b>Attribute Name</b></center></td><td><center><b>Object Description</b></center></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675098%28v=vs.85%29.aspx" target="_blank">accountExpires</a></b></td><td><i>The date when the account expires. This value represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of 0 or 0x7FFFFFFFFFFFFFFF (9223372036854775807) indicates that the account never expires.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675243%28v=vs.85%29.aspx" target="_blank">badPasswordTime</a></b></td><td><i>The last time and date that an attempt to log on to this account was made with a password that is not valid. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last time a incorrect password was used is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675244%28v=vs.85%29.aspx" target="_blank">badPwdCount</a></b></td><td><i>The number of times the user tried to log on to the account using an incorrect password. A value of 0 indicates that the value is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a></b></td><td><i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675451%28v=vs.85%29.aspx" target="_blank">codePage</a></b></td><td><i>Specifies the code page for the user's language of choice.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675466%28v=vs.85%29.aspx" target="_blank">countryCode</a></b></td><td><i>Specifies the country/region code for the user's language of choice.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a></b></td><td><i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a></b></td><td><i>displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675524%28v=vs.85%29.aspx" target="_blank">dNSHostName</a></b></td><td><i>Name of computer as registered in DNS.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a></b></td><td><i>The DS-Core-Propagation-Data attribute is for internal use only.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a></b></td><td><i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a></b></td><td><i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a></b></td><td><i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a></b></td><td><i>Is the object recycled. For use with AD Recycle Bin</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a></b></td><td><i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676823%28v=vs.85%29.aspx" target="_blank">lastLogon</a></b></td><td><i>The last time the user logged on. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last logon time is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676824%28v=vs.85%29.aspx" target="_blank">lastLogonTimestamp</a></b></td><td><i>This is the time that the user last logged into the domain. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). Whenever a user logs on, the value of this attribute is read from the DC. If the value is older [ current_time - msDS-LogonTimeSyncInterval ], the value is updated. The initial update after the raise of the domain functional level is calculated as 14 days minus random percentage of 5 days.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676837%28v=vs.85%29.aspx" target="_blank">localPolicyFlags</a></b></td><td><i>Flags that determine where a computer gets its policy. Local-Policy-Reference.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676845%28v=vs.85%29.aspx" target="_blank">logonCount</a></b></td><td><i>The number of times the account has successfully logged on. A value of 0 indicates that the value is unknown.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a></b></td><td><i>The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677140%28v=vs.85%29.aspx" target="_blank">msDFSR-ComputerReferenceBL</a></b></td><td><i>Contains the backward link for the ms-DFSR-ComputerReference attribute.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms677827%28v=vs.85%29.aspx" target="_blank">msDS-SupportedEncryptionTypes</a></b></td><td><i>The encryption algorithms supported by user, computer or trust accounts. (Note  The KDC uses this information while generating a service ticket for this account. Services and Computers can automatically update this attribute on their respective accounts in Active Directory, and therefore need write access to this attribute.)</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a></b></td><td><i>name = Guy Thomas.  Exactly the same as CN.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a></b></td><td><i>Defines the Active Directory Schema category. For example, objectCategory = Person</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a></b></td><td><i>Usually, User, or Computer</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a></b></td><td><i>The unique identifier for an object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a></b></td><td><i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679076%28v=vs.85%29.aspx" target="_blank">operatingSystem</a></b></td><td><i>The Operating System name, for example, Windows Vista Enterprise.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679078%28v=vs.85%29.aspx" target="_blank">operatingSystemServicePack</a></b></td><td><i>The operating system service pack ID string (for example, SP3).</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679079%28v=vs.85%29.aspx" target="_blank">operatingSystemVersion</a></b></td><td><i>The operating system version string, for example, 4.0.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679375%28v=vs.85%29.aspx" target="_blank">primaryGroupID</a></b></td><td><i>Contains the relative identifier (RID) for the primary group of the user. By default, this is the RID for the Domain Users group.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679430%28v=vs.85%29.aspx" target="_blank">pwdLastSet</a></b></td><td><i>The date and time that the password for this account was last changed. This value is stored as a large integer that represents the number of 100 nanosecond intervals since January 1, 1601 (UTC). If this value is set to 0 and the User-Account-Control attribute does not contain the UF_DONT_EXPIRE_PASSWD flag, then the user must set the password at the next logon.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679462%28v=vs.85%29.aspx" target="_blank">rIDSetReferences</a></b></td><td><i>List of references to RID-Set objects that manage Relative Identifier (RID) allocation.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a></b></td><td><i>This is a mandatory property, sAMAccountName = guyt.  The old NT 4.0 logon name, must be unique in the domain. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a></b></td><td><i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679774%28v=vs.85%29.aspx" target="_blank">serverReferenceBL</a></b></td><td><i>Found in the domain naming context. The distinguished name of a computer under the sites folder.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679785%28v=vs.85%29.aspx" target="_blank">servicePrincipalName</a></b></td><td><i>List of principal names used for mutual authentication with an instance of a service on this computer.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680832%28v=vs.85%29.aspx" target="_blank">userAccountControl</a></b></td><td><i>Used to disable an account.  A value of 514 disables the account, while 512 makes the account ready for logon. (Ex. Enable (512) / disable account (514))</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a></b></td><td><i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a></b></td><td><i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a></b></td><td><i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a></b></td><td><i>The date when this object was created. This value is replicated and is in the global catalog.</i></td></tr>
+<tr><td align="center"><b>domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i></td></tr>
+<tr><td align="center"><b>DomainDNSName</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i></td></tr>
+<tr><td align="center"><b>host</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.  </i></td></tr>
+<tr><td align="center"><b>src_nt_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i></td></tr>          
+<tr><td align="center"><b>uac_bin_map</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the converted binary value for the userAccountControl value. It is used for determining the settings configured for the Computer Account.</i></td></tr>          
+<tr><td align="center"><b>uac_details</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the text string values from the uac_binmap field, displaying the User Account Settings configured for the Computer Account.</i></td></tr>          
+<tr><td align="center"><b>evt_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the User Account admon event.</i></td></tr>          
+<tr><td align="center"><b>deleted_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the Computer Account.</i></td></tr>          
+<tr><td align="center"><b>new_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i></td></tr>
+        </table>
+      </html> 
+      <html depends="$show_app_ad_obj_ou$">
+        <center>
+          <h1>OU AD Object Attributes</h1><h3>(<i><a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|organizationalUnit&quot;)" target="_blank">objectClass="top|organizationalUnit"</a></i>)</h3>
+        </center>      
+        <p>
+          <i>Below is the list of OU AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_OU" target="_blank">AD_Obj_OU</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                    
+        <table border="1">         
+<tr><td><center><b>Attribute Name</b></center></td><td><center><b>Object Description</b></center></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a></b></td><td><i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a></b></td><td><i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a></b></td><td><i>The DS-Core-Propagation-Data attribute is for internal use only.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675727%28v=vs.85%29.aspx" target="_blank">gPLink</a></b></td><td><i>A sorted list of Group Policy options. Each option is a DWORD. Use of the UNICODE string is a convenience.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a></b></td><td><i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a></b></td><td><i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a></b></td><td><i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a></b></td><td><i>Is the object recycled. For use with AD Recycle Bin</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a></b></td><td><i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a></b></td><td><i>name = Guy Thomas.  Exactly the same as CN.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a></b></td><td><i>Defines the Active Directory Schema category. For example, objectCategory = Person</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a></b></td><td><i>Usually, User, or Computer</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a></b></td><td><i>The unique identifier for an object.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms683886%28v=vs.85%29.aspx" target="_blank">ou</a></b></td><td><i>A container for storing users, computers, and other account objects.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679455%28v=vs.85%29.aspx" target="_blank">revision</a></b></td><td><i>The revision level for a security descriptor or other change. Only used in the sam-server and ds-ui-settings objects.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms679827%28v=vs.85%29.aspx" target="_blank">showInAdvancedViewOnly</a></b></td><td><i>TRUE if this attribute is to be visible in the Advanced mode of the UI.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a></b></td><td><i>An integer value that contains flags that define additional properties of the class.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a></b></td><td><i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a></b></td><td><i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a></b></td><td><i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i></td></tr>
+<tr><td align="center"><b><a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a></b></td><td><i>The date when this object was created. This value is replicated and is in the global catalog.</i></td></tr>
+<tr><td align="center"><b>domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>DomainDNSName</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>gpo</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Extracted from gPLink field.</i></td></tr>
+<tr><td align="center"><b>guid_lookup</b></td><td><i><font color="blue">Splunk Build Search Created</font> - To be used for future linking of GPO to OU.</i></td></tr>
+<tr><td align="center"><b>host</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i></td></tr>
+<tr><td align="center"><b>Linked_GPO</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Extracted from gPLink field, displayName.</i></td></tr>
+<tr><td align="center"><b>src_nt_domain</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i></td></tr>
+<tr><td align="center"><b>versionNumber</b></td><td><i><font color="blue">Splunk Build Search Created</font> - Same as revision field.</i></td></tr>      
+<tr><td align="center"><b>evt_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the OU Account admon event.</i></td></tr>          
+<tr><td align="center"><b>deleted_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the OU Account.</i></td></tr>          
+<tr><td align="center"><b>new_flg</b></td><td><i><font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i></td></tr>
+        </table>
+      </html>  
+    </panel>
+  </row>
+</form>

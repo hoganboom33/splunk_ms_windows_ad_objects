@@ -1,0 +1,195 @@
+<form version="1.1">
+  <label>AD Objects - App Health - Overview</label>
+  <search id="base_search">
+    <query>`ms_obj_admon_flt_obj_type(ms_obj_admon_user,ms_obj_admon_base_a_type)`
+| fields objectClass, admonEventType
+| eval AD_Object=case(objectClass="top|person|organizationalPerson|user","Users",objectClass="top|group","Groups",objectClass="top|person|organizationalPerson|user|computer","Computers",objectClass="","Distribution List",objectClass="top|organizationalUnit","Organizational Units",objectClass="top|container|groupPolicyContainer","Group Policies")
+| eval admon_Type=case(admonEventType="Sync","Baseline",admonEventType="Update","Update",admonEventType="Deleted","Deleted")
+| stats max(_time) AS last_time,count by AD_Object, admon_Type 
+| table last_time, AD_Object,admon_Type,count</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="base_macro_search">
+    <query>| `ms_ad_obj_cfg_idx_base`
+| mvexpand index
+| join type=left index [| `ms_ad_obj_cfg_idx_avail` ]
+| join type=left index [| `ms_ad_obj_cfg_idx_data` ]
+| sort flag,-Total_Events
+| eval Total_Sourcetypes=if(isnull(cmb),0,mvcount(cmb))
+| fillnull 0 Total_Events,currentDBSizeMB
+| eval flag=if(isnull(index_flag),2,if(isnull(data_flag),1,0))
+| eval flag_msg=case(flag=2,"index Not Created: ".index,flag=1,"Missing Index Data: ".index,flag=0,"OK: ".index)
+| rename index as macro_index, cmb as sourcetypes
+| fillnull value=0 Total_Events,currentDBSizeMB
+| eval sourcetypes=if(isnull(sourcetypes),flag_msg,sourcetypes)
+| makemv delim="|" sourcetypes
+| sort -flag macro_name
+| table macro_name,macro_definition,macro_index,flag,flag_msg,Total_Events,currentDBSizeMB,sourcetypes</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <fieldset submitButton="false"></fieldset>
+  <row>
+    <panel>
+      <title>sourcetype="ActiveDirectory" - Event Statistics</title>
+      <input type="time" token="field1">
+        <label>Select Time Period</label>
+        <default>
+          <earliest>-24h@h</earliest>
+          <latest>now</latest>
+        </default>
+      </input>
+      <table>
+        <title>Total admon Event Counts by AD Object</title>
+        <search base="base_search">
+          <query>| eval baseline_last_time=if(admon_Type=="Baseline",last_time,"Never")
+| eval update_last_time=if(admon_Type=="Update",last_time,"Never")
+| eval deleted_last_time=if(admon_Type=="Deleted",last_time,"Never")| eval base_cnt=if(admon_Type=="Baseline",count,0)
+| eval upd_cnt=if(admon_Type=="Update",count,0)
+| eval del_cnt=if(admon_Type=="Deleted",count,0)
+| eval update_last_time=if(admon_Type=="Update",last_time,"Never")
+| eval deleted_last_time=if(admon_Type=="Deleted",last_time,"Never")
+| stats max(baseline_last_time) AS baseline_last_time,max(update_last_time) AS update_last_time,max(deleted_last_time) AS deleted_last_time,sum(base_cnt) AS Baseline_Count,sum(upd_cnt) AS Update_Count,sum(del_cnt) AS Deleted_Count,sum(count) AS Total_Count by AD_Object 
+| fillnull value=0 Baseline_Count,Update_Count,Deleted_Count,Total_Count
+| eval Baseline_Event_Summary=if(baseline_last_time=="Never","Total Events: ".tostring(Baseline_Count,"commas"),"Total Events: ".tostring(Baseline_Count,"commas")."|Last Event Time: ".strftime(baseline_last_time,"%m/%d/%y %H:%M:%S"))
+| eval Update_Event_Summary=if(update_last_time=="Never","Total Events: ".tostring(Update_Count,"commas"),"Total Events: ".tostring(Update_Count,"commas")."|Last Event Time: ".strftime(update_last_time,"%m/%d/%y %H:%M:%S"))
+| eval Deleted_Event_Summary=if(deleted_last_time=="Never","Total Events: ".tostring(Deleted_Count,"commas"),"Total Events: ".tostring(Deleted_Count,"commas")."|Last Event Time: ".strftime(deleted_last_time,"%m/%d/%y %H:%M:%S"))
+| makemv delim="|" Baseline_Event_Summary
+| makemv delim="|" Update_Event_Summary
+| makemv delim="|" Deleted_Event_Summary
+| sort -Total_Count
+| table AD_Object, Baseline_Event_Summary,Update_Event_Summary,Deleted_Event_Summary,Total_Count
+| eval Total_Count=tostring(Total_Count,"commas")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Built and Updated AD Object Lookup Table Counts</title>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_User
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Users</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_Group
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Groups</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_Group WHERE sAMAccountType="268435457"
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Distribution Lists</option>
+      </single>
+      <html>
+        <hr/>
+      </html>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_Computer
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Computers</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_OU
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Organizational Units</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_GPO
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Group Policies</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Windows Events Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_events_index"
+          | mvexpand sourcetypes
+          | rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+          | table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows Perfmon Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_perfmon_index"
+          | mvexpand sourcetypes
+          | rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+          | table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows AD Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_ad_index"
+          | mvexpand sourcetypes
+          | rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+          | table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows API Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_api_index"
+          | mvexpand sourcetypes
+          | rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+          | table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+  </row>
+</form>

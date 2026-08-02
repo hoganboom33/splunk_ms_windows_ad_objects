@@ -1,0 +1,82 @@
+﻿<form version="1.1">
+  <label>AD Objects - Computer - Active</label>
+  <init><set token="tok_filt_comp">stats count by sAMAccountName,cn</set></init>
+  <fieldset submitButton="false">
+    
+    <input type="dropdown" token="tok_domain" searchWhenChanged="true">
+      <label>Select Domain</label>
+      <choice value="all">All</choice>
+      <search>
+        <query>|inputlookup AD_Obj_Domain | stats count by domain | table domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <change>
+        <condition value="all">
+          <set token="tok_domain_srch"></set>
+        </condition>
+        <condition>
+          <set token="tok_domain_srch">dest_nt_domain="$value$"</set>
+        </condition>
+      </change>
+    </input>     
+    <input type="dropdown" token="tok_sel_comp" searchWhenChanged="true">
+      <label>Select Computer</label>
+      <choice value="all">All</choice>
+      <search>
+        <query>| inputlookup AD_Obj_Computer |$tok_filt_comp$ | table sAMAccountName,cn | sort sAMAccountName</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_sel_comp_search">user_type="computer"</set>
+        </condition>
+        <condition>
+          <set token="tok_sel_comp_search">user_type="computer" user="$value$"</set>
+        </condition>
+      </change>      
+      <fieldForLabel>cn</fieldForLabel>
+      <fieldForValue>sAMAccountName</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+    </input>
+    <input type="text" token="tok_filt_systems" searchWhenChanged="true">
+      <label>Filter Systems</label>
+      <default></default>
+      <initialValue></initialValue>
+      <change>
+        <condition value="">
+          <set token="tok_filt_comp">stats count by sAMAccountName,cn</set>
+        </condition>
+        <condition>
+          <set token="tok_filt_comp">WHERE match(cn,"$value$")|stats count by sAMAccountName,cn</set>
+        </condition>
+      </change>      
+    </input>
+    <input type="time" token="field1" searchWhenChanged="true">
+      <label>Select Time Range</label>
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Active Computer Accounts</title>
+        <search>
+          <query>eventtype=ms_ad_obj_msad-successful-computer-logons $tok_domain_srch$ $tok_sel_comp_search$ | fields _time, dest_nt_domain, user|stats max(_time) as lastLogonTime by dest_nt_domain,user |rex field=user "^(?&lt;cn&gt;[^\$]+)" |join cn [|inputlookup AD_Obj_Computer  | makemv delim=":" uac_details| table cn,dNSHostName,uac_details,operatingSystem,operatingSystemServicePack] |eval lastLogonTime=strftime(lastLogonTime,"%c") |table cn,dNSHostName,uac_details,operatingSystem,operatingSystemServicePack,lastLogonTime|rename cn as Computer,operatingSystem as "Operating System",operatingSystemServicePack as "Service Pack",lastLogonTime as "Last Logon Time"</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="wrap">undefined</option>
+        <option name="rowNumbers">undefined</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

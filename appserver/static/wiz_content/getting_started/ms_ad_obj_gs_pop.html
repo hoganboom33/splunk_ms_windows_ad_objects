@@ -1,0 +1,2728 @@
+﻿<!--module Popups-->
+<!-- Getting Started - Introduction - Modal - 1 -->
+<div id="info_mod_intro_1_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" id="info_mod_intro_1_pop" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Information</b> - <i  class="splkblue flarge">Icon Legend for this Guide:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<center>
+							<table border="1" style="width:100%;">	
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_steps" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+											<i class="ms_obj_icon_steps"></i> ...</summary>
+										</details>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = A toggle button to show steps, step details or explanation for the specific step.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">	
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_step_info" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+												<i class="ms_obj_icon_info" style="font-size:12px !important;"></i>
+											</summary>
+										</details>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = A toggle button to show more information about a specific step or section.</i>
+									</td>
+								</tr> 
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">			
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_step_settings" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+												<i class="ms_obj_icon_settings"></i>
+											</summary>
+										</details>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = A toggle button to show specific configuration settings for the specific step.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">	 		
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_step_review" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+												<i class="ms_obj_icon_review"></i>
+											</summary>
+										</details>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = A toggle button to show specific information, examples, on the step's results.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">								
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><button class="btn btn-mini"><i class="icon-visible" style="height:15px;color:#00A4FD;"></i></button> </center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = An <b>Action</b> button to a popup window of a screenshot.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><i class="icon-info-circle ms-obj-mod-icon" /></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = An <b>Action</b> button to show a popup with more information about the specific item.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><i class="icon-warning ms-obj-mod-icon" /></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = An <b>Action</b> button to show a popup with important information that should be reviewed for verification of a setting or step.</i>
+									</td>
+								</tr>	
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><a href="#" class="btn btn-mini">Rerun Autocheck</a></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = An <b>Action</b> button to rerun the data and configuration searches.</i>
+									</td>
+								</tr>									
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><i class="icon-external" style="font-size:25px !important;width:25px;height: 25px;padding-left: 4px;color:#40A540;padding-right:5px;"></i></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = Link to external information.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><div class="li_content mrk_d_note"></div></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = Information with tips or other details to consider for the specific task or step.</i>
+									</td>
+								</tr>
+								<tr style="font-weight:200;max-height:30px !important;height:30px !important;">
+									<td style="font-weight:200;width:20%;vertical-align:middle;max-height:20px !important;">
+										<center><div class="li_content mrk_d_important"></div></center>
+									</td>
+									<td style="font-weight:200;width:80%;text-align:left;max-height:20px !important;">
+										<i style="font-size:12px;color:#000000;"> = Important information for the specific task or step.</i>
+									</td>
+								</tr>
+							</table>
+						</center>	
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div> 
+    <!-- Getting Started - Introduction - Modal - 1 -->
+    <div id="info_mod_input_msg_1_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="info_mod_input_msg_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Information</b> - <i  class="splkblue flarge">Messages for the Selected Choices:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<center>
+    						<table style="padding:4px;border: 4px solid #e20082;padding: 2px;margin: 2px;width:98%;">
+          						<tr style="padding:3px;border: 3px solid #000000;padding: 2px;margin: 2px;" class="row_hdr">
+            						<th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;widht:25px;">#</th>
+            						<th style="text-align:center;padding:2px;border: 2px solid #000000;padding: 2px;margin: 2px;">Message</th>
+            					</tr>	
+      							<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_1$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">1</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+      									<ul>
+      										<li><b>Question:</b> Is this the first time installing the MS Windows AD Objects application in this Splunk environment?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_1$): </b> <i><span class="msg_val_1 $tok_h_state_input_1$"/></i></li>
+      									</ul>
+                					</td>
+                				</tr>
+      							<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_2$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">2</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Splunk Environment Type?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_2$): </b><i><span class="msg_val_2 $tok_h_state_input_2$"/></i></li>
+      									</ul>
+                					</td>
+                				</tr>
+      							<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_3$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">2.1</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Are all the Splunk Core Compoents (Search Head/Indexer) on a Single instance or Distributed Systems?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_3$): </b><i><span class="msg_val_2_1 $tok_h_state_input_3$"/></i></li>
+      									</ul>
+                					</td>
+                				</tr>
+      							<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_4$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">3</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                						<ul>
+										  <li><b>Question:</b> Is the Splunk Universal Forwarder already installed on all the target Windows systems?</li>
+										  <li style="padding-right:10px;"><b>Message ($tok_h_state_input_4$): </b><i><span class="msg_val_3 $tok_h_state_input_4$"/></i></li>
+      									</ul>
+                					</td>
+                				</tr>
+      							<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_5$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">3.1</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Has the Splunk_TA_windows application been deployed to the target Windows systems?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_5$): </b><i><span class="msg_val_3_1 $tok_h_state_input_5$"/></i></li>
+      									</ul>
+                					</td>
+                				</tr>
+      							<tr style="font-weight:200;max-height:30px !important;" class="rowmsg $tok_h_state_input_6$">
+      								<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">4</td>
+      								<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Will you be using Splunk's Deployment Server or Manually deploying the Windows TA's to the target systems?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_6$): </b>
+                  							<i><span class="msg_val_4 $tok_h_state_input_6$"/></i></li>
+                  						</ul>
+                  					</td>
+                  				</tr>
+        								<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_7$">
+        									<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">4.1</td>
+        									<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Is the Deployment Server already installed in your environment?	</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_7$): </b><i><span class="msg_val_4_1 $tok_h_state_input_7$"/></i></li>
+      									</ul>
+                  				</td>
+                  			</tr>   
+        								<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_8$">
+        									<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">5</td>
+        									<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Will you be using a Splunk Heavy Forwarder?	</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_8$): </b><i><span class="msg_val_5 $tok_h_state_input_8$"/></i></li>
+      									</ul>
+                  				</td>
+                  			</tr>  
+      								<tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_9$">
+      									<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">5.1</td>
+      									<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Is the Splunk Heavy Forwarder already installed?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_9$): </b><i><span class="msg_val_5_1 $tok_h_state_input_9$"/></i></li>
+      									</ul>
+                				</td>
+                			</tr>
+								      <tr style="font-weight:200;max-height:30px !important;border: 1px solid #f99d1c;" class="rowmsg $tok_h_state_input_10$">
+      									<td style="text-align:center;font-weight:500;padding:2px;border: 1px solid #f99d1c;margin: 2px;">5.2</td>
+      									<td style="font-weight:200;vertical-align:middle;max-height:30px !important;">
+                					    <ul>
+      										<li><b>Question:</b> Is the Splunk_TA_windows already installed on Splunk Heavy Forwarder?</li>
+      										<li style="padding-right:10px;"><b>Message ($tok_h_state_input_10$): </b><i><span class="msg_val_5_2 $tok_h_state_input_10$"/></i></li>
+      									</ul>
+                				</td>
+                			</tr> 			
+							    </table>
+						    </center>	
+
+					    </div>
+				    </div>
+				  <div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+<!--Getting Started - Scope Questions - module Popups-->
+	<div id="gs_quest_1_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_1_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (1)</b> - <i  class="splkblue flarge">Is this your first time installing the <b>MS Windows AD Objects</b> application in this Splunk environment?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>MS Windows Upgrade Information</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_2_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_2_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (2)</b> - <i  class="splkblue flarge">Verify your Splunk Environment Type?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_2_1_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_2_1_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (2.1)</b> - <i  class="splkblue flarge">Are all the Splunk Enterprise Components (Search Head/Indexer) on a Single instance or Distributed Systems?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_3_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_3_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (3)</b> - <i  class="splkblue flarge">Is the Splunk Universal Forwarder already installed on all the target Windows systems?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<h4><i>Question Details:</i> This question is asking if you have already deployed the Splunk Universal Forwarder to all of the Target Systems.  If the answer is <b>Yes</b> then the <i>Preparation Task</i> that walks through the installation of the Splunk Universal Forwarder will <b>Not</b> be shown.</h4>
+						</p>
+						<p>
+							<h4>Descriptions of the different types of Forwarders:</h4>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder Description:</b>
+										<ul>
+											<li><div class="li_content">The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</div></li>
+											<li><div class="li_content">The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers.</div></li>
+											<li><div class="li_content">Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</div></li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="li_content"><b>Heavy Forwarder Description:</b>
+										<ul>
+											<li><div class="li_content">A type of forwarder, which is a Splunk Enterprise instance that sends data to another Splunk Enterprise instance or to a third-party system.</div></li>
+											<li><div class="li_content">A heavy forwarder has a smaller footprint than a Splunk Enterprise indexer but retains most of the capabilities of an indexer. An exception is that it cannot perform distributed searches. You can disable some services, such as Splunk Web, to further reduce its footprint size.</div></li>
+											<li><div class="li_content">Unlike other forwarder types, a heavy forwarder parses data before forwarding it and can route data based on criteria such as source or type of event. It can also index data locally while forwarding the data to another indexer.</div></li>
+											<li><div class="li_content">In most situations, the universal forwarder is the best way to forward data to indexers. Its main limitation is that it forwards only unparsed data, except in certain cases, such as structured data. You must use a heavy forwarder to route data based on event contents.</div></li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="li_content"><b>Splunk Gateway Forwarder Description:</b>
+										<ul>
+											<li><div class="li_content">A forwarder that accepts data from other forwarders and sends the data to a Splunk deployment. If you are forwarding data to Splunk Cloud, you can use a gateway forwarder to minimize the number of ports you must open in your corporate firewall. If you want to anonymize data before sending it to your Splunk deployment, this configuration enables you to create a single point at which all anonymization occurs.</div></li>
+											<li><div class="li_content">For more information in the Splunk Universal Forwarder Forwarder Manual (http://docs.splunk.com/Documentation/Forwarder/8.0.4/Forwarder/Forwarderdeploymenttopologies#Minimize_open_ports_for_Splunk_Cloud)</div></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_3_1_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_1_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (3.1)</b> - <i  class="splkblue flarge">Has the Splunk_TA_windows application been deployed to the target Windows systems?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_4_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_4_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (4)</b> - <i  class="splkblue flarge">Will you be using Splunk's Deployment Server or Manually deploying the Windows TA's to the target systems?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+							<p>
+								<h4><i>Question Details:</i> This question is asking if you have already deployed the Splunk Universal Forwarder to all of the Target Systems.  If the answer is <b>Yes</b> then the <i>Preparation Task</i> that walks through the installation of the Splunk Universal Forwarder will <b>Not</b> be shown.</h4>
+							</p>
+    						<p>
+    							<center>Deployment Server architecture</center>
+								<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="Key_elements_of_the_architecture">Key elements of the architecture</span></h2>
+								<p>A <b>deployment server</b> is a Splunk Enterprise instance that acts as a centralized configuration manager for any number of other instances, called "deployment clients". Any full  Splunk Enterprise instance - even one indexing data locally - can act as a deployment server. A deployment server cannot be a client of itself.</p>
+								<p>A <b>deployment client</b> is a Splunk instance remotely configured by a deployment server. Deployment clients can be universal forwarders, heavy forwarders, indexers, or search heads. Each deployment client belongs to one or more server classes.</p>
+								<p>A <b>deployment app</b> is a set of content (including configuration files) maintained on the deployment server and deployed as a unit to clients of a server class. A deployment app might consist of just a single configuration file, or it can consist of many files. Over time, an app can be updated with new content and then redeployed to its designated clients. The deployment app can be an existing Splunk Enterprise app or one developed solely to group some content for deployment purposes.</p>
+								<p><b><i class="icon-info" style="height:20px;color:#DC4E41;" /> Note:</b> The term "app" has a somewhat different meaning in the context of the deployment server from its meaning in the general Splunk Enterprise context. For more information on Splunk Enterprise apps in general, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/admin/Whatsanapp">"What are apps and add-ons?"</a> in the Admin manual. 
+								</p><p>A <b>server class</b> is a group of deployment clients that share one or more defined characteristics. For example, you can group all Windows clients into one server class and all Linux clients into another server class. You use server classes to map a group of  deployment clients to one or more deployment apps. By creating a server class, you are telling the deployment server that a specific set of clients should receive configuration updates in the form of a specific set of apps.</p>
+								<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="How_it_all_fits_together">How it all fits together</span></h2>
+								<p>This diagram provides a conceptual overview of the relationship between a deployment server and its set of deployment clients and server classes:
+								</p><p>In this example, each deployment client is a Splunk Enterprise forwarder that belongs to two server classes, one for its OS and the other for its geographical location. The deployment server maintains the list of server classes and uses those server classes to determine what content to distribute to each client. For an example of how to implement this type of arrangement to govern the flow of content to clients, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Extendedexampledeployseveralstandardforwarders">"Deploy configurations to several forwarders"</a>.
+								</p><p>For more information on deployment apps, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Createdeploymentapps">"Create deployment apps"</a>. For more information on server classes, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Definedeploymentclasses">"About server classes"</a>. For more information on deployment clients, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Configuredeploymentclients">"Configure deployment clients"</a>.
+								</p>
+								<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="Summary_of_key_terminology">Summary of key terminology</span></h2>
+							<p>Here's a recap of the key definitions:</p>
+							<table cellpadding="5" cellspacing="0" border="1">
+								<tbody>
+									<tr>
+										<th>Term</th>
+										<th>Meaning</th>
+									</tr>
+									<tr>
+										<td>deployment server</td>
+										<td>A Splunk Enterprise instance that acts as a centralized configuration manager. It deploys configuration updates to other instances.  Also refers to the overall configuration update facility comprising deployment server, clients, and apps.</td>
+									</tr>
+									<tr>
+										<td>deployment client</td>
+										<td>A remotely configured Splunk Enterprise instance. It receives updates from the deployment server.</td>
+									</tr>
+									<tr>
+										<td>server class</td> 
+										<td>A deployment configuration category shared by a group of deployment clients. A deployment client can belong to multiple server classes.</td>
+									</tr>
+									<tr>
+										<td>deployment app</td>
+										<td>A unit of content deployed to the members of one or more server classes.</td>
+									</tr>
+								</tbody>
+							</table> 
+		  	<li><div class="li_content">You use a deployment server to distribute content and configurations (collectively called deployment apps) to deployment clients, grouped into server classes. Deployment apps can be full-fledged apps, such as those available on Splunkbase, or they can be just simple groups of configurations.</div></li>
+																		
+
+    						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_4_1_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_4_1_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (4.1)</b> - <i  class="splkblue flarge">Is your Single Splunk instance also going to be your Deployment Server?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_4_2_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_4_2_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (4.1)</b> - <i  class="splkblue flarge">Is the Deployment Server already installed in your environment?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_4_3_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_4_3_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (4.2)</b> - <i  class="splkblue flarge">Is your Deployment Server also going to be your Splunk Heavy Forwarder?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_5_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_5_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (5)</b> - <i  class="splkblue flarge">Will you be using a Splunk $tok_inp_splk_hf_label$ Forwarder to send the Windows data to your Splunk Instance?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<h4><i>Question Details:</i> This question is asking if you are going to use an <i>Splunk Heavy Forwarder</b> in-between your <i>Splunk Universal Forwarder's</i> and the <i>Splunk Indexers</i>.  This is commonly used for either Splunk Cloud Environments to limit the allowed systems that will be sending their data to the Splunk Cloud environment, or in Splunk Enterprise (On-Premise) environments where network channels are limited between different sites and the centralized Splunk Indexers.</h4>
+						</p>
+						<p>
+							<h4>Descriptions of the different types of Forwarders:</h4>
+							<ul>
+								<li>
+									<div class="li_content"><b>Heavy Forwarder Description:</b>
+										<ul>
+											<li><div class="li_content">A type of forwarder, which is a Splunk Enterprise instance that sends data to another Splunk Enterprise instance or to a third-party system.</div></li>
+											<li><div class="li_content">A heavy forwarder has a smaller footprint than a Splunk Enterprise indexer but retains most of the capabilities of an indexer. An exception is that it cannot perform distributed searches. You can disable some services, such as Splunk Web, to further reduce its footprint size.</div></li>
+											<li><div class="li_content">Unlike other forwarder types, a heavy forwarder parses data before forwarding it and can route data based on criteria such as source or type of event. It can also index data locally while forwarding the data to another indexer.</div></li>
+											<li><div class="li_content">In most situations, the universal forwarder is the best way to forward data to indexers. Its main limitation is that it forwards only unparsed data, except in certain cases, such as structured data. You must use a heavy forwarder to route data based on event contents.</div></li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="li_content"><b>Splunk Gateway Forwarder Description:</b>
+										<ul>
+											<li><div class="li_content">A forwarder that accepts data from other forwarders and sends the data to a Splunk deployment. If you are forwarding data to Splunk Cloud, you can use a gateway forwarder to minimize the number of ports you must open in your corporate firewall. If you want to anonymize data before sending it to your Splunk deployment, this configuration enables you to create a single point at which all anonymization occurs.</div></li>
+											<li><div class="li_content">For more information in the Splunk Universal Forwarder Forwarder Manual (http://docs.splunk.com/Documentation/Forwarder/8.0.4/Forwarder/Forwarderdeploymenttopologies#Minimize_open_ports_for_Splunk_Cloud)</div></li>
+										</ul>
+									</div>
+								</li>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li><div class="li_content">The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</div></li>
+											<li><div class="li_content">The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers.</div></li>
+											<li><div class="li_content">Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</div></li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_quest_5_1_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_5_1_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (5.1)</b> - <i  class="splkblue flarge">Is the Splunk $tok_inp_splk_hf_label$ Forwarder already installed in your environment?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="gs_quest_5_2_mod_hold" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_quest_5_2_mod_hold_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Question (5.2)</b> - <i  class="splkblue flarge">Is the Splunk_TA_windows already installed on Splunk $tok_inp_splk_hf_label$ Forwarder?</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<p>
+							<ul>
+								<li>
+									<div class="li_content"><b>Universal Forwarder.</b>
+										<ul>
+											<li>The universal forwarder is a dedicated, streamlined version of Splunk Enterprise that contains only the essential components needed to forward data.</li>
+											<li>The universal forwarder does not support python and does not expose a UI. In most situations, the universal forwarder is the best way to forward data to indexers. </li>
+											<li>Its main limitation is that it forwards unparsed data, except in certain cases, such as structured data.</li>
+										</ul>
+									</div>
+								</li>
+							</ul>
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+<!-- End of Question Popups -->
+
+<!-- Data Inputs Information -->
+	<div id="gs_prep_task_input_ad" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_prep_task_input_pop_ad">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Pre-Defined Inputs</b> - <i  class="splkblue flarge">Splunk_TA_windows_admon and Splunk_TA_windows_dc</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+							<p>
+								<center><h3>Below are the inputs for the two Pre-Defined Example TA's, <img src="/static/app/ms_windows_ad_objects/icons/icon_folder_src.png" class="image" title="The graphic shows the Source Folder for the Pre-Defined Splunk TAs." style="height:15px;width:25px;padding-bottom:4px;"></img>\\Network Share\ms_ad_obj_ta_examples\<b style="color:#40A540;">Splunk_TA_windows_admon\...</b> and <b style="color:#40A540;">Splunk_TA_windows_dc\...</b></h3></center>
+							</p>
+							<ul class="note_lst">
+								<li class="mrk_arrow_r"><div class="li_content"><b>Example TA: <i>Splunk_TA_windows_admon</i></b></div>
+									<ul class="note_lst">
+										<li><details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_input_settings" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+											<i class="ms_obj_icon_input_settings"></i> <b>Active Directory (admon):</b></summary>
+												<ul class="note_lst">
+													<li class="mrk_important"><div class="li_content">The <code>baseline = 1</code> setting is required for the <b>MS Windows AD Objects</b> application</div></li>
+													<li class="mrk_important"><div class="li_content">This TA, and subsequent admon input, should only be enabled on <b>One</b> <b style="color:#DC4E41;">designated Domain Controller or Domain Member Server Per AD Domain.</b></div></li>
+													
+													<li class="mrk_note"><div class="li_content">The <code>index=msad</code> will need to be adjusted if you have specified a different index than <b>msad</b> for your Active Directory data.</div></li>
+												</ul>
+<pre style="width:95% !important;">
+[admon://default]
+disabled = 0
+monitorSubtree = 1
+baseline = 1
+index=msad</pre>
+											</details>
+										</li>
+									</ul>
+								</li>
+								<li class="mrk_arrow_r"><div class="li_content"><b>Example TA: <i>Splunk_TA_windows_dc</i></b></div>
+									<ul class="note_lst">
+										<li><details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_input_settings" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+											<i class="ms_obj_icon_input_settings"></i> <b>Active Directory Inputs (AD WinEventLogs):</b></summary>
+											<ul class="note_lst">							
+												<li class="mrk_note"><div class="li_content">The <code>index=wineventlog</code> setting will need to be adjusted if you have specified a different index than <code>wineventlog</code>.</div></li>
+											</ul>
+<pre style="width:95% !important;">
+## Application and Services Logs - DFS Replication
+[WinEventLog://DFS Replication]
+disabled = 0
+renderXml=false
+index=wineventlog
+ 
+## Application and Services Logs - Directory Service
+[WinEventLog://Directory Service]
+disabled = 0
+renderXml=false
+index=wineventlog
+ 
+## Application and Services Logs - File Replication Service
+[WinEventLog://File Replication Service]
+disabled = 0
+renderXml=false
+index = wineventlog
+ 
+## Application and Services Logs - Key Management Service
+[WinEventLog://Key Management Service]
+disabled = 0
+renderXml=false
+index = wineventlog
+
+###### WinEventLog Inputs for DNS ######
+[WinEventLog://DNS Server]
+disabled=0
+renderXml=false
+index = wineventlog</pre>
+											</details>
+										</li>
+										<li>
+											<details style="padding:0px !important;margin:0px !important;">
+												<summary class="ms_obj_summary_input_settings" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+												<i class="ms_obj_icon_input_settings"></i> <b>Active Directory (Log Files and Scripts):</b></summary>
+												<ul class="note_lst">
+													<li class="mrk_important"><div class="li_content">It is recommended that either the <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> or the <code>[powershell://AD-Health]</code> input is <b>enabled</b> (<i>disabled = 0</i>), depending on the Windows OS version for the targeted AD Domain Controller.</div>
+														<ul class="note_lst"><li class="mrk_arrow_r"><div class="li_content">If you chose not to enable either of the these inputs, then you will need to manually enter your <b>AD Domain</b> details in the <b>Completed</b> part of this <i>Getting Started</i> wizard.</div></li></ul>
+													</li>							
+													<li class="mrk_note"><div class="li_content">The <code>index=msad</code> setting will need to be adjusted if you have specified a different index than <code>msad</code>.</div></li>
+												</ul>
+<pre style="width:95% !important;">
+###### DHCP ######
+[monitor://$WINDIR\System32\DHCP]
+disabled = 0
+whitelist = DhcpSrvLog*
+crcSalt = &lt;SOURCE&gt;
+sourcetype = DhcpSrvLog
+index = msad
+
+###### Monitor Inputs for Active Directory ######
+[monitor://$WINDIR\debug\netlogon.log]
+sourcetype=MSAD:NT6:Netlogon
+disabled=0
+index=msad
+
+###### Monitor Inputs for DNS ######
+[MonitorNoHandle://$WINDIR\System32\Dns\dns.log]
+sourcetype=MSAD:NT6:DNS
+disabled=0
+index=msad
+
+###### Scripted/Powershell Mod inputs Active Directory ######
+## Replication Information NT6
+[script://.\bin\runpowershell.cmd nt6-repl-stat.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:Replication
+interval=300
+disabled=1
+index=msad
+ 
+## Replication Information 2012r2 and 2016
+[powershell://Replication-Stats]
+script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-repl-stats.ps1"
+schedule = 0 */5 * ? * *
+source = Powershell
+sourcetype=MSAD:NT6:Replication
+disabled=0
+index=msad
+ 
+## Health and Topology Information Windows (Version 2008)
+[script://.\bin\runpowershell.cmd nt6-health.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:Health
+interval=300
+disabled=1
+index=msad
+ 
+## Health and Topology Information Windows (Version 2012r2 and 2016)
+[powershell://AD-Health]
+script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"
+schedule = 0 */5 * ? * *
+source=Powershell
+sourcetype=MSAD:NT6:Health
+disabled=0
+index=msad
+
+## Site, Site Link and Subnet Information NT6
+[script://.\bin\runpowershell.cmd nt6-siteinfo.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:SiteInfo
+interval=3600
+disabled=1
+index=msad
+ 
+## Site, Site Link and Subnet Information 2012r2 and 2016
+[powershell://Siteinfo]
+script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-siteinfo.ps1"
+schedule = 0 15 * ? * *
+source = Powershell
+sourcetype=MSAD:NT6:SiteInfo
+disabled=0
+index=msad
+
+##### Scripted Inputs for DNS #####
+## DNS Zone Information Collection
+[script://.\bin\runpowershell.cmd dns-zoneinfo.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:DNS-Zone-Information
+interval=3600
+disabled=0
+index=msad
+ 
+## DNS Health Information Collection
+[script://.\bin\runpowershell.cmd dns-health.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:DNS-Health
+interval=3600
+disabled=0
+index=msad</pre>
+											</details>
+										</li>
+										<li><details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_input_settings" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+											<i class="ms_obj_icon_input_settings"></i> <b>Active Directory (Performance):</b></summary>
+											<ul class="note_lst">							
+												<li class="mrk_note"><div class="li_content">The <code>index=perfmon</code> setting will need to be adjusted if you have specified a different index than <code>perfmon</code>.</div></li>
+											</ul>
+<pre style="width:95% !important;">
+###### Perfmon Inputs from TA-AD/TA-DNS ######
+[perfmon://Processor]
+object = Processor
+counters = % Processor Time; % User Time; % Privileged Time; Interrupts/sec; % DPC Time; % Interrupt Time; DPCs Queued/sec; DPC Rate; % Idle Time; % C1 Time; % C2 Time; % C3 Time; C1 Transitions/sec; C2 Transitions/sec; C3 Transitions/sec
+instances = *
+interval = 60
+disabled = 0
+mode = single
+useEnglishOnly=true
+index=perfmon
+ 
+[perfmon://Network_Interface]
+object = Network Interface
+counters = Bytes Total/sec; Packets/sec; Packets Received/sec; Packets Sent/sec; Current Bandwidth; Bytes Received/sec; Packets Received Unicast/sec; Packets Received Non-Unicast/sec; Packets Received Discarded; Packets Received Errors; Packets Received Unknown; Bytes Sent/sec; Packets Sent Unicast/sec; Packets Sent Non-Unicast/sec; Packets Outbound Discarded; Packets Outbound Errors; Output Queue Length; Offloaded Connections; TCP Active RSC Connections; TCP RSC Coalesced Packets/sec; TCP RSC Exceptions/sec; TCP RSC Average Packet Size 
+instances = *
+interval = 60
+disabled = 0
+mode = single
+useEnglishOnly=true
+index=perfmon
+ 
+[perfmon://DFS_Replicated_Folders]
+object = DFS Replicated Folders
+counters = Bandwidth Savings Using DFS Replication; RDC Bytes Received; RDC Compressed Size of Files Received; RDC Size of Files Received; RDC Number of Files Received; Compressed Size of Files Received; Size of Files Received; Total Files Received; Deleted Space In Use; Deleted Bytes Cleaned up; Deleted Files Cleaned up; Deleted Bytes Generated; Deleted Files Generated; Updates Dropped; File Installs Retried; File Installs Succeeded; Conflict Folder Cleanups Completed; Conflict Space In Use; Conflict Bytes Cleaned up; Conflict Files Cleaned up; Conflict Bytes Generated; Conflict Files Generated; Staging Space In Use; Staging Bytes Cleaned up; Staging Files Cleaned up; Staging Bytes Generated; Staging Files Generated
+instances = *
+interval = 30
+disabled = 0
+mode = single
+useEnglishOnly=true
+index=perfmon
+ 
+[perfmon://NTDS]
+object = NTDS
+counters = DRA Inbound Properties Total/sec; AB Browses/sec; DRA Inbound Objects Applied/sec; DS Threads in Use; AB Client Sessions; DRA Pending Replication Synchronizations; DRA Inbound Object Updates Remaining in Packet; DS Security Descriptor sub-operations/sec; DS Security Descriptor Propagations Events; LDAP Client Sessions; LDAP Active Threads; LDAP Writes/sec; LDAP Searches/sec; DRA Outbound Objects/sec; DRA Outbound Properties/sec; DRA Inbound Values Total/sec; DRA Sync Requests Made; DRA Sync Requests Successful; DRA Sync Failures on Schema Mismatch; DRA Inbound Objects/sec; DRA Inbound Properties Applied/sec; DRA Inbound Properties Filtered/sec; DS Monitor List Size; DS Notify Queue Size; LDAP UDP operations/sec; DS Search sub-operations/sec; DS Name Cache hit rate; DRA Highest USN Issued (Low part); DRA Highest USN Issued (High part); DRA Highest USN Committed (Low part); DRA Highest USN Committed (High part); DS % Writes from SAM; DS % Writes from DRA; DS % Writes from LDAP; DS % Writes from LSA; DS % Writes from KCC; DS % Writes from NSPI; DS % Writes Other; DS Directory Writes/sec; DS % Searches from SAM; DS % Searches from DRA; DS % Searches from LDAP; DS % Searches from LSA; DS % Searches from KCC; DS % Searches from NSPI; DS % Searches Other; DS Directory Searches/sec; DS % Reads from SAM; DS % Reads from DRA; DRA Inbound Values (DNs only)/sec; DRA Inbound Objects Filtered/sec; DS % Reads from LSA; DS % Reads from KCC; DS % Reads from NSPI; DS % Reads Other; DS Directory Reads/sec; LDAP Successful Binds/sec; LDAP Bind Time; SAM Successful Computer Creations/sec: Includes all requests; SAM Machine Creation Attempts/sec; SAM Successful User Creations/sec; SAM User Creation Attempts/sec; SAM Password Changes/sec; SAM Membership Changes/sec; SAM Display Information Queries/sec; SAM Enumerations/sec; SAM Transitive Membership Evaluations/sec; SAM Non-Transitive Membership Evaluations/sec; SAM Domain Local Group Membership Evaluations/sec; SAM Universal Group Membership Evaluations/sec; SAM Global Group Membership Evaluations/sec; SAM GC Evaluations/sec; DRA Inbound Full Sync Objects Remaining; DRA Inbound Bytes Total/sec; DRA Inbound Bytes Not Compressed (Within Site)/sec; DRA Inbound Bytes Compressed (Between Sites, Before Compression)/sec; DRA Inbound Bytes Compressed (Between Sites, After Compression)/sec; DRA Outbound Bytes Total/sec; DRA Outbound Bytes Not Compressed (Within Site)/sec; DRA Outbound Bytes Compressed (Between Sites, Before Compression)/sec; DRA Outbound Bytes Compressed (Between Sites, After Compression)/sec; DS Client Binds/sec; DS Server Binds/sec; DS Client Name Translations/sec; DS Server Name Translations/sec; DS Security Descriptor Propagator Runtime Queue; DS Security Descriptor Propagator Average Exclusion Time; DRA Outbound Objects Filtered/sec; DRA Outbound Values Total/sec; DRA Outbound Values (DNs only)/sec; AB ANR/sec; AB Property Reads/sec; AB Searches/sec; AB Matches/sec; AB Proxy Lookups/sec; ATQ Threads Total; ATQ Threads LDAP; ATQ Threads Other; DRA Inbound Bytes Total Since Boot; DRA Inbound Bytes Not Compressed (Within Site) Since Boot; DRA Inbound Bytes Compressed (Between Sites, Before Compression) Since Boot; DRA Inbound Bytes Compressed (Between Sites, After Compression) Since Boot; DRA Outbound Bytes Total Since Boot; DRA Outbound Bytes Not Compressed (Within Site) Since Boot; DRA Outbound Bytes Compressed (Between Sites, Before Compression) Since Boot; DRA Outbound Bytes Compressed (Between Sites, After Compression) Since Boot; LDAP New Connections/sec; LDAP Closed Connections/sec; LDAP New SSL Connections/sec; DRA Pending Replication Operations; DRA Threads Getting NC Changes; DRA Threads Getting NC Changes Holding Semaphore; DRA Inbound Link Value Updates Remaining in Packet; DRA Inbound Total Updates Remaining in Packet; DS % Writes from NTDSAPI; DS % Searches from NTDSAPI; DS % Reads from NTDSAPI; SAM Account Group Evaluation Latency; SAM Resource Group Evaluation Latency; ATQ Outstanding Queued Requests; ATQ Request Latency; ATQ Estimated Queue Delay; Tombstones Garbage Collected/sec; Phantoms Cleaned/sec; Link Values Cleaned/sec; Tombstones Visited/sec; Phantoms Visited/sec; NTLM Binds/sec; Negotiated Binds/sec; Digest Binds/sec; Simple Binds/sec; External Binds/sec; Fast Binds/sec; Base searches/sec; Subtree searches/sec; Onelevel searches/sec; Database adds/sec; Database modifys/sec; Database deletes/sec; Database recycles/sec; Approximate highest DNT; Transitive operations/sec; Transitive suboperations/sec; Transitive operations milliseconds run   
+interval = 60
+disabled = 0
+mode = single
+useEnglishOnly=true
+index=perfmon
+
+[perfmon://DNS]
+object = DNS
+counters = Total Query Received; Total Query Received/sec; UDP Query Received; UDP Query Received/sec; TCP Query Received; TCP Query Received/sec; Total Response Sent; Total Response Sent/sec; UDP Response Sent; UDP Response Sent/sec; TCP Response Sent; TCP Response Sent/sec; Recursive Queries; Recursive Queries/sec; Recursive Send TimeOuts; Recursive TimeOut/sec; Recursive Query Failure; Recursive Query Failure/sec; Notify Sent; Zone Transfer Request Received; Zone Transfer Success; Zone Transfer Failure; AXFR Request Received; AXFR Success Sent; IXFR Request Received; IXFR Success Sent; Notify Received; Zone Transfer SOA Request Sent; AXFR Request Sent; AXFR Response Received; AXFR Success Received; IXFR Request Sent; IXFR Response Received; IXFR Success Received; IXFR UDP Success Received; IXFR TCP Success Received; WINS Lookup Received; WINS Lookup Received/sec; WINS Response Sent; WINS Response Sent/sec; WINS Reverse Lookup Received; WINS Reverse Lookup Received/sec; WINS Reverse Response Sent; WINS Reverse Response Sent/sec; Dynamic Update Received; Dynamic Update Received/sec; Dynamic Update NoOperation; Dynamic Update NoOperation/sec; Dynamic Update Written to Database; Dynamic Update Written to Database/sec; Dynamic Update Rejected; Dynamic Update TimeOuts; Dynamic Update Queued; Secure Update Received; Secure Update Received/sec; Secure Update Failure; Database Node Memory; Record Flow Memory; Caching Memory; UDP Message Memory; TCP Message Memory; Nbstat Memory; Unmatched Responses Received 
+interval = 60
+disabled = 0
+mode = single
+useEnglishOnly=true
+index=perfmon
+</pre>
+											</details>
+										</li>
+									</ul>
+								</li>
+							</ul>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="gs_prep_task_input_win" style="display:none;width:40% !important;left:30% !important;">
+		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="gs_prep_task_input_pop_win">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Pre-Defined Data Inputs</b> - <i  class="splkblue flarge">Splunk_TA_windows Pre-Defined Inputs</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+							<p>
+								<center><h3>Below are the inputs for the Pre-Defined base Windows OS inputs, <img src="/static/app/ms_windows_ad_objects/icons/icon_inputs_conf_src.png" class="image" title="The graphic shows the Source inputs.conf file that is in the local folder." style="height:20px;width:15px;padding-bottom:4px;"></img>\\Network Share\ms_ad_obj_ta_examples\Splunk_TA_windows_local_only\<b style="color:#40A540;">local\inputs.conf</b> that were added to the <b>Splunk_TA_windows</b>.</h3></center>
+							</p>
+							<h4>Example TA Inputs: <b>Splunk_TA_windows</b></h4>
+							<ul class="note_lst">
+								<li><details style="padding:0px !important;margin:0px !important;">
+										<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+										<i class="ms_obj_icon_steps"></i> <b>Windows Event Logs Inputs:</b></summary>
+											<ul class="note_lst">
+												<li class="mrk_important"><div class="li_content">The <code>[WinEventLog://Security]</code> input is required for a majority of the <b>MS Windows AD Objects</b> application's dashboards and reports.</div></li>						
+												<li class="mrk_note"><div class="li_content">The <code>index=wineventlog</code> setting will need to be adjusted if you have specified a different index than <code>wineventlog</code>.</div></li>
+											</ul>
+<pre style="width:95% !important;">
+###### Base OS Logs ######
+[WinEventLog://Application]
+disabled = 0
+start_from = oldest
+current_only = 0
+checkpointInterval = 5
+renderXml=false
+index=wineventlog
+
+[WinEventLog://Security]
+disabled = 0
+start_from = oldest
+current_only = 0
+evt_resolve_ad_obj = 1
+checkpointInterval = 5
+blacklist1 = EventCode="4662" Message="Object Type:(?!\s*groupPolicyContainer)"
+blacklist2 = EventCode="566" Message="Object Type:(?!\s*groupPolicyContainer)"
+renderXml=false
+index=wineventlog
+
+[WinEventLog://System]
+disabled = 0
+start_from = oldest
+current_only = 0
+checkpointInterval = 5
+renderXml=false
+index=wineventlog</pre>
+										</details>
+									</li>
+									<li><details style="padding:0px !important;margin:0px !important;">
+											<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+											<i class="ms_obj_icon_steps"></i> <b>Windows API and Scripted Inputs:</b></summary>
+											<ul class="note_lst">							
+												<li class="mrk_note"><div class="li_content">The <code>index=windows</code> setting will need to be adjusted if you have specified a different index than <code>windows</code>.</div></li>
+											</ul>
+<pre style="width:95% !important;">
+###### Windows Update Log ######
+## Enable below stanza to get WindowsUpdate.log for Windows 8, Windows 8.1, Server 2008R2, Server 2012 and Server 2012R2
+[monitor://$WINDIR\WindowsUpdate.log]
+disabled = 0
+sourcetype = WindowsUpdateLog
+index=windows
+
+## Enable below powershell and monitor stanzas to get WindowsUpdate.log for Windows 10 and Server 2016
+## Below stanza will automatically generate WindowsUpdate.log daily
+[powershell://generate_windows_update_logs]
+script = ."$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\powershell\generate_windows_update_logs.ps1"
+schedule = 0 */24 * * *
+disabled = 1
+index=windows
+
+## Below stanza will monitor the generated WindowsUpdate.log in Windows 10 and Server 2016
+[monitor://$SPLUNK_HOME\var\log\Splunk_TA_windows_dc\WindowsUpdate.log]
+disabled = 1
+sourcetype = WindowsUpdateLog
+index=windows
+
+###### Scripted Input (See also wmi.conf)
+[script://.\bin\win_listening_ports.bat]
+disabled = 1
+## Run once per hour
+interval = 3600
+sourcetype = Script:ListeningPorts
+index=windows
+
+[script://.\bin\win_installed_apps.bat]
+disabled = 1
+## Run once per day
+interval = 86400
+sourcetype = Script:InstalledApps
+index=windows
+
+[script://.\bin\win_timesync_status.bat]
+disabled = 1
+## Run once per hour
+interval = 3600
+sourcetype = Script:TimesyncStatus
+index=windows
+
+[script://.\bin\win_timesync_configuration.bat]
+disabled = 1
+## Run once per hour
+interval = 3600
+sourcetype = Script:TimesyncConfiguration
+index=windows
+
+[script://.\bin\netsh_address.bat]
+disabled = 1
+## Run once per day
+interval = 86400
+sourcetype = Script:NetworkConfiguration
+index=windows
+
+###### Host monitoring ######
+[WinHostMon://Computer]
+interval = 600
+disabled = 0
+type = Computer
+index=windows
+
+[WinHostMon://Process]
+interval = 600
+disabled = 0
+type = Process
+index=windows
+
+[WinHostMon://Processor]
+interval = 600
+disabled = 0
+type = Processor
+index=windows
+
+[WinHostMon://NetworkAdapter]
+interval = 600
+disabled = 0
+type = NetworkAdapter
+index=windows
+
+[WinHostMon://Service]
+interval = 600
+disabled = 0
+type = Service
+index=windows
+
+[WinHostMon://OperatingSystem]
+interval = 600
+disabled = 0
+type = OperatingSystem
+index=windows
+
+[WinHostMon://Disk]
+interval = 600
+disabled = 0
+type = Disk
+index=windows
+
+[WinHostMon://Driver]
+interval = 600
+disabled = 0
+type = Driver
+index=windows
+
+[WinHostMon://Roles]
+interval = 600
+disabled = 0
+type = Roles
+index=windows
+</pre>
+									</details>
+								</li>
+								<li><details style="padding:0px !important;margin:0px !important;">
+										<summary class="ms_obj_summary_steps" style="width:480px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+										<i class="ms_obj_icon_steps"></i> <b>Windows Performance Counter Inputs:</b></summary>
+											<ul class="note_lst">							
+												<li class="mrk_note"><div class="li_content">The <code>index=perfmon</code> setting will need to be adjusted if you have specified a different index than <code>perfmon</code>.</div></li>
+											</ul>
+<pre style="width:95% !important;">
+## CPU
+[perfmon://CPU]
+counters = % Processor Time; % User Time; % Privileged Time; Interrupts/sec; % DPC Time; % Interrupt Time; DPCs Queued/sec; DPC Rate; % Idle Time; % C1 Time; % C2 Time; % C3 Time; C1 Transitions/sec; C2 Transitions/sec; C3 Transitions/sec
+disabled = 0
+instances = *
+interval = 60
+mode = single
+object = Processor
+useEnglishOnly=true
+index=perfmon
+
+## Logical Disk
+[perfmon://LogicalDisk]
+counters = % Free Space; Free Megabytes; Current Disk Queue Length; % Disk Time; Avg. Disk Queue Length; % Disk Read Time; Avg. Disk Read Queue Length; % Disk Write Time; Avg. Disk Write Queue Length; Avg. Disk sec/Transfer; Avg. Disk sec/Read; Avg. Disk sec/Write; Disk Transfers/sec; Disk Reads/sec; Disk Writes/sec; Disk Bytes/sec; Disk Read Bytes/sec; Disk Write Bytes/sec; Avg. Disk Bytes/Transfer; Avg. Disk Bytes/Read; Avg. Disk Bytes/Write; % Idle Time; Split IO/Sec
+disabled = 0
+instances = *
+interval = 120
+mode = single
+object = LogicalDisk
+useEnglishOnly=true
+index=perfmon
+
+## Physical Disk
+[perfmon://PhysicalDisk]
+counters = Current Disk Queue Length; % Disk Time; Avg. Disk Queue Length; % Disk Read Time; Avg. Disk Read Queue Length; % Disk Write Time; Avg. Disk Write Queue Length; Avg. Disk sec/Transfer; Avg. Disk sec/Read; Avg. Disk sec/Write; Disk Transfers/sec; Disk Reads/sec; Disk Writes/sec; Disk Bytes/sec; Disk Read Bytes/sec; Disk Write Bytes/sec; Avg. Disk Bytes/Transfer; Avg. Disk Bytes/Read; Avg. Disk Bytes/Write; % Idle Time; Split IO/Sec
+disabled = 0
+instances = *
+interval = 120
+mode = single
+object = PhysicalDisk
+useEnglishOnly=true
+index=perfmon
+
+## Memory
+[perfmon://Memory]
+counters = Page Faults/sec; Available Bytes; Committed Bytes; Commit Limit; Write Copies/sec; Transition Faults/sec; Cache Faults/sec; Demand Zero Faults/sec; Pages/sec; Pages Input/sec; Page Reads/sec; Pages Output/sec; Pool Paged Bytes; Pool Nonpaged Bytes; Page Writes/sec; Pool Paged Allocs; Pool Nonpaged Allocs; Free System Page Table Entries; Cache Bytes; Cache Bytes Peak; Pool Paged Resident Bytes; System Code Total Bytes; System Code Resident Bytes; System Driver Total Bytes; System Driver Resident Bytes; System Cache Resident Bytes; % Committed Bytes In Use; Available KBytes; Available MBytes; Transition Pages RePurposed/sec; Free & Zero Page List Bytes; Modified Page List Bytes; Standby Cache Reserve Bytes; Standby Cache Normal Priority Bytes; Standby Cache Core Bytes; Long-Term Average Standby Cache Lifetime (s)
+disabled = 0
+interval = 60
+mode = single
+object = Memory
+useEnglishOnly=true
+index=perfmon
+
+## Network
+[perfmon://Network]
+counters = Bytes Total/sec; Packets/sec; Packets Received/sec; Packets Sent/sec; Current Bandwidth; Bytes Received/sec; Packets Received Unicast/sec; Packets Received Non-Unicast/sec; Packets Received Discarded; Packets Received Errors; Packets Received Unknown; Bytes Sent/sec; Packets Sent Unicast/sec; Packets Sent Non-Unicast/sec; Packets Outbound Discarded; Packets Outbound Errors; Output Queue Length; Offloaded Connections; TCP Active RSC Connections; TCP RSC Coalesced Packets/sec; TCP RSC Exceptions/sec; TCP RSC Average Packet Size  
+disabled = 0
+instances = *
+interval = 60
+mode = single
+object = Network Interface
+useEnglishOnly=true
+index=perfmon
+
+## Process
+[perfmon://Process]
+counters = % Processor Time; % User Time; % Privileged Time; Virtual Bytes Peak; Virtual Bytes; Page Faults/sec; Working Set Peak; Working Set; Page File Bytes Peak; Page File Bytes; Private Bytes; Thread Count; Priority Base; Elapsed Time; ID Process; Creating Process ID; Pool Paged Bytes; Pool Nonpaged Bytes; Handle Count; IO Read Operations/sec; IO Write Operations/sec; IO Data Operations/sec; IO Other Operations/sec; IO Read Bytes/sec; IO Write Bytes/sec; IO Data Bytes/sec; IO Other Bytes/sec; Working Set - Private
+disabled = 0
+instances = *
+interval = 60
+mode = single
+object = Process
+useEnglishOnly=true
+index=perfmon
+
+## ProcessInformation
+[perfmon://ProcessorInformation]
+counters = % Processor Time; Processor Frequency
+disabled = 0
+instances = *
+interval = 60
+mode = single
+object = Processor Information
+useEnglishOnly=true
+index=perfmon
+
+## System
+[perfmon://System]
+counters = File Read Operations/sec; File Write Operations/sec; File Control Operations/sec; File Read Bytes/sec; File Write Bytes/sec; File Control Bytes/sec; Context Switches/sec; System Calls/sec; File Data Operations/sec; System Up Time; Processor Queue Length; Processes; Threads; Alignment Fixups/sec; Exception Dispatches/sec; Floating Emulations/sec; % Registry Quota In Use
+disabled = 0
+instances = *
+interval = 60
+mode = single
+object = System
+useEnglishOnly=true
+index=perfmon</pre>
+</details>
+</li>
+</ul>
+    						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+
+		<div id="info_mod_info_ds_tips_hold" style="display:none;width:40% !important;left:30% !important;">
+    		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="info_mod_info_ds_tips_pop">
+    			<div class="modal-content">
+    				<div class="modal-header">
+    					<center>
+    						<div class="mod-head-box">
+    							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+    							<h1 class="title" id="myModalLabel" style="text-align:center;">
+    								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+    								<b>Installing Deployment Server</b> - <i  class="splkblue flarge">Important Tips:</i></i>
+    							</h1>
+    						</div>
+    					</center>
+    				</div>   
+    				<div class="modal-body">		
+    					<div class="mod-body-box">
+    						<p>
+    							<ul>
+    								<li><div class="li_content">Deployment server capability is automatically enabled on Splunk Enterprise, so there is nothing you need to do in this step, beyond choosing the instance. This is the instance where you will place the downloadable content and define your server classes. The deployment server distributes content updates to its set of deployment clients.</div></li>
+									<li class="splk_uf_type tok_splk_uf_hf"><div class="li_content">For Proof of Concepts or Small Splunk Environments you can use the same system as your Splunk Heavy Forwarder</div></li>
+									<li class="splk_uf_type tok_splk_uf_hf"><div class="li_content">Since the Deployment server capability is automatically enabled on Splunk Enterprise, you can skip this step and proceed to the next Preparation item if you have already installed the Splunk Heavy Forwarder and you want to use it as your Deployment Server.</div></li>
+									<li><div class="li_content">In most cases, the deployment server requires a dedicated Splunk Enterprise instance. See "Deployment server system requirements."</div></li>
+									<li><div class="li_content mrk_d_important"> The deployment server cannot be a deployment client of itself. If it is, the following error will appear in splunkd.log: "This DC shares a Splunk instance with its DS: unsupported configuration".</div></li>
+								</ul>
+    						</p>
+							<p>Here's a recap of the key definitions:</p>
+							<table cellpadding="5" cellspacing="0" border="1">
+								<tbody>
+									<tr>
+										<th>Term</th>
+										<th>Meaning</th>
+									</tr>
+									<tr>
+										<td>deployment server</td>
+										<td>A Splunk Enterprise instance that acts as a centralized configuration manager. It deploys configuration updates to other instances.  Also refers to the overall configuration update facility comprising deployment server, clients, and apps.</td>
+									</tr>
+									<tr>
+										<td>deployment client</td>
+										<td>A remotely configured Splunk Enterprise instance. It receives updates from the deployment server.</td>
+									</tr>
+									<tr>
+										<td>server class</td> 
+										<td>A deployment configuration category shared by a group of deployment clients. A deployment client can belong to multiple server classes.</td>
+									</tr>
+									<tr>
+										<td>deployment app</td>
+										<td>A unit of content deployed to the members of one or more server classes.</td>
+									</tr>
+								</tbody>
+							</table>
+					    </div>
+				    </div>
+				  <div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+		<div id="info_mod_info_ds_cloud_diag_hold" style="display:none;width:25% !important;left:37% !important;">
+    		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="info_mod_info_ds_cloud_diag_pop">
+    			<div class="modal-content">
+    				<div class="modal-header">
+    					<center>
+    						<div class="mod-head-box">
+    							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+    							<h1 class="title" id="myModalLabel" style="text-align:center;">
+    								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+    								<b>Splunk Cloud</b> - <i  class="splkblue flarge"> Deployment Server Example:</i></i>
+    							</h1>
+    						</div>
+    					</center>
+    				</div>   
+    				<div class="modal-body">		
+    					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_inst_4_cloud.png" class="image" title="The graphic shows the Windows GDI step for installing the Cloud Credentials App on the Splunk Deployment Server." width="450" height="375"></img></p></center>
+					    </div>
+				    </div>
+				  <div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+        
+		<div id="info_mod_info_deplsrv_hold" style="display:none;width:40% !important;left:30% !important;">
+    		<div class="modal-dialog" style="width: 60% !important;min-height: 350px !important;max-height: 650px !important;" id="info_mod_info_deplsrv_pop">
+    			<div class="modal-content">
+    				<div class="modal-header">
+    					<center>
+    						<div class="mod-head-box">
+    							<!--button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button-->	
+    							<h1 class="title" id="myModalLabel" style="text-align:center;">
+    								<i  class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+    								<b></b> - <i  class="splkblue flarge">Brief Descriptions:</i></i>
+    							</h1>
+    						</div>
+    					</center>
+    				</div>   
+    				<div class="modal-body">		
+    					<div class="mod-body-box">
+    						<p>
+    							<center>Deployment Server architecture</center>
+								<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="Key_elements_of_the_architecture">Key elements of the architecture</span></h2>
+								<p>A <b>deployment server</b> is a Splunk Enterprise instance that acts as a centralized configuration manager for any number of other instances, called "deployment clients". Any full  Splunk Enterprise instance - even one indexing data locally - can act as a deployment server. A deployment server cannot be a client of itself.</p>
+								<p>A <b>deployment client</b> is a Splunk instance remotely configured by a deployment server. Deployment clients can be universal forwarders, heavy forwarders, indexers, or search heads. Each deployment client belongs to one or more server classes.</p>
+								<p>A <b>deployment app</b> is a set of content (including configuration files) maintained on the deployment server and deployed as a unit to clients of a server class. A deployment app might consist of just a single configuration file, or it can consist of many files. Over time, an app can be updated with new content and then redeployed to its designated clients. The deployment app can be an existing Splunk Enterprise app or one developed solely to group some content for deployment purposes.</p>
+								<p><b><i class="icon-info" style="height:20px;color:#DC4E41;" /> Note:</b> The term "app" has a somewhat different meaning in the context of the deployment server from its meaning in the general Splunk Enterprise context. For more information on Splunk Enterprise apps in general, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/admin/Whatsanapp">"What are apps and add-ons?"</a> in the Admin manual. 
+								</p><p>A <b>server class</b> is a group of deployment clients that share one or more defined characteristics. For example, you can group all Windows clients into one server class and all Linux clients into another server class. You use server classes to map a group of  deployment clients to one or more deployment apps. By creating a server class, you are telling the deployment server that a specific set of clients should receive configuration updates in the form of a specific set of apps.</p>
+<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="How_it_all_fits_together">How it all fits together</span></h2>
+<p>This diagram provides a conceptual overview of the relationship between a deployment server and its set of deployment clients and server classes:
+</p><p>In this example, each deployment client is a Splunk Enterprise forwarder that belongs to two server classes, one for its OS and the other for its geographical location. The deployment server maintains the list of server classes and uses those server classes to determine what content to distribute to each client. For an example of how to implement this type of arrangement to govern the flow of content to clients, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Extendedexampledeployseveralstandardforwarders">"Deploy configurations to several forwarders"</a>.
+</p><p>For more information on deployment apps, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Createdeploymentapps">"Create deployment apps"</a>. For more information on server classes, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Definedeploymentclasses">"About server classes"</a>. For more information on deployment clients, see <a class="external text" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Updating/Configuredeploymentclients">"Configure deployment clients"</a>.
+</p>
+<h2><i class="glyphicon glyphicon-chevron-down"></i><span class="mw-headline" id="Summary_of_key_terminology">Summary of key terminology</span></h2>
+							<p>Here's a recap of the key definitions:</p>
+							<table cellpadding="5" cellspacing="0" border="1">
+								<tbody>
+									<tr>
+										<th>Term</th>
+										<th>Meaning</th>
+									</tr>
+									<tr>
+										<td>deployment server</td>
+										<td>A Splunk Enterprise instance that acts as a centralized configuration manager. It deploys configuration updates to other instances.  Also refers to the overall configuration update facility comprising deployment server, clients, and apps.</td>
+									</tr>
+									<tr>
+										<td>deployment client</td>
+										<td>A remotely configured Splunk Enterprise instance. It receives updates from the deployment server.</td>
+									</tr>
+									<tr>
+										<td>server class</td> 
+										<td>A deployment configuration category shared by a group of deployment clients. A deployment client can belong to multiple server classes.</td>
+									</tr>
+									<tr>
+										<td>deployment app</td>
+										<td>A unit of content deployed to the members of one or more server classes.</td>
+									</tr>
+								</tbody>
+							</table> 
+		  	<li><div class="li_content">You use a deployment server to distribute content and configurations (collectively called deployment apps) to deployment clients, grouped into server classes. Deployment apps can be full-fledged apps, such as those available on Splunkbase, or they can be just simple groups of configurations.</div></li>
+																		
+
+    						</p>
+					    </div>
+				    </div>
+				  <div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_dl_cc_istr_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_dl_cc_istr_1">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Instructions</b> - <i class="splkblue flarge">Download Splunk Cloud Credentials Application:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center>
+							<table style="width:100%;">
+								<tr>
+									<td style="text-align:center;"><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b>Splunk Cloud™ Universal Forwarder Credentials <i>Application</i></b></td>
+								</tr>
+								<tr>
+									<td style="text-align:left;">
+										<ol style="padding-left: 1px !important;padding-right: 10px !important;" class="nbr_ts_list">
+											<li class="nbr_ts_step"><div class="li_content">Click <a class="btn btn-mini" href="/app/launcher/home" target="_blank">Splunk Home Page</a> </div></li>
+											<li class="nbr_ts_step"><div class="li_content">Click on the <b>Universal Forwarder</b> link to open the application where you can download the <i>Splunk Cloud Credentials</i> application.</div></li>
+											<li class="nbr_ts_step"><div class="li_content"><img src="/static/app/ms_windows_ad_objects/icons/icon_app_download.png" style="height:15px !important;width:15px !important;" title="app Download" /> Then click <b>Download Universal Forwarder Credentials</b>:
+											</div></li>
+										</ol>
+										<p style="padding: 0px 5px 0px 5px !important;margin-bottom: 5px;"><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_inst_2_cloud.png" class="image" title="The graphic shows the Windows GDI step of Downloading the Cloud Credentials App on the Splunk Deployment Servers Web UI." style="border: 2px solid #e20082;max-width:98% !important;"></img></p>
+									</td>
+								</tr>
+							</table>
+						</center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_dl_cc_ss_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_dl_cc_ss_1">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Downloading the Cloud Credentials App:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>
+				<div class="modal-body">		
+					<div class="mod-body-box" style="height:520px !important;min-height:520px !important;">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_inst_2_cloud.png" class="image" title="The graphic shows the Windows GDI step of Downloading the Cloud Credentials App." style="border: 2px solid #e20082;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_idx_ss_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_ent_idx_ss_1">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise New Index Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box" style="height:580px !important;min-height:580px !important;">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_ent_idx_wineventlog.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_cloud_idx_ss_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_cloud_idx_ss_1_pop">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Cloud New Index Example:</i></i>
+							</h1>
+						</div>s
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Index Creation View</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_cloud_idx_wineventlog.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_1">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_1.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_2" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_2">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_2.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_3" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_3">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_3.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_4" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_4">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_4.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_5" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_5">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_5.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_6" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_6">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_6.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_ent_inst_ss_7" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 375px !important;max-height: 650px !important;" id="prep_task_pop_ent_inst_ss_7">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Enterprise Windows Installation:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body">		
+					<div class="mod-body-box">
+						<h4 style="text-align:center;padding-bottom:1px !important;padding-top:2px !important;margin-bottom:1px !important;margin-bottom:1px !important;">Installation Wizard Screenshot</h4>
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_ds_ent_inst_7.jpg" class="image" title="The graphic shows the Windows Splunk Enterprise Installation." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_1" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_1">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cloud_0.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_2" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_2">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_1_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_3" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_3">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_2_ent.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_4" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_4">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_3_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_5" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_5">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_4_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_inst_uf_ss_6" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_6">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_5_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_7" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_7">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_6_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="prep_task_inst_uf_ss_8" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_8">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_7_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_9" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_9">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_8_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_10" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_10">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_cust_9_both.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>	
+	<div id="prep_task_inst_uf_ss_11" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+    	<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="prep_task_pop_inst_uf_ss_11">
+			<div class="modal-content">
+				<div class="modal-header">
+					<center>
+						<div class="mod-head-box">
+							<h1 class="title" id="myModalLabel" style="text-align:center;">
+								<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+								<b>Details</b> - <i class="splkblue flarge">Splunk Universal Forwarder Installation Example:</i></i>
+							</h1>
+						</div>
+					</center>
+				</div>   
+				<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+					<div class="mod-body-box">
+						<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_win_uf_ent_0.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." height="450" style="border: 2px solid #e20082;height:450px !important;max-width:98% !important;"></img></p></center>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+				</div>
+			</div>    		
+		</div>
+	</div>
+	<div id="chk_d_task_auto_chk" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_ko_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+									<b>Review</b> - <i class="splkblue flarge">Review Auto Data Check Results:</i></i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;text-align:left;">
+														<center> <b>Validate the Preparation Step of Adjusting the Splunk Knowledge Objects</b></center>
+														<h4>Review the <i>Autocheck</i> Data Results with the defined <i>Index Macro's</i> that are leveraged for pointing to specific indexes.</h4>
+																	<i class="ms_obj_icon_info"></i> Macro to Index Definitions:</summary>
+																	<div class="mac_chk_h_tbl"></div>
+																</details>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>					
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>		
+	<div id="chk_d_task_ko" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_ko_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+									<b>Review</b> - <i class="splkblue flarge">Validate Splunk Knowledge Object Adjustments:</i></i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;text-align:left;">
+														<center> <b>Validate the Preparation Step of Adjusting the Splunk Knowledge Objects</b></center>
+														<h4>Review the <i>Autocheck</i> Results and follow the below steps to update the appropriate <i>Macro's</i> that are now being leveraged for pointing to specific indexes. This replaces the previous version's use of eventtypes.</h4>
+																<details style="padding:0px !important;margin:0px !important;">
+																	<summary class="ms_obj_summary_step_info" style="width:280px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																		<i class="ms_obj_icon_info"></i> Auto Check Information:</summary>
+																	<ul>
+																		<li>An <i>autocheck</i> search was executed to check if the defined indexes in the required macros are available (created).</li>
+																		<li >Review the below Troubleshooting Steps:
+																			<ul>
+																				<li>If you created different index names for your Windows/Active Directory data, then follow the <b>Adjusting the Macros used by the MS AD Windows Objects</b> steps below.</li>
+																				<li>Troubleshooting Steps if you created the recommended indexes (<b>wineventlog,perfmon,msad,windows</b>)
+																					<h4>Verify Role Index Permissions:</h4>
+																					<ol class="nbr_ts_list">
+																						<li class="nbr_ts_step"><div class="li_content">Click <a href="/manager/ms_windows_ad_objects/authorization/roles" class="btn btn-mini" target="_blank">Review Roles</a> to open the Roles page</div></li>
+																						<li class="nbr_ts_step"><div class="li_content">Click on the <b>Role(s)</b> that is associated with your account</div></li>
+																						<li class="nbr_ts_step"><div class="li_content">Click on the <b>3. Indexes</b> Link</div></li>
+																						<li class="nbr_ts_step"><div class="li_content">Verify that the <b>Default</b> box is selected for each of the created indexes (<b>wineventlog,perfmon,msad,windows</b>)</div></li>
+																						<li class="nbr_ts_step"><div class="li_content">Click <b>Save</b> and Click the <b>Rerun Autocheck</b> button below to rerun the autocheck and update the results
+																							<ul class="note_lst"><li class="mrk_note"> If it is still showing errors after running the above, and you are sure you created the default indexes, then you can proceed to the next Preparation item</li></ul>
+																						</div></li>
+																					</ol>
+																				</li>
+																				<li>Click <a href="#" class="btn btn-mini" data-rerun-srch="tok_check_mac_trigger">Rerun Autocheck</a> to rerun the autocheck if you completed the above troubleshooting, or the below preparation steps below.</li>
+																			</ul><!-- <a href="#" class="btn btn-mini" data-token-json="{&quot;tok_srch_trigger_rerun&quot;:&quot;$tok_srch_trigger_rerun_val$+1&quot;}">Rerun Autocheck</a> -->
+																		</li>
+																	</ul>
+																</details>
+																<details style="padding:0px !important;margin:0px !important;">
+																	<summary class="ms_obj_summary_step_info" style="width:280px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																	<i class="ms_obj_icon_info"></i> Macro to Index Definitions:</summary>
+																	<div class="mac_chk_h_tbl"></div>
+																</details>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<h4><i class="icon-settings" style="height:25px;color:#e20082"/>  <b>Adjusting the Macros used by the MS AD Windows Objects</b></h4>
+														<ol class="nbr_ts_list">
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <a href="$tok_macro_base_url$?ns=ms_windows_ad_objects&amp;pwnr=-&amp;app_only=1&amp;search=index%3D&amp;count=25" class="btn btn-mini" target="_blank">Macro Settings</a> to open the settings page for the macros or click on the individual macro names below, to adjust the macro definition.</div>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">Use the below list to match up the custom indexes you created for your windows data with the appropriate macro:</div>
+																<ul>
+																	<li>Macro: <b><a href="$tok_macro_base_url$/ms__obj_win_events_index?action=edit" target="_blank">ms__obj_win_events_index <i class="icon-external" style="height:20px;color:#40A540;"/></a></b>
+																		<ul>
+																			<li>All Windows Event Logs (ie. Security,Application,System,Directory Service,etc)</li>
+																		</ul>
+																	</li>
+																	<li>Macro: <b><a href="$tok_macro_base_url$/ms__obj_win_perfmon_index?action=edit" target="_blank">ms__obj_win_perfmon_index <i class="icon-external" style="height:20px;color:#40A540;"/></a></b>
+																		<ul>
+																			<li>All Windows Performance Count Data (ie. Perfmon:CPU,Perfmon:Memory,etc)</li>
+																		</ul>
+																	</li>
+																	<li>Macro: <b><a href="$tok_macro_base_url$/ms__obj_win_ad_index?action=edit" target="_blank">ms__obj_win_ad_index <i class="icon-external" style="height:20px;color:#40A540;"/></a></b>
+																		<ul>
+																			<li>All Active Directory Specific Data (ie. ActiveDirectory,DHCP,DNS,Powershell AD Scripts,etc)</li>
+																		</ul>
+																	</li>
+																	<li>Macro: <b><a href="$tok_macro_base_url$/ms__obj_win_api_index?action=edit" target="_blank">ms__obj_win_api_index <i class="icon-external" style="height:20px;color:#40A540;"/></a></b>
+																		<ul>
+																			<li>All Windows OS Api and Scripts (ie. WinHostMon,WinNetMon,Update Logs,etc)</li>
+																		</ul>
+																	</li>
+																</ul>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">Click on the individual macro links to update the definition with your aligned custom indexes <b>(Using <i>OR</i> for mulitple indexes.  <i>Ex. index=winosevt OR index=winossecurityevt</i>)</b>.</div>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <b>Save</b> after adjusting each of the above macros.</div>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <a href="#" class="btn btn-mini" data-rerun-srch="tok_check_mac_trigger">Rerun Autocheck</a> to rerun the autocheck search to validate your changes.</div>
+															</li><!-- <a href="#" class="btn btn-mini" data-token-json="{&quot;tok_srch_trigger_rerun&quot;:&quot;$tok_srch_trigger_rerun_val$+1&quot;}">Rerun Autocheck</a> -->
+															<li class="nbr_ts_step">
+																<div class="li_content">After adjusting the macros and verifying the changes, proceed to the next Preparation item.</div>
+															</li>
+														</ol>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>					
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>
+	<div id="chk_d_task_res_admon" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_res_admon_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+										<b>Review</b> - <i class="splkblue flarge">Recollecting the admon baseline data:</i>
+									</i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<ul class="note_lst">
+											<li class="mrk_important">
+												After performing the below steps, Wait about 15 - 30m, depending on the size and Domain count, before clicking the <b>Rerun Autocheck</b> button.
+											</li>
+										</ul>
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<h4>The below steps walk through the quick process of recollecting the <b>required: <i>admon baseline</i></b> data.</h4>
+														<ul class="note_lst">
+														  <li class="mrk_note"><div class="li_content">The admon <b>baseline</b> data is <b style="color:red;">Only</b> collected the first time the input is enabled.</div></li>
+														  <li class="mrk_important"><div class="li_content">Make sure you do not have the <code>[admon:\\....]</code> data input enabled in any of the other TA's, ie (\etc\apps\SplunkUniversalForwarder\).</div></li>
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<ol class="nbr_ts_list">
+															<li class="nbr_ts_step"><div class="li_content">Login to the AD Domain Controller you deployed the <b>Splunk_TA_windows_admon</b> TA too.</div></li>
+															<li class="nbr_ts_step mrk_important"><div class="li_content"><b>Stop the Splunk Forwarder Service</b></div></li>
+															<li class="nbr_ts_step"><div class="li_content">Open File Explorer and navigate to <b>...\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows_admon\local</b> directory.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Running Wordpad in <b>"RunAs Administrator"</b> mode, open the <b>inputs.conf</b> file.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Verify that the <code>[admon:\\default]</code> input is enabled.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">If it wasn't enabled, then enable it (ie. <code>disabled = 0</code>) and save the changes.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Navigate into the <b style="color:red;">...\SplunkUniversalForwarder\var\lib\splunk\persistentstorage\ADMon\</b> directory.</div></li>
+															<li class="nbr_ts_step"><div class="li_content">Delete the <b>default.ini</b> file.</div>
+																<ul class="note_lst">
+																	<li class="mrk_important"><div class="li_content">If you see more than one file then you must have <b>admon</b> input enabled in either <b>...\SplunkUniversalForwarder\etc\system\local</b> or in one of the applications under <b>...\SplunkUniversalForwarder\etc\apps</b> directory.</div></li>
+																	<li class="mrk_important"><div class="li_content">You can also run the command <code>splunk cmd btool inputs list admon://default --debug</code> from a command line, where you are executing from the <b>...\SplunkUniversalForwarder\bin</b> directory.</div></li> 
+																	<li class="mrk_important"><div class="li_content">Once you find where it is enabled, then delete the complete <code>[admon:\\...]</code> input stanza from that location.</div></li>
+																</ul>																																		
+															</li>
+															<li class="nbr_ts_step"><div class="li_content"><b>Start</b> the Splunk Forwarder Service</div></li>
+														</ol>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>
+	<div id="chk_d_task_crt_idx_ent" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_crt_idx_ent_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+										<b>Review</b> - <i class="splkblue flarge">
+											<div class="p_task_ele_filt ent obj_single"><center><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b> Verify Creation of the indexes on your Splunk Core system</b></center></div>
+											<div class="p_task_ele_filt ent obj_dist"><center><i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b> Verify the Creation of the indexes on your Splunk Indexer(s)</b></center></div>
+										</i>
+									</i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<h4>Review the below steps to verify the creation of the <i>indexes</i> that will store the Windows data sent from your Windows machines.</h4>
+														<ul class="note_lst">
+															<li class="mrk_important">
+																<div class="li_content">
+																	<b><i style="font-size:16px;color:#DC4E41;"> Important Note:</i></b> If your Windows data is going to different indexes then what is listed below, then click the <b>Macro Settings Check</b> button to see the steps for validating the required macros have been updated.
+																</div>
+															</li>
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<ul class="note_lst" style="padding-left:25px;">
+															<li class="mrk_greater"><div class="li_content"><div class="mac_chk_all_msg"></div></div></li>
+															<li class="mrk_greater"><div class="li_content"><i class="icon-settings" style="height:25px;color:#e20082"/> In this step, you create the following indexes:</div>
+																<div class="mac_chk_nt_list"></div>
+															</li>
+															<li>
+																<div class="li_content">
+																	<details style="padding:0px !important;margin:0px !important;">
+																		<summary class="ms_obj_summary_step_info" style="width:150px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																		<i class="ms_obj_icon_info"/></summary>											
+																		<ul>
+																			<li>It's a best practice to create separate indexes for different types of data.</li>
+																			<li>This can be useful if you want different storage settings for different types of data. For example, you may need to store wineventlogs for a specified time period for compliance purposes.</li>
+																		</ul>
+																	</details>	
+																</div>
+															</li>
+														</ul>													
+														<ol class="nbr_ts_list">
+															<li class="nbr_ts_step p_task_ele_filt ent obj_single">
+																<div class="li_content">Click <a href="/manager/ms_windows_ad_objects/data/indexes" class="btn btn-mini" target="_blank">Open Index Manager</a> to open the indexes management view.
+																	<ul class="note_lst">
+																		<li class="mrk_note"><div class="li_content"> If the above button does not work for you then open a separate browser tab, connect to your Splunk Instance and Navigate to <b>Settings &gt; Indexes</b>.</div></li>
+																	</ul>
+																</div>
+															</li>
+															<li class="nbr_ts_step p_task_ele_filt ent obj_dist">
+																<div class="li_content">In a separate browser tab Login to your Splunk Indexer's Web UI with a user that is part of the <b>admin</b> role.</div>
+															</li>
+															<li class="nbr_ts_step p_task_ele_filt ent obj_dist">
+																<div class="li_content">Navigate to <b>Settings &gt; Indexes</b></div>
+															</li>														
+															<li class="nbr_ts_step"><div class="li_content">Click <b>New</b></div></li>
+															<li class="nbr_ts_step"><div class="li_content">For the index name, enter <b>$tok_macro_win_events_idxs$</b></div>
+																<ul class="note_lst">
+																	<li class="mrk_note">
+																		<div class="li_content">If you have defined multiple indexes in the macro <b>$tok_macro_win_events_name$</b> for storing EventLogs then there will be a comma seperated list here.  Don't copy the comma, but just choose the first one; you will create the other(s) when you repeat these steps.</div>
+																	</li>
+																</ul>
+															</li>  
+															<li class="nbr_ts_step"><div class="li_content">For index data type, select <b>Events</b></div></li> 
+															<li class="nbr_ts_step">
+																<div class="li_content">Click below to review the details on Customizing the settings:
+																	<ul class="note_lst">
+																		<li>
+																			<div class="li_content">
+																				<details style="padding:0px !important;margin:0px !important;">
+																					<summary class="ms_obj_summary_step_settings" style="width:200px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																					<i class="ms_obj_icon_settings"></i></summary>
+																					<div class="li_content">For other below settings you can use the defaults or if you want to customize then Click <a class="btn btn-mini" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Indexer/Configureindexstorage" target="_blank"><i class="icon-external" style="height:20px;color:#40A540;"/> Configure index storage</a> to review more detailed information on these index settings.
+																						<ul class="note_lst" style="padding-left:25px !important;">
+																							<li class="mrk_greater">
+																								<div class="li_content">The path locations for index data storage:
+																									<ul class="note_lst">
+																										<li class="mrk_arrow_r"><div class="li_content">Home path. Leave blank for default <code>$SPLUNK_DB/&lt;index_name&gt;/db</code></div></li>
+																										<li class="mrk_arrow_r"><div class="li_content">Cold path. Leave blank for default <code>$SPLUNK_DB/&lt;index_name&gt;/colddb</code></div></li>
+																										<li class="mrk_arrow_r"><div class="li_content">Thawed path. Leave blank for default <code>$SPLUNK_DB/&lt;index_name&gt;/thaweddb</code></div></li>
+																									</ul>
+																								</div>
+																							</li>
+																							<li class="mrk_greater"><div class="li_content">Enable/disable data integrity check.</div></li>
+																							<li class="mrk_greater"><div class="li_content">The maximum size of the entire index. Defaults to 500000MB.</div></li>
+																							<li class="mrk_greater"><div class="li_content">The maximum size of each index bucket.  When setting the maximum size, use <code>auto_high_volume</code> for high volume indexes (such as the main index); otherwise, use <code>auto</code>.</div></li>
+																							<li class="mrk_greater"><div class="li_content">The frozen archive path. Set this field if you want to archive frozen buckets. For information on bucket archiving, see <a class="btn btn-mini" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Indexer/Automatearchiving" target="_blank"><i class="icon-external" style="height:20px;color:#40A540;"/> Archive indexed data</a>.</div></li>
+																							<li class="mrk_greater"><div class="li_content">The app in which the index resides.</div></li>
+																							<li class="mrk_greater"><div class="li_content">The tsidx retention policy. See <a class="btn btn-mini" href="http://docs.splunk.com/Documentation/Splunk/8.0.4/Indexer/Reducetsidxdiskusage" target="_blank"><i class="icon-external" style="height:20px;color:#40A540;"/> Reduce tsidx usage</a>.</div></li>
+																						</ul>
+																					</div>
+																				</details>
+																			</div>
+																		</li>										
+																	</ul>
+																</div>
+															</li> 
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <b>Save</b></div>
+															</li>
+															<li>
+																<details style="padding:0px !important;margin:0px !important;">
+																	<summary class="ms_obj_summary_step_settings" style="width:200px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																	<i class="icon-visible" style="height:15px;color:#00A4FD;" ></i> Screenshot</summary>
+																	<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_ent_idx_wineventlog.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+																</details>
+															</li>
+															<li class="nbr_ts_step mrk_important">
+																<div class="li_content">  Repeat these steps for all of the following indexes <i>If there multiple indexes defined in macro will be comma separated.</i>: 
+																	<div class="mac_chk_nt_list"></div>
+																</div>
+															</li>
+															<li class="nbr_ts_step mrk_important p_task_ele_filt ent obj_dist">
+																<div class="li_content">Repeat the all of the above steps on each of the indexers that will receive windows data.</div>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">After creating any indexes, Click the <b><i>Rerun Autocheck</i></b> button at the top to verify changes.</div>
+															</li>
+														</ol>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>	
+	<div id="chk_d_task_crt_idx_cloud" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_crt_idx_cloud_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+										<b>Review</b> - <i class="splkblue flarge">
+											<i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b> Verify the creation of the indexes in your Splunk Cloud™ environment</b>
+										</i>
+									</i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<h4>Verify the creation of the <i>indexes</i> that will store the Windows data sent from your Windows machines.</h4>
+														<ul class="note_lst">
+															<li class="mrk_important">
+																<div class="li_content">
+																	<b><i style="font-size:16px;color:#DC4E41;"> Important Note:</i></b> If your Windows data is going to different indexes then what is listed below, then click the <b>View Steps</b> for the <b>Validate the Preparation Step of Adjusting the Splunk Knowledge Objects</b> to see the steps for validating the required macros have been updated.
+																</div>
+															</li>
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<ul class="note_lst" style="padding-left:25px;">
+															<li class="mrk_greater"><div class="li_content"><div class="mac_chk_all_msg"></div></div></li>
+															<li class="mrk_greater"><div class="li_content"><i class="icon-settings" style="height:25px;color:#e20082"/> In this step, you create the following indexes:</div>
+																<div class="mac_chk_nt_list"></div>
+															</li>
+															<li>
+																<div class="li_content">
+																	<details style="padding:0px !important;margin:0px !important;">
+																		<summary class="ms_obj_summary_step_info" style="width:150px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																		<i class="ms_obj_icon_info"/></summary>											
+																		<ul>
+																			<li>It's a best practice to create separate indexes for different types of data.</li>
+																			<li>This can be useful if you want different storage settings for different types of data. For example, you may need to store wineventlogs for a specified time period for compliance purposes.</li>
+																		</ul>
+																	</details>	
+																</div>
+															</li>
+														</ul>													
+														<ol class="nbr_ts_list">
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <a href="/manager/ms_windows_ad_objects/data/indexes" class="btn btn-mini" target="_blank">Open Index Manager</a> to open the indexes management view.
+																	<ul class="note_lst">
+																		<li class="mrk_note"><div class="li_content"> If the above button does not work for you then open a separate browser tab, connect to your Splunk Instance and Navigate to <b>Settings &gt; Indexes</b>.</div></li>
+																	</ul>
+																</div>
+															</li>
+															<li class="nbr_ts_step"><div class="li_content">Click <b>New Index</b>.</div></li> 
+															<li class="nbr_ts_step"><div class="li_content">For the index name, enter <b>$tok_macro_win_events_idxs$</b></div>
+																<ul class="note_lst">
+																	<li class="mrk_note">
+																		<div class="li_content">If you have defined multiple indexes in the macro <b>$tok_macro_win_events_name$</b> for storing EventLogs then there will be a comma seperated list here.  Don't copy the comma, but just choose the first one; you will create the other(s) when you repeat these steps.</div>
+																	</li>
+																</ul>
+															</li> 
+															<li class="nbr_ts_step"><div class="li_content">For index data type, select <b>Events</b>. </div></li> 
+															<li class="nbr_ts_step">
+																<div class="li_content">For <b>searchable time (days)</b>, enter <b>90</b>.
+																	<ul class="note_lst">
+																		<li class="mrk_note"><div class="li_content"> Optionally, you can extend your storage for longer if you have different requirements. By default Splunk Cloud provides 90 days of searchable storage.</div></li>
+																	</ul>
+																</div>
+															</li> 
+															<li class="nbr_ts_step">
+																<div class="li_content">Click <b>No Additional Storage</b>, and click <b>Save</b>
+																	<ul class="note_lst">
+																		<li class="mrk_note"> You can also set up different types of storage for expired Splunk Cloud data (such as self-storage or archiving)</li>
+																	</ul>
+																</div>
+															</li>
+															<li>
+																<details style="padding:0px !important;margin:0px !important;">
+																	<summary class="ms_obj_summary_step_settings" style="width:200px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																	<i class="icon-visible" style="height:15px;color:#00A4FD;" ></i> Screenshot</summary>
+																	<center><p><img src="/static/app/ms_windows_ad_objects/img/ms_ad_obj_cloud_idx_wineventlog.png" class="image" title="The graphic shows the Windows GDI step of creating a wineventlog index." width="450" height="375" style="border: 2px solid #e20082;"></img></p></center>
+																</details>
+															</li>
+															<li class="nbr_ts_step mrk_important">
+																<div class="li_content">  Repeat these steps for all of the following indexes <i>If there multiple indexes defined in macro will be comma separated.</i>: 
+																	<div class="mac_chk_nt_list"></div>
+																</div>
+															</li>
+															<li class="nbr_ts_step">
+																<div class="li_content">After completing this step, proceed to the next Preparation section <b>Adjust or verify Splunk Knowledge Objects</b>.</div>
+															</li>
+														</ol>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>	
+	<div id="chk_d_task_crt_idx_none" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_crt_idx_none_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+										<b>Review</b> - <i class="splkblue flarge">
+											<i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b> Verify the creation of the indexes in your Splunk environment</b>
+										</i>
+									</i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="width:100%;">
+												<tr>
+													<td style="padding:5px;">
+														<h4>Verify the creation of the below listed <i>indexes</i> in your Splunk Environment.</h4>
+														<ul class="note_lst">
+															<li class="mrk_important">
+																<div class="li_content">
+																	<b><i style="font-size:16px;color:#DC4E41;"> Important Note:</i></b> If your Windows data is going to different indexes then what is listed below, then click the <b>View Steps</b> for the <b>Validate the Preparation Step of Adjusting the Splunk Knowledge Objects</b> to see the steps for validating the required macros have been updated.
+																</div>
+															</li>
+														</ul>
+													</td>
+												</tr>
+												<tr>
+													<td style="text-align:left;padding:5px;">
+														<ul class="note_lst" style="padding-left:25px;">
+															<li class="mrk_greater"><div class="li_content"><div class="mac_chk_all_msg"></div></div></li>
+															<li class="mrk_greater"><div class="li_content"><i class="icon-settings" style="height:25px;color:#e20082"/> Validate the creation of the following indexes:</div>
+																<div class="mac_chk_nt_list"></div>
+															</li>
+															<li>
+																<div class="li_content">
+																	<details style="padding:0px !important;margin:0px !important;">
+																		<summary class="ms_obj_summary_step_info" style="width:150px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+																		<i class="ms_obj_icon_info"/></summary>											
+																		<ul>
+																			<li>It's a best practice to create separate indexes for different types of data.</li>
+																			<li>This can be useful if you want different storage settings for different types of data. For example, you may need to store wineventlogs for a specified time period for compliance purposes.</li>
+																		</ul>
+																	</details>	
+																</div>
+															</li>
+														</ul>
+														<div class="li_content">After creating any indexes, Click the <b><i>Rerun Autocheck</i></b> button at the top to verify changes.</div>
+													</td>
+												</tr>
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>	
+	<div id="chk_d_task_dom_health" class="modal prev_vj_modal"  style="display:none;width:34% !important;left:33% !important;">
+		<div class="modal-dialog" style="width:34% !important;left:33% !important;min-width: 450px !important;min-height: 600px !important;max-height: 650px !important;" id="chk_d_task_dom_health_pop">
+				<div class="modal-content">
+					<div class="modal-header">
+						<center>
+							<div class="mod-head-box">
+								<h1 class="title" id="myModalLabel" style="text-align:center;">
+									<i class="splkmagenta flarge" style="text-align: center; height: 10px; width: 10px;padding-right: 10px;padding-top: 8px;margin:auto;font-weight:bold">
+										<b>Review</b> - <i class="splkblue flarge">
+											<i class="icon-list" style="font-size:20px !important;color:#f99d1c;"/> <b> Verify Health and Topology input is enabled</b>
+										</i>
+									</i>
+								</h1>
+							</div>
+						</center>
+					</div>   
+					<div class="modal-body" style="max-height: calc(100vh - 196px);">		
+						<div class="mod-body-box">
+							<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+								<tr style="padding: 0px;margin: 0px;">
+									<td style="text-align:center;">
+										<center>
+											<table style="padding-right: 0px;border: 1px solid #f99d1c;margin-right: 0px;width:100% !important;display:table;">
+												<tr style="padding: 0px;margin: 0px;">
+													<td style="text-align:center;">
+														<center>
+															<h4>Check the below troubleshooting Steps for resolving the issue of <b>missing the required Domain Health data</b></h4>
+															<table style="width:100%;">
+																<tr>
+																	<td style="padding:5px;">
+																		<ul class="note_lst">
+																		  <li class="mrk_note"><div class="li_content">Make Sure that atleast one (<i>Depends on Windows OS Version</i>) of the following inputs is enabled on the Active Directory Domain Controllers:</div></li>
+																		  <li class="mrk_note"><div class="li_content">If you renamed the Splunk pre-configured TA that was provided by the <b>MS Windows AD Objects</b> application (<i>Splunk_TA_windows_dc</i>), or you are using a different TA to collect the <code>sourcetype=MSAD:NT6:Health</code> data, then make sure you have updated the <code>[powershell://AD-Health]</code> input with the updated TA name for the <code>script</code> setting.</div></li>
+																		</ul>
+																	</td>
+																</tr>
+																<tr>
+																	<td style="text-align:left;padding:5px;">
+																		<span class="chk_step_filt obj_use_ds_n">
+																			<ol class="nbr_ts_list">
+																				<li class="nbr_ts_step"><div class="li_content">Login to one of your AD Domain Controllers</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Open File Explorer and navigate to <b>...\SplunkUniversalForwarder\etc\apps\Splunk_TA_windows_dc\local</b> directory.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Running Wordpad in "RunAs Administrator" mode, open the <b>inputs.conf</b> file.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Search for the <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> input stanza</div>
+																					<ul class="note_lst">
+																						<li class="mrk_note">
+																							<div class="li_content">The <b>MSAD Health</b> data inputs are dependent on the Windows Version.  See the below input settings to determine which one needs to be enabled:
+																								<ul class="note_lst">
+																								<li class="mrk_arrow_r"><div class="li_content"><i>Health and Topology Information Windows (Version 2008)</i>:</div>
+	<pre>
+[script://.\bin\runpowershell.cmd nt6-health.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:Health
+interval=300
+disabled=0
+index=msad</pre>                    
+																								</li>
+																								<li class="mrk_arrow_r"><div class="li_content">>Or <i>Health and Topology Information Windows (Version 2012r2 and 2016 +)</i>:</div>
+<pre>
+[powershell://AD-Health]
+script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"
+schedule = 0 */5 * ? * *
+source=Powershell
+sourcetype=MSAD:NT6:Health
+disabled=0
+index=msad</pre> 																				
+																								</li>
+																							</ul>
+																							</div>
+																						</li>
+																					</ul>
+																				</li>
+																				<li class="nbr_ts_step"><div class="li_content">Make sure the <b>disabled</b> setting is set to <code>disabled = 0</code> for input that matches your Windows Version</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Also, double check that the <b>index</b> setting matches the index that you created for your <b> AD Data</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Last check, if you are using a different name then <b>Splunk_TA_windows_dc</b> then you will need to update the <b>script</b> setting, (<b>script = & "$SplunkHome\etc\apps\<b style="color:red;">Splunk_TA_windows_dc</b>\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"</b> to the name you are using for the TA's folder.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">If you made any changes then <b>Restart</b> the Splunk Forwarder Service</div></li>
+																			</ol>
+																		</span>
+																		<span class="chk_step_filt obj_use_ds_n">
+																			<ol class="nbr_ts_list">
+																				<li class="nbr_ts_step"><div class="li_content">Login to one of your <b>Splunk Deployment Server</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Using terminal or File Explorer and navigate to <b>...\Splunk\etc\deployment-apps\Splunk_TA_windows_dc\local</b> directory.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Open the <b>inputs.conf</b> file.</div></li>
+																				<li class="nbr_ts_step">
+																					<div class="li_content">Search for the <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> input stanza</div>
+																					<ul class="note_lst">
+																						<li class="mrk_note">
+																							<div class="li_content">The <b>MSAD Health</b> data inputs are dependent on the Windows Version.  See the below input settings to determine which one needs to be enabled:
+																								<ul class="note_lst">
+																								<li class="mrk_arrow_r"><div class="li_content"><i>Health and Topology Information Windows (Version 2008)</i>:</div>
+	<pre>
+[script://.\bin\runpowershell.cmd nt6-health.ps1]
+source=Powershell
+sourcetype=MSAD:NT6:Health
+interval=300
+disabled=0
+index=msad</pre>                    
+																								</li>
+																								<li class="mrk_arrow_r"><div class="li_content">>Or <i>Health and Topology Information Windows (Version 2012r2 and 2016 +)</i>:</div>
+<pre>
+[powershell://AD-Health]
+script = & "$SplunkHome\etc\apps\Splunk_TA_windows_dc\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"
+schedule = 0 */5 * ? * *
+source=Powershell
+sourcetype=MSAD:NT6:Health
+disabled=0
+index=msad</pre> 																				
+																								</li>
+																							</ul>
+																							</div>
+																						</li>
+																					</ul>
+																				</li>
+																				<li class="nbr_ts_step"><div class="li_content">Make sure the <b>disabled</b> setting is set to <code>disabled = 0</code> for input that matches your Windows Version</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Also, doublecheck that the <b>index</b> setting matches the index that you created for your <b> AD Data</b></div></li>
+																				<li class="nbr_ts_step"><div class="li_content">Last check, if you are using a different name then <b>Splunk_TA_windows_dc</b> then you will need to update the <b>script</b> setting, (<b>script = & "$SplunkHome\etc\apps\<b style="color:red;">Splunk_TA_windows_dc</b>\bin\Invoke-MonitoredScript.ps1" -Command ".\powershell\2012r2-health.ps1"</b> to the name you are using for the TA's folder.</div></li>
+																				<li class="nbr_ts_step"><div class="li_content">If you made any changes then open a command line/terminal and navigate to <b>...\Splunk\bin\</b> directory and run the following command:
+<pre>splunk reload deploy-server</pre>
+																				</div></li>
+																			</ol>
+																		</span>
+																	</td>
+																</tr>
+															</table>
+														</center>
+													</td>
+												</tr>			
+											</table>
+										</center>
+									</td>
+								</tr>			
+							</table>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default close_btn" data-dismiss="modal" aria-hidden="true">Close</button>
+					</div>
+				</div>    		
+			</div>
+	</div>	

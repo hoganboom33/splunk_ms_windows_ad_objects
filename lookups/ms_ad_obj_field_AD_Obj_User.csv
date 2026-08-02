@@ -1,0 +1,63 @@
+field_source,field,field_description
+custom,_key,"The key field in the lookup which is lower(DomainDNSName).""#"".lower(objectGUID).  It is unique for every object, and critical for updates and syncing changes."
+admon,accountExpires,"The date when the account expires. This value represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of 0 or 0x7FFFFFFFFFFFFFFF (9223372036854775807) indicates that the account never expires."
+admon,adminCount,Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).
+admon,badPasswordTime,"The last time and date that an attempt to log on to this account was made with a password that is not valid. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last time a incorrect password was used is unknown."
+admon,badPwdCount,The number of times the user tried to log on to the account using an incorrect password. A value of 0 indicates that the value is unknown.
+admon,cn,Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.Ê See also sAMAccountName.
+admon,codePage,Specifies the code page for the user's language of choice.
+admon,countryCode,Specifies the country/region code for the user's language of choice.
+custom,dcName,Name of the AD Domain Controller where the admon data was retrieved for this object.  
+admon,department,Contains the name for the department in which the user works.
+admon,description,What you see in Active Directory Users and Computers.Ê Not to be confused with displayName on the Users property sheet.
+admon,displayName,"displayName = Guy Thomas.Ê If you script this property, be sure you understand which field you are configuring.Ê DisplayName can be confused with CN or description."
+admon,distinguishedName,A DN is a sequence of relative distinguished names (RDN) connected by commas.
+admon,dn,A DN is a sequence of relative distinguished names (RDN) connected by commas.
+custom,dn_path,"This field is a subset of the Users distinguishedName, where the Users CN is removed and only the path is used."
+custom,domain,"Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data."
+custom,DomainDNSName,Fully Qualified Domain Name for the object
+admon,dSCorePropagationData,The DS-Core-Propagation-Data attribute is for internal use only.
+admon,givenName,Contains the given name (first name) of the user.
+custom,host,Splunk forwarder host that is sending admon data.
+admon,instanceType,A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.
+admon,isCriticalSystemObject,"If TRUE, the object hosting this attribute must be replicated during installation of a new replica."
+admon,isDeleted,"If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system."
+admon,isRecycled,Is the object recycled. For use with AD Recycle Bin
+custom,l,Brief Location name
+custom,last_evt_flg,This field contains the latest admonEventType value for the User Account admon event.
+admon,lastKnownParent,The Distinguished Name (DN) of the last known parent of an orphaned object.
+admon,lastLogon,"The last time the user logged on. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last logon time is unknown."
+admon,lastLogonTimestamp,"This is the time that the user last logged into the domain. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). Whenever a user logs on, the value of this attribute is read from the DC. If the value is older [ current_time - msDS-LogonTimeSyncInterval ], the value is updated. The initial update after the raise of the domain functional level is calculated as 14 days minus random percentage of 5 days."
+admon,location,"The user's location, such as office number."
+admon,lockoutTime,"The date and time (UTC) that this account was locked out. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the account is not currently locked out."
+admon,logonCount,The number of times the account has successfully logged on. A value of 0 indicates that the value is unknown.
+admon,logonHours,The hours that the user is allowed to logon to the domain.
+custom,membercount,Count of Members.
+admon,memberOf,The memberOf field is no longer available since version 4.0.  Instead the member field in the AD_Obj_Group field is the central field that contains group membership information. Use | lookup AD_Obj_Group member AS dn OUTPUT dn AS memberOf in your search to get the User/Computer/Group membership information.
+admon,msDS-SupportedEncryptionTypes,"The encryption algorithms supported by user, computer or trust accounts. (Note The KDC uses this information while generating a service ticket for this account. Services and Computers can automatically update this attribute on their respective accounts in Active Directory, and therefore need write access to this attribute.)"
+admon,name,name = Guy Thomas.Ê Exactly the same as CN.
+admon,objectCategory,"Defines the Active Directory Schema category. For example, objectCategory = Person"
+admon,objectClass,"Usually, User, or Computer"
+admon,objectGUID,The unique identifier for an object.
+admon,objectSid,A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.
+custom,OU,Is the OU/Container Name where the Object is located.
+admon,physicalDeliveryOfficeName,Contains the office location in the user's place of business.
+admon,postalCode,The postal or zip code for mail delivery.
+admon,primaryGroupID,"Contains the relative identifier (RID) for the primary group of the user. By default, this is the RID for the Domain Users group."
+admon,pwdLastSet,"The date and time that the password for this account was last changed. This value is stored as a large integer that represents the number of 100 nanosecond intervals since January 1, 1601 (UTC). If this value is set to 0 and the User-Account-Control attribute does not contain the UF_DONT_EXPIRE_PASSWD flag, then the user must set the password at the next logon."
+admon,sAMAccountName,"This is a mandatory property, sAMAccountName = guyt.Ê The old NT 4.0 logon name, must be unique in the domain.Ê"
+admon,sAMAccountType,The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.
+admon,servicePrincipalName,List of principal names used for mutual authentication with an instance of a service on this computer.
+admon,showInAdvancedViewOnly,TRUE if this attribute is to be visible in the Advanced mode of the UI.
+admon,sn,The user's surname (family name or last name).
+custom,src_nt_domain,"Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data."
+admon,tail,
+custom,uac_bin_map,This field contains the converted binary value for the userAccountControl value. It is used for determining the settings configured for the User Account.
+custom,uac_details,"This field contains the text string values from the uac_binmap field, displaying the User Account Settings configured for the User Account."
+admon,userAccountControl,"Used to disable an account.Ê A value of 514 disables the account, while 512 makes the account ready for logon. (Ex. Enable (512) / disable account (514))"
+admon,userPrincipalName,"userPrincipalName = guyt@CP.comÊ Often abbreviated to UPN, and looks like an email address.Ê Very useful for logging on especially in a large Forest.Ê Note UPN must be unique in the forest."
+admon,userWorkstations,Contains the NetBIOS or DNS names of the computers running WindowsÊNT Workstation or WindowsÊ2000 Professional from which the user can log on. Each NetBIOS name is separated by a comma. Multiple names should be separated by commas.
+admon,uSNChanged,"The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created."
+admon,uSNCreated,"The update sequence number (USN) assigned at object creation. See also, USN-Changed"
+admon,whenChanged,The date when this object was last changed. This value is not replicated and exists in the global catalog.
+admon,whenCreated,The date when this object was created. This value is replicated and is in the global catalog.

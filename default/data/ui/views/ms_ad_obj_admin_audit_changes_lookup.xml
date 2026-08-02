@@ -1,0 +1,191 @@
+<form version="1.1">
+  <label>AD Objects - Admin - Change Lookup</label>
+  <description>This dashboard displays the list of EventCodes, AD Target Object Type, and AD Change Type.  This lookup is leveraged by the all of the AD Change dashboards within this application.</description>
+  <search id="base_ad_audit_event_lookup">
+    <query>| inputlookup AD_Audit_Change_EventCodes  
+| table change_category, change_action,EventCode, obj_type, signature
+| sort change_category,EventCode 
+| search change_category="*" change_action="*" obj_type="*" EventCode="*"
+| join type=left obj_type, EventCode[| tstats count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY ms_ad_obj_audit_changes.change_action, ms_ad_obj_audit_changes.change_category, ms_ad_obj_audit_changes.obj_type, ms_ad_obj_audit_changes.EventCode
+| rename ms_ad_obj_audit_changes.obj_type AS obj_type,ms_ad_obj_audit_changes.change_category AS change_category,ms_ad_obj_audit_changes.change_action AS change_action, ms_ad_obj_audit_changes.EventCode AS EventCode, count AS EventCount
+| stats sum(count) AS count by change_category,change_action,EventCode,EventCount,obj_type]
+| eval msad_action=lower(change_action) 
+| eval Found_Events=if(isnull(EventCount),0,EventCount)
+| sort -Found_Events, change_category, EventCode
+| table Found_Events,change_category, change_action,EventCode,signature,obj_type,msad_action</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <!-- (src_user!="ANONYMOUS" src_user!="ANONYMOUS LOGON" src_user!="*$" src_user!="SYSTEM")
+            </eval$tok_filter$="*$"-->
+  <!-- $tok_filt_obj_type$ -->
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_filt_change_typeb" searchWhenChanged="true">
+      <label>Change Category</label>
+      <choice value="All">All</choice>
+      <default>All</default>
+      <initialValue>All</initialValue>
+      <fieldForLabel>change_category</fieldForLabel>
+      <fieldForValue>change_category</fieldForValue>
+      <search base="base_ad_audit_event_lookup">
+        <query>search change_action="$tok_filt_change_action$" EventCode="$tok_filt_event_code$"
+| table change_category
+| dedup change_category
+| sort change_category</query>
+      </search>
+      <change>
+        <condition value="All">
+          <set token="tok_filt_obj_type">*</set>
+          <set token="tok_filt_change_type">*</set>
+        </condition>
+        <condition value="User">
+          <set token="tok_filt_obj_type">user</set>
+          <set token="tok_filt_change_type">User</set>
+        </condition>
+        <condition value="Group">
+          <set token="tok_filt_obj_type">group</set>
+          <set token="tok_filt_change_type">Group</set>
+        </condition>
+        <condition value="Group Membership">
+          <set token="tok_filt_obj_type">group</set>
+          <set token="tok_filt_change_type">Group Membership</set>
+        </condition>
+        <condition value="Computer">
+          <set token="tok_filt_obj_type">computer</set>
+          <set token="tok_filt_change_type">Computer</set>
+        </condition>
+        <condition value="Group Policy">
+          <set token="tok_filt_obj_type">groupPolicyContainer</set>
+          <set token="tok_filt_change_type">Group Policy</set>
+        </condition>
+        <condition value="OU">
+          <set token="tok_filt_obj_type">organizationalUnit</set>
+          <set token="tok_filt_change_type">OU</set>
+        </condition>
+        <condition>
+          <unset token="tok_event_code"></unset>
+          <unset token="tok_obj_type"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_filt_change_action" searchWhenChanged="true">
+      <label>Change Action</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>change_action</fieldForLabel>
+      <fieldForValue>change_action</fieldForValue>
+      <search base="base_ad_audit_event_lookup">
+        <query>search change_category="$tok_filt_change_type$" obj_type="$tok_filt_obj_type$" EventCode="$tok_filt_event_code$"
+| table change_action
+| dedup change_action
+| sort change_action</query>
+      </search>
+      <change>
+        <condition>
+          <unset token="form.tok_event_code"></unset>
+          <unset token="form.tok_obj_type"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_filt_event_code" searchWhenChanged="true">
+      <label>EventCode</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>EventCode</fieldForLabel>
+      <fieldForValue>EventCode</fieldForValue>
+      <search base="base_ad_audit_event_lookup">
+        <query>search change_action="$tok_filt_change_action$" change_category="$tok_filt_change_type$" obj_type="$tok_filt_obj_type$" 
+| table EventCode
+| dedup EventCode
+| sort EventCode</query>
+      </search>
+      <change>
+        <condition>
+          <unset token="form.tok_event_code"></unset>
+          <unset token="form.tok_obj_type"></unset>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <title>AD_Audit_Change_EventCodes Lookup Table</title>
+      <table>
+        <search base="base_ad_audit_event_lookup">
+          <query>search change_category="$tok_filt_change_type$" change_action="$tok_filt_change_action$" obj_type="$tok_filt_obj_type$" EventCode="$tok_filt_event_code$"
+| eval msad_action=lower(change_action)          
+| table Found_Events, change_category, change_action,EventCode, signature,obj_type, msad_action
+| sort -Found_Events, change_category,EventCode</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Found_Events">
+          <colorPalette type="list">[#D93F3C,#65A637]</colorPalette>
+          <scale type="threshold">1</scale>
+        </format>
+        <drilldown>
+          <set token="tok_event_code">$row.EventCode$</set>
+          <set token="tok_event_desc">$row.signature$</set>
+          <set token="tok_obj_type">$row.obj_type$</set>
+          <set token="tok_chg_type">$row.msad_action$</set>
+          <eval token="tok_filter">case($row.obj_type$=="user","NOT user",$row.obj_type$=="computer","user",$row.obj_type$=="group","NOT src_user",$row.obj_type$=="groupPolicyContainer","NOT src_user",$row.obj_type$=="organizationalUnit","NOT src_user")</eval>
+          <eval token="tok_group_by">case($row.obj_type$=="user" AND $tok_chg_type$="Moved","cn",$row.obj_type$=="user" AND $tok_chg_type$!="moved","user",$row.obj_type$=="computer" AND $tok_chg_type$!="moved","user",$row.obj_type$=="computer" AND $tok_chg_type$="moved","cn",$row.obj_type$=="group" AND $tok_chg_type$!="moved","user_group",$row.obj_type$=="group" AND $tok_chg_type$="moved","cn",$row.obj_type$=="groupPolicyContainer","Object_Name_Guid",$row.obj_type$=="organizationalUnit" AND $tok_chg_type$!="moved","distinguishedName",$row.obj_type$=="organizationalUnit" AND $tok_chg_type$="moved","cn")</eval>
+          <eval token="tok_rename_to">case($row.obj_type$=="User" OR $row.obj_type$=="user","User",$row.obj_type$=="computer","Computer",$row.obj_type$=="group","Group",$row.obj_type$=="groupPolicyContainer","Group_Policy_GUID",$row.obj_type$=="organizationalUnit","OU")</eval>
+        </drilldown>
+      </table>
+      <html>
+        <p>
+          <center>
+            <font color="green">
+              <i>Click a row above to view the count of events for the EventCode and obj_type.</i>
+            </font>
+          </center>
+        </p>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$tok_event_code$">
+      <html>
+        <p>
+          <center>AD Change Events for selected obj_type (<b>
+              <i>$tok_obj_type$</i>
+            </b>) and EventCode <b>
+              <i>$tok_event_code$</i>
+            </b> (<i>$tok_event_desc$</i>)</center>
+        </p>
+      </html>
+      <table>
+        <search>
+          <query>`ms_obj_win_events_security` EventCode="$tok_event_code$" obj_type="$tok_obj_type$" (src_user_type="user")    
+| `ms_obj_msad-changed-attributes`
+| eval MSADChanges=if(isnull(MSADChanges) OR MSADChanges="",signature,MSADChanges)
+| table _time, EventCode, obj_type, src_user, $tok_group_by$,MSADChanges
+| rename $tok_group_by$ AS $tok_rename_to$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

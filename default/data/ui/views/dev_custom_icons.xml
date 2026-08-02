@@ -1,0 +1,97 @@
+<dashboard script="ms_ad_obj_table_status.js" version="1.1">
+  <label>Dev_Custom_Icons</label>
+  <init>
+    <set token="tok_search_status_msg">Loading Panel</set>
+    <set token="tok_show_search_status">True</set>
+  </init>
+   <row depends="$tok_show_search_status$">
+     <panel>
+       <html><center><h1>Loading Panel....</h1></center></html>
+     </panel>
+   </row>
+   <!-- Information for Dashboard Status Icons
+    - Required Elements:
+      - Make Sure the table has the id set as "icon_status_table" (id="icon_status_table")
+      - The Table needs to have a Status field that contains a string array, Using a comma seperator with the following values and order:
+        1. Icon Class - (Ex. icon-check-circle or icon-error or icon-warning)  (See the http://127.0.0.1:8000/en-US/static/docs/style/style-guide.html#icons for more examples)
+        2. Status Label - (Ex. Error or OK or whatever you want to appear in the collomn with the icon.)
+        3. Status Color - (Ex. green or #49B849) (See the http://127.0.0.1:8000/en-US/static/docs/style/style-guide.html#colors for more examples)
+        Example Status values "icon-check-circle,OK,green"  OR "icon-warning,WARNING,orange" etc.
+      - Panel Trigger for Rerendering the icons:   Make sure that you have a field in your results that will have a new value each time the search runs so that the tok_panel_refresh_trigger is changed when the search is refreshed.
+        - Note: A simple way is to get the current time like shown below: | eval panel_trigger=now()
+        - Note: You do not need to show the panel_trigger field in your results.  You can do this by only listing the fields you want to return in the <fields></fields> option of the table (Ex <fields>Status,sourcetype,Last_Time</fields> )
+    - Refresh Interval:
+      - You can update the Searches Refresh interval using the <refresh></refresh> option for the <search>
+    - In the example below I am using a lookup table to return the Status_Array, and renaming it to Status. 
+    	- lookup table for this app: icon_status_lookup.csv
+    	- You can update this by changing the Status to match the status/severity values in your data. 
+    	- Update the Status_Array with the above arrays in the order specified.     
+  -->
+   <row>
+     <panel depends="$tok_show_table$">
+       <table id="icon_status_table">
+         <search>
+           <query>index=_* log_level="*" 
+| fields _time, log_level, sourcetype
+| stats max(_time) AS Last_Time by log_level,sourcetype
+| eval panel_trigger=now()
+| lookup ms_ad_obj_status_icons.csv Status AS log_level OUTPUT Status_Array AS Status
+| eval Last_Time=strftime(Last_Time,"%m/%d/%y %I:%M %P")
+| table Status,sourcetype,Last_Time,panel_trigger
+</query>
+            <refresh>30</refresh>
+            <progress>
+              <unset token="tok_show_table"></unset>
+                  <set token="tok_show_search_status">True</set>
+            </progress>
+            <done>
+              <set token="tok_panel_refresh_trigger">$results.panel_trigger$</set>
+              <unset token="tok_show_search_status"></unset>
+              <set token="tok_show_table">TRUE</set>
+            </done>
+           <earliest>-24h@h</earliest>
+           <latest>now</latest>
+         </search>
+         <fields>Status,sourcetype,Last_Time</fields>
+         <option name="drilldown">none</option>
+       </table>
+     </panel>
+   </row>
+   <row>
+     <panel>
+       <title>Source Status Lookup - status_icons.csv</title>
+       <table>
+         <search>
+           <query>| inputlookup ms_ad_obj_status_icons.csv</query>
+         </search>
+       </table>
+     </panel>
+   </row>
+   <row depends="$hiddenstyle$">
+     <html>
+       <head>
+         <style>
+           .table td, .table th {
+              text-align: left;
+              vertical-align: top;
+              padding: 6px 12px;
+              line-height: 40px;
+              border-bottom: 1px solid #e1e6eb;
+            }
+            .status_div_cls {
+              height:30px !important;
+              text-align: center !important;
+            }
+            .status_icon_cls {
+              font-size:30px !important;
+              height:30px !important;
+              width:30px !important;
+            }
+           .status_name_cls {
+              font-size:20px !important;
+            }           
+         </style>
+       </head>
+     </html>
+   </row>   
+ </dashboard>

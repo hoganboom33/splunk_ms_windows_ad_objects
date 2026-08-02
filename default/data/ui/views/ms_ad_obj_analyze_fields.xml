@@ -1,0 +1,330 @@
+<form version="1.1">
+  <label>AD Objects - Admin - Analyze Fields</label>
+  <search id="base_field_search_no_model">
+    <query>$tok_group$=$tok_series$
+| fieldsummary 
+|  search count&gt;0
+| table field, values 
+| fields + field, values 
+| rex max_match=2 field=values "\{\"value\"\:\"(?P&lt;Example_Values&gt;[^\"]+)"  
+| table field, Example_Values</query>
+    <earliest>$field2.earliest$</earliest>
+    <latest>$field2.latest$</latest>
+  </search>
+  <search id="base_data_model_fields">
+    <query>| datamodel $tok_data_model$ $tok_sel_owner$ search 
+| fieldsummary
+| table field, values 
+| fields + field, values 
+| rex max_match=2 field=values "\{\"value\"\:\"(?P&lt;Example_Values&gt;[^\"]+)"  
+| table field, Example_Values</query>
+    <earliest>$field2.earliest$</earliest>
+    <latest>$field2.latest$</latest>
+  </search>
+  <search id="base_data_model_field_values">
+    <query/>
+    <earliest>$field2.earliest$</earliest>
+    <latest>$field2.latest$</latest>
+  </search>
+  <search id="base_field_search_no_model_no_data" base="base_field_search_no_model">
+    <query> NOT Example_Values="*"</query>
+    <progress>
+      <condition match="'job.resultCount' == 0">
+        <unset token="tok_show_no_field_data"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_no_field_data">true</set>
+      </condition>
+    </progress>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field2">
+      <label></label>
+      <default>
+        <earliest>-60m@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_group" searchWhenChanged="true">
+      <label>Step 1 - Select Data Group</label>
+      <choice value="index">By Index</choice>
+      <choice value="sourcetype">By Sourcetype</choice>
+      <choice value="source">By Source</choice>
+      <choice value="host">By Host</choice>
+      <choice value="lookup">By Lookup</choice>
+      <!--      <choice value="datamodel">By Data Model</choice> -->
+      <change>
+        <condition value="index">
+          <set token="show_series_list">true</set>
+          <unset token="show_datamodel_list"></unset>
+          <unset token="show_lookup_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+        <condition value="sourcetype">
+          <set token="show_series_list">true</set>
+          <unset token="show_datamodel_list"></unset>
+          <unset token="show_lookup_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+        <condition value="source">
+          <set token="show_series_list">true</set>
+          <unset token="show_datamodel_list"></unset>
+          <unset token="show_lookup_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+        <condition value="host">
+          <set token="show_series_list">true</set>
+          <unset token="show_datamodel_list"></unset>
+          <unset token="show_lookup_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+        <condition value="datamodel">
+          <set token="show_datamodel_list">true</set>
+          <unset token="show_series_list"></unset>
+          <unset token="show_lookup_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+        <condition value="lookup">
+          <set token="show_lookup_list">true</set>
+          <unset token="show_series_list"></unset>
+          <unset token="show_datamodel_list"></unset>
+          <unset token="tok_sel_owner"></unset>
+          <unset token="tok_sel_field"></unset>
+          <unset token="tok_sel_dm_field"></unset>
+          <unset token="tok_series"></unset>
+          <unset token="tok_data_model_obj"></unset>
+          <unset token="tok_lookup"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_series" depends="$show_series_list$">
+      <label>Step 2 - Select Series</label>
+      <search>
+        <query>index=_internal source=*metrics.log group="per_$tok_group$_thruput" NOT series="splunk*" NOT series="_*" NOT series="audittrail" NOT series="*splunk/var/log/*" NOT series="summary" NOT series="kvstore"
+| stats count by series
+| sort series</query>
+      </search>
+      <fieldForLabel>series</fieldForLabel>
+      <fieldForValue>series</fieldForValue>
+      <selectFirstChoice>true</selectFirstChoice>
+      <change>
+        <unset token="tok_sel_owner"></unset>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_data_model" depends="$show_datamodel_list$,$tok_data_model_obj$">
+      <label>Step 2 - Select Data Model</label>
+      <search>
+        <query>| rest /servicesNS/nobody/-/datamodel/model 
+| dedup title
+| rex field=description "modelName\"\:\"(?&lt;modelName&gt;[^\"]+)" 
+| rex field=id "8089(?&lt;modelPath&gt;[^$]+)"
+| table modelName,modelPath</query>
+      </search>
+      <fieldForLabel>modelName</fieldForLabel>
+      <fieldForValue>modelPath</fieldForValue>
+    </input>
+    <input type="dropdown" token="tok_data_model_obj" depends="$tok_data_model$,$show_datamodel_list$,$tok_data_model_obj$">
+      <label>Step 3 - Select Data Model Object</label>
+      <search>
+        <query>| rest $tok_data_model$  
+| dedup title 
+| rex field=description max_match=0 "owner\"\:\"(?&lt;data_model_full_path&gt;[^\"]+)"
+| mvexpand data_model_full_path
+| stats count by data_model_full_path
+| rex field=data_model_full_path "(?&lt;path_b&gt;.*)\.(?&lt;object_a&gt;[^\.]*$)"
+| eval data_model_path=if(isnull(path_b),data_model_full_path,path_b)
+| eval object=if(isnull(object_a),data_model_full_path,object_a)
+| rex mode=sed field=data_model_path "s/\./ - /g"
+| dedup object,data_model_full_path 
+| table object, data_model_full_path
+| search NOT object="BaseEvent"
+| sort data_model_full_path</query>
+      </search>
+      <fieldForLabel>object</fieldForLabel>
+      <fieldForValue>object</fieldForValue>
+    </input>
+    <input type="dropdown" token="tok_lookup" depends="$show_lookup_list$">
+      <label>Step 2 - Select Lookup Definition</label>
+      <search>
+        <query>| rest /servicesNS/-/-/data/transforms/lookups
+| dedup title
+| table title
+| sort title</query>
+      </search>
+      <fieldForLabel>title</fieldForLabel>
+      <fieldForValue>title</fieldForValue>
+    </input>
+    <input type="text" token="tok_field_filt">
+      <label>Filter Fields</label>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+  </fieldset>
+  <row depends="$show_series_list$">
+    <panel>
+      <table>
+        <title>Fields With Data</title>
+        <search base="base_field_search_no_model">
+          <query>search Example_Values="*" field="$tok_field_filt$"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <condition field="field">
+            <set token="tok_sel_field">$click.value$</set>
+          </condition>
+        </drilldown>
+      </table>
+      <html>
+        <i>
+          <b>Optional</b> - Click a field in the table above to view top values for that field</i>
+      </html>
+    </panel>
+    <panel depends="$tok_show_no_field_data$">
+      <table>
+        <title>Fields Without Data</title>
+        <search base="base_field_search_no_model_no_data">
+          <query>search field="$tok_field_filt$"</query>
+        </search>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$tok_sel_owner$,$tok_show_es_table$,$tok_data_model_obj$">
+      <table>
+        <title>ES Data Model Information:</title>
+        <search>
+          <query>| datamodelinfo $tok_data_model$| fields datamodel size | join max=0 datamodel [| contentinfo | eval datamodel=mvdedup(datamodel)| eval name=case(isnotnull(search_name), search_name,isnotnull(panel_title), view_name + " - " + panel_title, isnotnull(view_name), view_name, 1==1, null()) | eval subtype=coalesce(subtype, if(isnotnull(panel_title), "panel", " ")) | fields app datamodel name type subtype| stats list(*) as *, count by datamodel app | eval name=mvjoin(name, ";") | eval type=mvjoin(type, ";")| eval subtype=mvjoin(subtype, ";")]| fields datamodel app size name type subtype count | makemv delim=";" name | makemv delim=";" type | makemv delim=";" subtype |  fillnull value=0 size count | stats first(size) as readiness sum(count) as total by datamodel</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+    <panel depends="$tok_sel_owner$,$tok_show_es_table$,$tok_data_model_obj$">
+      <table>
+        <title>ES Data Model Information:</title>
+        <search>
+          <query>| datamodelinfo $tok_data_model$| fields datamodel size | join max=0 datamodel [| contentinfo | eval datamodel=mvdedup(datamodel)| eval name=case(isnotnull(search_name), search_name,isnotnull(panel_title), view_name + " - " + panel_title, isnotnull(view_name), view_name, 1==1, null()) | eval subtype=coalesce(subtype, if(isnotnull(panel_title), "panel", " ")) | fields app datamodel name type subtype| stats list(*) as *, count by datamodel app | eval name=mvjoin(name, ";") | eval type=mvjoin(type, ";")| eval subtype=mvjoin(subtype, ";")]| fields datamodel app size name type subtype count | makemv delim=";" name | makemv delim=";" type | makemv delim=";" subtype |  stats sum(eval(if(size&gt;0, count, 0))) as active sum(count) as total | eval pct=active/total*100 | eval completeness=floor(pct)."%"</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_sel_field$">
+    <panel>
+      <table>
+        <title>Field ($tok_sel_field$) Values Count:</title>
+        <search>
+          <query>$tok_group$=$tok_series$ $tok_sel_field$="*" | stats count by $tok_sel_field$ | sort -count</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_data_model_obj$">
+    <panel>
+      <input type="dropdown" token="tok_dm_field_config" searchWhenChanged="true" depends="$show_datamodel_list$">
+        <label>Optional - Select Field Configs</label>
+        <choice value="All"></choice>
+        <choice value="| search editable=true">Editable</choice>
+        <choice value="| search required=true">Required</choice>
+        <choice value="| search hiden=true">Hidden</choice>
+        <choice value="| search multivalue=true">Multi Value</choice>
+        <default>All</default>
+        <initialValue></initialValue>
+      </input>
+      <table depends="$tok_data_model_obj$">
+        <title>Data Model Field Information:</title>
+        <search>
+          <query>| datamodel $tok_data_model$ $tok_data_model_obj$ | fields _raw
+| table _raw
+| rex field=_raw "\"parentName\"\:\".*\"\,\"fields\"\:\[(?P&lt;fieldsdata&gt;[^\]]+)"
+| rex mode=sed field=fieldsdata "s/\{\"fieldName/####\"fieldName/g"
+| rex mode=sed field=fieldsdata "s/\}\,\{\"fieldName/####\"fieldName/g"
+| makemv delim="####" fieldsdata
+| mvexpand fieldsdata
+| rex field=fieldsdata max_match=0 "\"fieldName\":\"(?P&lt;fieldName&gt;[^\"]+)\"\,\"owner\":\"(?P&lt;owner&gt;[^\"]+)\"\,\"type\":\"(?P&lt;type&gt;[^\"]+)\"\,\"fieldSearch\":(?P&lt;fieldSearch&gt;[^\,]+)\,\"required\"\:(?P&lt;required&gt;[^\,]+)\,\"multivalue\":(?P&lt;multivalue&gt;[^\,]+)\,\"hidden\":(?P&lt;hidden&gt;[^\,]+)\,\"editable\":(?P&lt;editable&gt;[^\,]+)\,\"displayName\":\"(?P&lt;displayName&gt;[^\"]+)\"\,\"comment\":(?P&lt;comment&gt;[^\}]+)"
+| eval fieldName=if(owner=="BaseEvent",fieldName,owner.".".fieldName)
+| rename displayName AS Original_Field_Name, fieldName AS Model_Field_Name, owner AS Object_Owner
+| table Model_Field_Name, Original_Field_Name, Object_Owner, type, fieldSearch, required, multivalue, hidden, editable, comment
+$tok_dm_field_config$
+| sort Object_Owner
+</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+        <drilldown>
+          <condition field="Model_Field_Name">
+            <set token="tok_sel_dm_field">$click.value$</set>
+          </condition>
+        </drilldown>
+      </table>
+      <html>
+        <i>
+          <b>Step 4</b> - Click a field in the table above to view top values for that field</i>
+      </html>
+      <table depends="$tok_sel_dm_field$">
+        <title>Data Model Field ($tok_sel_dm_field$) Values:</title>
+        <search>
+          <query>|tstats summariesonly=true allow_old_summaries=true  count from datamodel=$tok_data_model$ by $tok_sel_dm_field$
+| sort -count
+</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_lookup$">
+    <panel>
+      <table>
+        <title>Lookup ($tok_lookup$) Values:</title>
+        <search>
+          <query>|inputlookup $tok_lookup$
+</query>
+          <earliest>$field2.earliest$</earliest>
+          <latest>$field2.latest$</latest>
+        </search>
+        <option name="drilldown">row</option>
+      </table>
+    </panel>
+  </row>
+</form>

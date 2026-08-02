@@ -1,0 +1,523 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" hideFilters="True" version="1.1">
+  <label>AD Objects - Windows App - Crashes</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+    <set token="tok_tab_c_1">active</set>
+  </init>
+  <search base="base_app_crash_search" id="sub_c_search">
+    <query>search host="$tok_c_host$" app_file="$tok_c_app_file$"
+| eval app_file_wo_ext=replace(app_file,"\.exe","")
+| stats values(Report_Id) AS report_ids, values(app_file) AS app_files,values(app_file_wo_ext) AS app_files_wo_ext
+| eval report_ids="(".mvjoin(report_ids," OR ").")",app_files="(".mvjoin(app_files," OR ").")",app_files_wo_ext="(".mvjoin(app_files_wo_ext," OR ").")"
+| eval correlate_filt=if(isnull(report_ids),if(isnull(app_files),"NA",app_files),if(isnull(app_files),report_ids,app_files." OR ".report_ids))</query>
+    <progress>
+      <eval token="tok_c_filt">if($result.correlate_filt$=="NA",NULL,$result.correlate_filt$)</eval>
+      <eval token="tok_c_app_files">if(isnull($result.app_files$),NULL,$result.app_files$)</eval>
+      <eval token="tok_c_app_files_wo_ext">if(isnull($result.app_files_wo_ext$),NULL,$result.app_files_wo_ext$)</eval>
+      <eval token="tok_c_app_files_label">if(isnull($result.app_files_wo_ext$),"No Application Files Found for selected Host.","No Perfmon (object=Process) for instances ".$result.app_files_wo_ext$." found.")</eval>
+    </progress>
+  </search>
+  <search id="base_c_perfmon_search">
+    <query>`ms__obj_win_perfmon_index` $tok_c_app_files_wo_ext$  host="$tok_c_host$" object="Process"
+| fields _time,host,instance,counter,Value
+| stats sparkline(avg(Value)) as Trend avg(Value) as Average, max(Value) as Peak, latest(Value) as Current, latest(_time) as "Last Updated" by host,counter,instance 
+| convert ctime("Last Updated") 
+| sort - Current
+| rename instance AS Process
+| table host,counter,Process,Trend,Average,Peak,Current,"Last Updated" 
+</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_show_c_perfm_msg">True</set>
+        <unset token="tok_show_c_perfm"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_c_perfm">True</set>
+        <unset token="tok_show_c_perfm_msg"></unset>
+      </condition>
+    </done>
+  </search>
+  <search id="base_app_crash_search">
+    <query>`ms_obj_win_events_application` EventCode="1001"  "Windows Error Reporting"
+| fields _time,_raw,sourcetype,host,Event_Name,Report_Status,Report_Id,fault_bucket,Attached_Files,Response,Cab_Id,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10
+| rex max_match=0 "(?:\&lt;EventData\&gt;)\&lt;Data\&gt;\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;fault_bucket&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Event_Name&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Response&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Cab_Id&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P1&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P2&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P3&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P4&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P5&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P6&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P7&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P8&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P9&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P10&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Attached_Files&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Attached_Files_other&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Analysis_symbol&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Solution_recheck&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Report_Id&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Report_Status&gt;[^\&lt;]+))\&lt;\/Data\&gt;"
+| fillnull value="NA" P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,fault_bucket,cab_id,Report_Id,Report_Status,Response
+| eval application=if(Event_Name=="APPCRASH",P1." (version: ".P2.")",Event_Name),app_file=if(Event_Name=="APPCRASH",P1,if(match(Event_Name,"WindowsUpdateFailure"),"Wuauclt.exe",NULL))
+| table _time,_raw,sourcetype,host,application,Event_Name,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,fault_bucket,cab_id,Report_Id,Report_Status,Response,Attached_Files,Attached_Files_other,app_file</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="EventHost" searchWhenChanged="true">
+      <label>Event Host</label>
+      <choice value="*">All</choice>
+      <search base="base_app_crash_search">
+        <query>search  application="$tok_app$" Event_Name="$tok_event_name$"
+| fields host
+| stats count by host
+| sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="tok_app_bs">
+      <label>Select Application</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>application</fieldForLabel>
+      <fieldForValue>application</fieldForValue>
+      <search base="base_app_crash_search">
+        <query>search host="$EventHost$" Event_Name="$tok_event_name$"
+| stats count by application
+| sort application</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_app">*</set>
+          <set token="tok_app_label">All Applications</set>
+          <unset token="tok_dd_app"></unset>
+        </condition>
+        <condition>
+          <set token="tok_app">$value$</set>
+          <set token="tok_app_label">$value$</set>
+          <set token="tok_dd_app">$value$</set>
+        </condition>
+      </change>
+      <default>all</default>
+      <initialValue>all</initialValue>
+    </input>
+    <input type="dropdown" token="tok_event_name_bs" searchWhenChanged="true">
+      <label>Select Event_Name</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>Event_Name</fieldForLabel>
+      <fieldForValue>Event_Name</fieldForValue>
+      <search base="base_app_crash_search">
+        <query>search host="$EventHost$" application="$tok_app$"
+| stats count by Event_Name
+| sort Event_Name</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_event_name">*</set>
+          <set token="tok_event_name_label">All Event_Namess</set>
+        </condition>
+        <condition>
+          <set token="tok_event_name">$value$</set>
+          <set token="tok_event_name_label">$value$</set>
+        </condition>
+      </change>
+      <default>all</default>
+      <initialValue>all</initialValue>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-30d@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Summary Counts</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Application Details</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">Host Details</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">Correlated Events</a>
+          </li> 
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <table>
+        <title>Total Crashes By Host</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| stats sparkline as Trend, count by host 
+| sort -count</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Total Crashes By Application</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| stats sparkline as Trend, count by application 
+| sort -count</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <chart>
+        <title>Crashes Over Time By Host</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| timechart count by host useother=f</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart>
+        <title>Crashes Over Time By Application</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| timechart count by application useother=f</query>
+        </search>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel id="pan_app_details">
+      <table id="table_app_details">
+        <title>Application List</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| stats dc(host) AS host_count, count AS Total_Events by application
+| sort -Total_Events</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <drilldown>
+          <set token="tok_dd_app">$row.application$</set>
+          <set token="tok_app_label">$row.application$</set>
+        </drilldown>
+      </table>
+      <html>
+        <center>
+          <h4>
+            <i>Click on Application to review Events for that Application.</i>
+          </h4>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_app_dd">
+      <!--input type="radio" token="tok_view_type" searchWhenChanged="true">
+        <label>Drill Down Type</label>
+        <choice value="summary">Summary</choice>
+        <choice value="raw">Raw</choice>
+        <default>summary</default>
+        <initialValue>summary</initialValue>
+        <change>
+          <condition value="summary">
+            <set token="tok_app_dd_fields">Info,Problem_Signature</set>
+          </condition>
+          <condition>
+            <set token="tok_app_dd_fields">_time,_raw</set>
+          </condition>
+        </change>
+      </input-->
+      <table>
+        <title>Drilldown Application ($tok_app_label$) Events</title>
+        <search base="base_app_crash_search">
+          <query>search application="$tok_dd_app$"
+| eval Attached_Files=if(isnull(Attached_Files),if(isnull(Attached_Files_other),"NA",mvjoin(Attached_Files_other,"|")),if(isnull(Attached_Files_other),mvjoin(Attached_Files,"|"),mvjoin(Attached_Files,"|")."| Other: -".mvjoin(Attached_Files_other," - ")))
+| eval Problem_Signature="P1: ".P1."|P2: ".P2."|P3: ".P3."|P4: ".P4."|P5: ".P5."|P6: ".P6."|P7: ".P7."|P8: ".P8."|P9: ".P9."|P10: ".P10."|Attached Files: ".Attached_Files
+| eval Info="Time: ".strftime(_time,"%m/%d/%y %I:%M:%S %P")."|Host: ".host."|Event Name: ".Event_Name."|sourcetype: ".sourcetype."|Fault Bucket: ".fault_bucket."|Response: ".Response."|Cab ID: ".cab_id."|Report ID: ".Report_Id."|Report Status Code:".Report_Status
+| table Info,Problem_Signature
+| makemv delim="|" Problem_Signature
+| makemv delim="|" Info</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel id="pan_host_details">
+      <table>
+        <title>Crashes Details By Host</title>
+        <search base="base_app_crash_search">
+          <query>search host="$EventHost$" application="$tok_app$" Event_Name="$tok_event_name$"
+| stats dc(application) AS app_count, count AS Total_Events,values(Report_Id) AS report_ids by host
+| eval report_ids=mvjoin(report_ids," OR ")</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <fields>["host","app_count","Total_Events"]</fields>
+        <drilldown>
+          <set token="tok_host_dd">$row.host$</set>
+          <set token="tok_report_id">$row.report_ids$</set>
+        </drilldown>
+      </table>
+      <html>
+        <center>
+          <h4>
+            <i>Click on a Host to review Events for that Host.</i>
+          </h4>
+        </center>
+      </html>
+    </panel>
+    <panel id="pan_host_dd">
+      <table>
+        <title>Drilldown Host ($tok_host_dd$) Events</title>
+        <search base="base_app_crash_search">
+          <query>search host="$tok_host_dd$" application="$tok_app$" Event_Name="$tok_event_name$"
+| eval Attached_Files=if(isnull(Attached_Files),if(isnull(Attached_Files_other),"NA",mvjoin(Attached_Files_other,"|")),if(isnull(Attached_Files_other),mvjoin(Attached_Files,"|"),mvjoin(Attached_Files,"|")."| Other: -".mvjoin(Attached_Files_other," - ")))
+| eval Problem_Signature="P1: ".P1."|P2: ".P2."|P3: ".P3."|P4: ".P4."|P5: ".P5."|P6: ".P6."|P7: ".P7."|P8: ".P8."|P9: ".P9."|P10: ".P10."|Attached Files: ".Attached_Files
+| eval Info="Time: ".strftime(_time,"%m/%d/%y %I:%M:%S %P")."|Application: ".application."|Event Name: ".Event_Name."|sourcetype: ".sourcetype."|Fault Bucket: ".fault_bucket."|Response: ".Response."|Cab ID: ".cab_id."|Report ID: ".Report_Id."|Report Status Code:".Report_Status
+| table Info,Problem_Signature
+| makemv delim="|" Problem_Signature
+| makemv delim="|" Info</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel>
+      <input type="dropdown" token="tok_c_host" searchWhenChanged="true">
+        <label>Correlation Host</label>
+        <choice value="*">All</choice>
+        <search base="base_app_crash_search">
+          <query>search  application="$tok_app$" Event_Name="$tok_event_name$"
+| fields host
+| stats count by host
+| sort host</query>
+        </search>
+        <fieldForLabel>host</fieldForLabel>
+        <fieldForValue>host</fieldForValue>
+        <default>*</default>
+      </input>
+      <input type="dropdown" token="tok_c_app_bs">
+        <label>Correlation Application</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>app_file</fieldForLabel>
+        <fieldForValue>app_file</fieldForValue>
+        <search base="base_app_crash_search">
+          <query>search host="$tok_c_host$"
+| stats count by app_file
+| sort app_file</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_c_app_file">*</set>
+            <set token="tok_c_app_file_label">All Applications</set>
+          </condition>
+          <condition>
+            <set token="tok_c_app_file">$value$</set>
+            <set token="tok_c_app_file_label">$value$</set>
+          </condition>
+        </change>
+        <default>all</default>
+        <initialValue>all</initialValue>
+      </input>
+      <input type="dropdown" token="tok_c_perf_process_bs">
+        <label>Select Correlated Process</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>Process</fieldForLabel>
+        <fieldForValue>Process</fieldForValue>
+        <search base="base_c_perfmon_search">
+          <query>stats count by Process
+| sort Process</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_c_perf_process">*</set>
+          </condition>
+          <condition>
+            <set token="tok_c_perf_process">$value$</set>
+          </condition>
+        </change>
+        <default>all</default>
+        <initialValue>all</initialValue>
+      </input>
+      <input type="dropdown" token="tok_c_perf_counter_bs">
+        <label>Select Correlated Counter</label>
+        <choice value="all">All</choice>
+        <fieldForLabel>counter</fieldForLabel>
+        <fieldForValue>counter</fieldForValue>
+        <search base="base_c_perfmon_search">
+          <query>search Process="$tok_c_perf_process$"
+| stats count by counter
+| sort counter</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_c_perf_counter">*</set>
+          </condition>
+          <condition>
+            <set token="tok_c_perf_counter">$value$</set>
+          </condition>
+        </change>
+        <default>all</default>
+        <initialValue>all</initialValue>
+      </input>
+    </panel>
+  </row>
+  <row id="tabs_sub_row" depends="$tok_tab_4$">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li class="$tok_tab_c_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_c_1&quot;:&quot;active&quot;,&quot;tok_tab_c_2&quot;:&quot;undefined&quot;}">Correlated Windows Events</a>
+          </li>             
+          <li class="$tok_tab_c_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_c_2&quot;:&quot;active&quot;,&quot;tok_tab_c_1&quot;:&quot;undefined&quot;}">Correlated Perfmon Process</a>
+          </li> 
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$,$tok_tab_c_1$">
+    <panel>
+      <html><h3>Windows Event Log Correlated Search</h3> <details ontoggle="mydetfunction()"><summary><i class="icon-search"> (View Search) - </i></summary>
+		          <pre>(sourcetype="WinEventLog" OR sourcetype="XmlWinEventLog") host="$tok_c_host$" $tok_c_filt$</pre>
+		     </details></html>
+      <event>
+        <search>
+          <query>(sourcetype="WinEventLog" OR sourcetype="XmlWinEventLog") host="$tok_c_host$" $tok_c_filt$</query>
+          <earliest>$Time.earliest$</earliest>
+          <latest>$Time.latest$</latest>
+        </search>
+        <fields>["_time","_raw"]</fields>
+        <option name="count">5</option>
+        <option name="list.drilldown">full</option>
+        <option name="raw.drilldown">full</option>
+        <option name="table.drilldown">all</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$,$tok_tab_c_2$">
+    <panel>
+      <html>
+        <h3>Performance Counter Correlated Search</h3>
+          <details ontoggle="mydetfunction()"><summary><i class="icon-search"> (View Search) - </i></summary>
+		          <pre>index=perfmon $tok_c_app_files_wo_ext$  host="$tok_c_host$" object="Process"
+| fields _time,host,instance,counter,Value
+| stats sparkline(avg(Value)) as Trend avg(Value) as Average, max(Value) as Peak, latest(Value) as Current, latest(_time) as "Last Updated" by host,counter,instance 
+| convert ctime("Last Updated") 
+| sort - Current
+| rename instance AS Process
+| table host,counter,Process,Trend,Average,Peak,Current,"Last Updated"
+| search Process="$tok_c_perf_process$" counter="$tok_c_perf_counter$"</pre>
+		     </details></html>
+      <table depends="$tok_show_c_perfm$">
+        <title>Performance Counter Correlated Search $tok_c_app_files_wo_ext$</title>
+        <search base="base_c_perfmon_search">
+          <query>search Process="$tok_c_perf_process$" counter="$tok_c_perf_counter$"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <format type="color" field="Average">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F1813F" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+        <format type="number" field="Average"></format>
+        <format type="number" field="Peak"></format>
+        <format type="number" field="Current"></format>
+        <format type="color" field="Current">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" midColor="#F1813F" minColor="#53A051"></colorPalette>
+          <scale type="minMidMax" midType="percentile" midValue="50"></scale>
+        </format>
+      </table>
+      <html depends="$tok_show_c_perfm_msg$">
+        <center><i class="icon-info-circle" style="font-size:25px;color:blue;"></i> $tok_c_app_files_label$</center>
+      </html>
+    </panel>
+  </row>
+  <row depends="$hidden_Style$">
+    <panel>
+      <html>
+        <style>
+#pan_app_details {width:35% !important;height:550px !important;overflow:scroll;}
+#pan_app_dd {width:65% !important;;height:550px !important;overflow:scroll;}
+#pan_host_details {width:35% !important;height:550px !important;overflow:scroll;}
+#pan_host_dd {width:65% !important;;height:550px !important;overflow:scroll;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

@@ -1,0 +1,15 @@
+Error_Code,reason
+0XC0000064,User does not exist
+0XC000006A,Password mismatch
+0XC000006F,Time/Date Restrictions
+0XC0000070,Workstation Restrictions
+0XC0000071,Password Expired
+0XC0000072,User is Disabled
+0XC0000193,Account Expired
+0XC0000199,User logging in as a Computer
+0XC0000224,User must change password
+0XC0000225,Windows Server Bug
+0XC0000234,User is Locked Out
+0X18,Incorrect Password
+0X17,Expired password
+0X12,"Disabled,expired,locked out account"

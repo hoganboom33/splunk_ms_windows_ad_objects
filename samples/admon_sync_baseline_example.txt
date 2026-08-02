@@ -1,0 +1,2057 @@
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={BFC363EF-8C38-45D3-961E-23D4BC032152}
+	displayName=Contractor_Test
+	distinguishedName=CN={BFC363EF-8C38-45D3-961E-23D4BC032152},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={BFC363EF-8C38-45D3-961E-23D4BC032152}
+Object Details:
+	objectGUID=082f2ab6-2752-4a68-8a8f-68db76eac62a
+	whenChanged=01:42.38 PM, Mon 08/15/2016
+	whenCreated=01:42.38 PM, Mon 08/15/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=86373
+	uSNCreated=86368
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{BFC363EF-8C38-45D3-961E-23D4BC032152}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=0
+	showInAdvancedViewOnly=TRUE
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Contractors
+	distinguishedName=OU=Contractors,OU=Info Technology,DC=sedemo,DC=local
+	ou=Contractors
+Object Details:
+	objectGUID=a5477eb1-1e17-4809-82cb-318b0204c020
+	whenChanged=01:31.26 PM, Mon 08/15/2016
+	whenCreated=01:31.26 PM, Mon 08/15/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=86366
+	uSNCreated=86365
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160815183126.0Z|16010101000000.0Z
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=jbobby@sedemo.local
+	name=Joe Boby
+	displayName=Joe Boby
+	distinguishedName=CN=Joe Boby,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+	givenName=Joe
+	sn=Boby
+	cn=Joe Boby
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=jbobby
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1622
+	primaryGroupID=513
+	pwdLastSet=12:23.54 PM, Mon 08/15/2016
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66050
+	objectGUID=d625b58e-bd9c-42a2-bb12-9916d471c70b
+	whenChanged=01:25.39 PM, Mon 08/15/2016
+	whenCreated=12:23.54 PM, Mon 08/15/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=86364
+	uSNCreated=86343
+	instanceType=4
+Additional Details:
+	msDS-SupportedEncryptionTypes=0
+	dSCorePropagationData=20160815180810.0Z|16010101000000.0Z
+	adminCount=1
+	memberOf=CN=Domain Admins,CN=Users,DC=sedemo,DC=local
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=zzz_shogan@sedemo.local
+	name=Steve Hogan
+	displayName=Steve Hogan
+	distinguishedName=CN=Steve Hogan,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+	givenName=Steve
+	sn=Hogan
+	cn=Steve Hogan
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=zzz_shogan
+	logonCount=4
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1607
+	primaryGroupID=513
+	pwdLastSet=03:51.05 PM, Fri 06/17/2016
+	lastLogon=04:12.03 PM, Fri 06/17/2016
+	lastLogoff=0
+	badPasswordTime=11:56.58 PM, Sun 06/19/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=1
+	userAccountControl=66048
+	objectGUID=c08dab9a-9b7f-4f6c-be99-81d09504dffe
+	whenChanged=01:04.07 PM, Mon 08/15/2016
+	whenCreated=03:51.05 PM, Fri 06/17/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=86358
+	uSNCreated=16554
+	instanceType=4
+Additional Details:
+	lastLogonTimestamp=03:52.47 PM, Fri 06/17/2016
+	dSCorePropagationData=20160712195128.0Z|20160620050142.0Z|16010101000001.0Z
+	adminCount=1
+	memberOf=CN=zzz_File_HR,OU=Groups,OU=Info Technology,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	telephoneNumber=2149141295
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=lsimonton@sedemo.local
+	name=Lilly Simonton
+	displayName=Lilly Simonton - Cont
+	distinguishedName=CN=Lilly Simonton,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+	givenName=Lilly
+	sn=Simonton
+	cn=Lilly Simonton
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=lsimonton
+	logonCount=4
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1619
+	primaryGroupID=513
+	pwdLastSet=02:21.52 PM, Wed 08/03/2016
+	lastLogon=02:21.54 PM, Wed 08/03/2016
+	lastLogoff=0
+	badPasswordTime=03:47.26 PM, Wed 08/03/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=5
+	userAccountControl=512
+	objectGUID=4a92a132-e98a-4efe-bf74-88c4ae426926
+	whenChanged=01:03.50 PM, Mon 08/15/2016
+	whenCreated=01:12.57 PM, Wed 07/20/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=86357
+	uSNCreated=77951
+	instanceType=4
+Additional Details:
+	lastLogonTimestamp=02:21.52 PM, Wed 08/03/2016
+	dSCorePropagationData=16010101000000.0Z
+	lockoutTime=03:47.26 PM, Wed 08/03/2016
+	memberOf=CN=Dev_Distribution,OU=Groups,OU=Info Technology,DC=sedemo,DC=local|CN=Dev_Test,OU=Groups,OU=Info Technology,DC=sedemo,DC=local|CN=IIS_IUSRS,CN=Builtin,DC=sedemo,DC=local
+	description=Contractor Account
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Admins
+	distinguishedName=CN=Domain Admins,CN=Users,DC=sedemo,DC=local
+	cn=Domain Admins
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Domain Admins
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-512
+	objectGUID=598029d6-fae1-432b-8c88-4623439dcc42
+	whenChanged=12:24.06 PM, Mon 08/15/2016
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=86350
+	uSNCreated=12345
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	adminCount=1
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	member=CN=Joe Boby,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=Steve Hogan,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=zzz_win_lab Splunker,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=Administrator,CN=Users,DC=sedemo,DC=local
+	description=Designated administrators of the domain
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=zzz_win_lab@sedemo.local
+	name=zzz_win_lab Splunker
+	displayName=zzz_win_lab Splunker
+	distinguishedName=CN=zzz_win_lab Splunker,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+	givenName=zzz_win_lab
+	sn=Splunker
+	cn=zzz_win_lab Splunker
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=zzz_win_lab
+	logonCount=180
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1603
+	primaryGroupID=513
+	pwdLastSet=04:00.25 PM, Fri 06/17/2016
+	lastLogon=02:40.41 PM, Mon 08/15/2016
+	lastLogoff=0
+	badPasswordTime=01:02.55 PM, Mon 08/15/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=b1d03b5c-a77a-4da6-a61d-99868635b9f6
+	whenChanged=12:22.44 PM, Mon 08/15/2016
+	whenCreated=03:41.19 PM, Fri 06/17/2016
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=86341
+	uSNCreated=16504
+	instanceType=4
+Additional Details:
+	lastLogonTimestamp=12:22.44 PM, Mon 08/15/2016
+	dSCorePropagationData=20160712195128.0Z|20160617204725.0Z|16010101000001.0Z
+	adminCount=1
+	memberOf=CN=zzz_File_HR,OU=Groups,OU=Info Technology,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Computer,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=DC2012R2
+	distinguishedName=CN=DC2012R2,OU=Domain Controllers,DC=sedemo,DC=local
+	cn=DC2012R2
+Object Details:
+	sAMAccountType=805306369
+	sAMAccountName=DC2012R2$
+	logonCount=201
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1002
+	primaryGroupID=516
+	pwdLastSet=11:41.08 AM, Mon 07/18/2016
+	lastLogon=09:53.41 AM, Mon 08/15/2016
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=532480
+	objectGUID=5bdc94aa-0765-48dd-8df8-a5a8316001f1
+	whenChanged=11:08.05 PM, Sun 08/14/2016
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=86313
+	uSNCreated=12293
+	instanceType=4
+Additional Details:
+	msDFSR-ComputerReferenceBL=CN=DC2012R2,CN=Topology,CN=Domain System Volume,CN=DFSR-GlobalSettings,CN=System,DC=sedemo,DC=local
+	msDS-GenerationId=<binary>
+	msDS-SupportedEncryptionTypes=28
+	lastLogonTimestamp=11:08.05 PM, Sun 08/14/2016
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	servicePrincipalName=Dfsr-12F9A27C-BF97-4787-9364-D31B6C55EB04/DC2012R2.sedemo.local|ldap/DC2012R2.sedemo.local/ForestDnsZones.sedemo.local|ldap/DC2012R2.sedemo.local/DomainDnsZones.sedemo.local|DNS/DC2012R2.sedemo.local|GC/DC2012R2.sedemo.local/sedemo.local|RestrictedKrbHost/DC2012R2.sedemo.local|RestrictedKrbHost/DC2012R2|RPC/05bbf814-a0db-4214-b371-0a5f9dd9de30._msdcs.sedemo.local|HOST/DC2012R2/SEDEMO|HOST/DC2012R2.sedemo.local/SEDEMO|HOST/DC2012R2|HOST/DC2012R2.sedemo.local|HOST/DC2012R2.sedemo.local/sedemo.local|E3514235-4B06-11D1-AB04-00C04FC2DCD2/05bbf814-a0db-4214-b371-0a5f9dd9de30/sedemo.local|ldap/DC2012R2/SEDEMO|ldap/05bbf814-a0db-4214-b371-0a5f9dd9de30._msdcs.sedemo.local|ldap/DC2012R2.sedemo.local/SEDEMO|ldap/DC2012R2|ldap/DC2012R2.sedemo.local|ldap/DC2012R2.sedemo.local/sedemo.local
+	rIDSetReferences=CN=RID Set,CN=DC2012R2,OU=Domain Controllers,DC=sedemo,DC=local
+	dNSHostName=DC2012R2.sedemo.local
+	serverReferenceBL=CN=DC2012R2,CN=Servers,CN=Default-First-Site-Name,CN=Sites,CN=Configuration,DC=sedemo,DC=local
+	operatingSystemVersion=6.3 (9600)
+	operatingSystem=Windows Server 2012 R2 Standard
+	localPolicyFlags=0
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Dev_Test
+	distinguishedName=CN=Dev_Test,OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	cn=Dev_Test
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Dev_Test
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1620
+	objectGUID=6014f818-81c8-4897-8920-53a1b13b7880
+	whenChanged=10:22.27 AM, Fri 08/12/2016
+	whenCreated=10:21.51 AM, Fri 08/12/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=86287
+	uSNCreated=86276
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=-2147483646
+	member=CN=Lilly Simonton,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Dev_Distribution
+	distinguishedName=CN=Dev_Distribution,OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	cn=Dev_Distribution
+Object Details:
+	sAMAccountType=268435457
+	sAMAccountName=Dev_Distribution
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1621
+	objectGUID=db1c194a-4f81-4d42-b9fd-e84565492863
+	whenChanged=10:22.27 AM, Fri 08/12/2016
+	whenCreated=10:22.09 AM, Fri 08/12/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=86284
+	uSNCreated=86280
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	groupType=2
+	member=CN=Lilly Simonton,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={BE7BD956-4D55-412D-81E4-5699AD35FD49}
+	displayName=Dev_Test_GPO
+	distinguishedName=CN={BE7BD956-4D55-412D-81E4-5699AD35FD49},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={BE7BD956-4D55-412D-81E4-5699AD35FD49}
+Object Details:
+	objectGUID=514cb8f3-6fb9-404c-acda-ed3d6404724a
+	whenChanged=04:30.01 PM, Wed 08/10/2016
+	whenCreated=11:38.57 AM, Thu 08/04/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=86160
+	uSNCreated=82057
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=16010101000000.0Z
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{BE7BD956-4D55-412D-81E4-5699AD35FD49}
+	gPCFunctionalityVersion=2
+	versionNumber=0
+	flags=1
+	showInAdvancedViewOnly=TRUE
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Controllers
+	distinguishedName=OU=Domain Controllers,DC=sedemo,DC=local
+	ou=Domain Controllers
+Object Details:
+	objectGUID=60bfcd90-1da8-4d78-80e7-1406a5d04bd9
+	whenChanged=01:39.30 PM, Fri 08/05/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=86066
+	uSNCreated=5957
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617203914.0Z|20151013155319.0Z|16010101181217.0Z
+	gPLink=[LDAP://cn={BE7BD956-4D55-412D-81E4-5699AD35FD49},cn=policies,cn=system,DC=sedemo,DC=local;0][LDAP://CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=sedemo,DC=local;0]
+	isCriticalSystemObject=TRUE
+	systemFlags=-1946157056
+	showInAdvancedViewOnly=FALSE
+	description=Default container for domain controllers
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Workstations
+	distinguishedName=OU=Workstations,OU=Info Technology,DC=sedemo,DC=local
+	ou=Workstations
+Object Details:
+	objectGUID=418c3611-b01d-4245-8777-376c636c6aad
+	whenChanged=11:53.40 AM, Fri 08/05/2016
+	whenCreated=03:40.20 PM, Fri 06/17/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=86050
+	uSNCreated=16501
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617204020.0Z|16010101000001.0Z
+	gPLink=[LDAP://cn={BE7BD956-4D55-412D-81E4-5699AD35FD49},cn=policies,cn=system,DC=sedemo,DC=local;0]
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Groups
+	distinguishedName=OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	ou=Groups
+Object Details:
+	objectGUID=695968dd-5549-41e4-9e6c-33e032981f96
+	whenChanged=11:53.29 AM, Fri 08/05/2016
+	whenCreated=03:39.52 PM, Fri 06/17/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=86049
+	uSNCreated=16497
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617203952.0Z|16010101000001.0Z
+	gPLink=[LDAP://cn={BE7BD956-4D55-412D-81E4-5699AD35FD49},cn=policies,cn=system,DC=sedemo,DC=local;0]
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=IIS_IUSRS
+	distinguishedName=CN=IIS_IUSRS,CN=Builtin,DC=sedemo,DC=local
+	cn=IIS_IUSRS
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=IIS_IUSRS
+	objectSid=S-1-5-32-568
+	objectGUID=55b63610-a9a1-487b-9f80-2dd307ee951d
+	whenChanged=12:04.52 PM, Thu 08/04/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=82065
+	uSNCreated=8223
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	member=CN=Lilly Simonton,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=S-1-5-17,CN=ForeignSecurityPrincipals,DC=sedemo,DC=local
+	description=Built-in group used by Internet Information Services.
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Administrator
+	distinguishedName=CN=Administrator,CN=Users,DC=sedemo,DC=local
+	cn=Administrator
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=Administrator
+	logonCount=4
+	accountExpires=0
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-500
+	primaryGroupID=513
+	pwdLastSet=03:59.49 PM, Fri 06/17/2016
+	lastLogon=04:01.43 PM, Fri 06/17/2016
+	lastLogoff=0
+	badPasswordTime=04:01.37 PM, Fri 06/17/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=512
+	objectGUID=1aae1bf2-e2ed-47d9-8367-4947ed52b738
+	whenChanged=03:23.26 PM, Wed 08/03/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=82004
+	uSNCreated=8196
+	instanceType=4
+Additional Details:
+	lastLogonTimestamp=03:23.26 PM, Wed 08/03/2016
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	adminCount=1
+	logonHours=<binary>
+	memberOf=CN=Group Policy Creator Owners,CN=Users,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Schema Admins,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	description=Built-in account for administering the computer/domain
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Computer,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=FandP_Server_01
+	distinguishedName=CN=FandP_Server_01,OU=Servers,OU=Info Technology,DC=sedemo,DC=local
+	cn=FandP_Server_01
+Object Details:
+	sAMAccountType=805306369
+	sAMAccountName=FANDP_SERVER_01$
+	logonCount=53
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1608
+	primaryGroupID=515
+	pwdLastSet=09:59.18 AM, Mon 07/25/2016
+	lastLogon=05:19.30 PM, Thu 08/04/2016
+	lastLogoff=0
+	badPasswordTime=04:01.43 PM, Fri 06/17/2016
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=4128
+	objectGUID=24da1026-1bf5-488e-9f28-dd045ee2d8e1
+	whenChanged=02:16.04 PM, Wed 08/03/2016
+	whenCreated=03:53.42 PM, Fri 06/17/2016
+	objectClass=top|person|organizationalPerson|user|computer
+Event Details:
+	uSNChanged=81975
+	uSNCreated=16571
+	instanceType=4
+Additional Details:
+	msDS-SupportedEncryptionTypes=28
+	lastLogonTimestamp=02:16.04 PM, Wed 08/03/2016
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	isCriticalSystemObject=FALSE
+	servicePrincipalName=WSMAN/FandP_Server_01|WSMAN/FandP_Server_01.sedemo.local|RestrictedKrbHost/FANDP_SERVER_01|HOST/FANDP_SERVER_01|RestrictedKrbHost/FandP_Server_01.sedemo.local|HOST/FandP_Server_01.sedemo.local
+	dNSHostName=FandP_Server_01.sedemo.local
+	operatingSystemVersion=6.3 (9600)
+	operatingSystem=Windows Server 2012 R2 Standard
+	localPolicyFlags=0
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=zzz_File_HR
+	distinguishedName=CN=zzz_File_HR,OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	cn=zzz_File_HR
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=zzz_File_HR
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1604
+	objectGUID=3155d59b-2df8-4018-b160-ab43a7d0acc8
+	whenChanged=03:33.33 PM, Tue 07/19/2016
+	whenCreated=03:45.56 PM, Fri 06/17/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=77921
+	uSNCreated=16537
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	groupType=-2147483646
+	member=CN=Steve Hogan,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=zzz_win_lab Splunker,OU=Users,OU=Info Technology,DC=sedemo,DC=local
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={31B2F340-016D-11D2-945F-00C04FB984F9}
+	displayName=Default Domain Policy
+	distinguishedName=CN={31B2F340-016D-11D2-945F-00C04FB984F9},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={31B2F340-016D-11D2-945F-00C04FB984F9}
+Object Details:
+	objectGUID=23789855-1780-453b-9a2d-083b1b81c512
+	whenChanged=03:45.45 PM, Tue 07/12/2016
+	whenCreated=10:52.37 AM, Tue 10/13/2015
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=65651
+	uSNCreated=5833
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}][{F3CCC681-B74C-4060-9F26-CD84525DCA2A}{0F3F3735-573D-9804-99E4-AB2A69BA5FD4}]
+	gPCFileSysPath=\\sedemo.local\sysvol\sedemo.local\Policies\{31B2F340-016D-11D2-945F-00C04FB984F9}
+	gPCFunctionalityVersion=2
+	isCriticalSystemObject=TRUE
+	systemFlags=-1946157056
+	versionNumber=97
+	flags=0
+	showInAdvancedViewOnly=TRUE
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Test_Other_OU
+	distinguishedName=OU=Test_Other_OU,OU=Info Technology,DC=sedemo,DC=local
+	ou=Test_Other_OU
+Object Details:
+	objectGUID=6338856d-e224-488f-9fb6-d9752a8b5a8a
+	whenChanged=03:34.01 PM, Tue 07/12/2016
+	whenCreated=03:34.01 PM, Tue 07/12/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=65627
+	uSNCreated=65626
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712203401.0Z|16010101000000.0Z
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={6AC1786C-016F-11D2-945F-00C04fB984F9}
+	displayName=Default Domain Controllers Policy
+	distinguishedName=CN={6AC1786C-016F-11D2-945F-00C04fB984F9},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={6AC1786C-016F-11D2-945F-00C04fB984F9}
+Object Details:
+	objectGUID=d7681132-e3bd-4162-9fec-9833d88f9e39
+	whenChanged=02:38.02 PM, Tue 07/12/2016
+	whenCreated=10:52.37 AM, Tue 10/13/2015
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=65607
+	uSNCreated=5836
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	gPCMachineExtensionNames=[{827D319E-6EAC-11D2-A4EA-00C04F79F83A}{803E14A0-B4FB-11D0-A0D0-00A0C90F574B}][{F3CCC681-B74C-4060-9F26-CD84525DCA2A}{0F3F3735-573D-9804-99E4-AB2A69BA5FD4}]
+	gPCFileSysPath=\\sedemo.local\sysvol\sedemo.local\Policies\{6AC1786C-016F-11D2-945F-00C04fB984F9}
+	gPCFunctionalityVersion=2
+	isCriticalSystemObject=TRUE
+	systemFlags=-1946157056
+	versionNumber=10
+	flags=0
+	showInAdvancedViewOnly=TRUE
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group-Policy-Container,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name={9C9C5A3E-B945-478C-A45B-0B64B01F64E6}
+	displayName=File_Audit_Policy
+	distinguishedName=CN={9C9C5A3E-B945-478C-A45B-0B64B01F64E6},CN=Policies,CN=System,DC=sedemo,DC=local
+	cn={9C9C5A3E-B945-478C-A45B-0B64B01F64E6}
+Object Details:
+	objectGUID=ef2d4ef4-959d-4a25-9cb4-584f0d484d78
+	whenChanged=10:57.43 AM, Mon 06/27/2016
+	whenCreated=10:47.06 AM, Mon 06/27/2016
+	objectClass=top|container|groupPolicyContainer
+Event Details:
+	uSNChanged=49354
+	uSNCreated=49341
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	gPCMachineExtensionNames=[{F3CCC681-B74C-4060-9F26-CD84525DCA2A}{0F3F3735-573D-9804-99E4-AB2A69BA5FD4}]
+	gPCFileSysPath=\\sedemo.local\SysVol\sedemo.local\Policies\{9C9C5A3E-B945-478C-A45B-0B64B01F64E6}
+	gPCFunctionalityVersion=2
+	versionNumber=8
+	flags=0
+	showInAdvancedViewOnly=TRUE
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Servers
+	distinguishedName=OU=Servers,OU=Info Technology,DC=sedemo,DC=local
+	ou=Servers
+Object Details:
+	objectGUID=cd990eb4-a4c6-4826-8087-2168c4274047
+	whenChanged=08:48.47 AM, Wed 06/22/2016
+	whenCreated=03:40.06 PM, Fri 06/17/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=32939
+	uSNCreated=16499
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617204006.0Z|16010101000001.0Z
+	gPLink=
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Enterprise Admins
+	distinguishedName=CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local
+	cn=Enterprise Admins
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Enterprise Admins
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-519
+	objectGUID=4ef545ba-d942-49db-a618-2686c2a301ed
+	whenChanged=04:00.47 PM, Fri 06/17/2016
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=16641
+	uSNCreated=12339
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483640
+	adminCount=1
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	member=CN=Steve Hogan,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=zzz_win_lab Splunker,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local|CN=Administrator,CN=Users,DC=sedemo,DC=local
+	description=Designated administrators of the enterprise
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Administrators
+	distinguishedName=CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+	cn=Administrators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Administrators
+	objectSid=S-1-5-32-544
+	objectGUID=2936bf15-7e6b-4f15-bc73-3346b604a7c5
+	whenChanged=03:52.06 PM, Fri 06/17/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=16561
+	uSNCreated=8201
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	member=CN=Steve Hogan,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=zzz_win_lab Splunker,OU=Users,OU=Info Technology,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local|CN=Administrator,CN=Users,DC=sedemo,DC=local
+	description=Administrators have complete and unrestricted access to the computer/domain
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=zzz_File_Stock
+	distinguishedName=CN=zzz_File_Stock,OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	cn=zzz_File_Stock
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=zzz_File_Stock
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1606
+	objectGUID=4fad529a-ac73-45c4-a398-0969bf2b4e21
+	whenChanged=03:46.34 PM, Fri 06/17/2016
+	whenCreated=03:46.34 PM, Fri 06/17/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=16545
+	uSNCreated=16545
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	groupType=-2147483646
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=zzz_File_Sales
+	distinguishedName=CN=zzz_File_Sales,OU=Groups,OU=Info Technology,DC=sedemo,DC=local
+	cn=zzz_File_Sales
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=zzz_File_Sales
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1605
+	objectGUID=fbb5d4d9-23bb-4fa7-9664-bbdb80cbc4fc
+	whenChanged=03:46.15 PM, Fri 06/17/2016
+	whenCreated=03:46.15 PM, Fri 06/17/2016
+	objectClass=top|group
+Event Details:
+	uSNChanged=16541
+	uSNCreated=16541
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	groupType=-2147483646
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Info Technology
+	distinguishedName=OU=Info Technology,DC=sedemo,DC=local
+	ou=Info Technology
+Object Details:
+	objectGUID=0d70811e-06eb-40ab-8c61-c4fdf81525ae
+	whenChanged=03:39.28 PM, Fri 06/17/2016
+	whenCreated=03:39.14 PM, Fri 06/17/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=16496
+	uSNCreated=16491
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617203928.0Z|20160617203914.0Z|20160617203914.0Z|16010101000001.0Z
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Organizational-Unit,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Users
+	distinguishedName=OU=Users,OU=Info Technology,DC=sedemo,DC=local
+	ou=Users
+Object Details:
+	objectGUID=e493f849-edb9-4ee9-aa7d-a7f818d5c347
+	whenChanged=03:39.28 PM, Fri 06/17/2016
+	whenCreated=03:39.28 PM, Fri 06/17/2016
+	objectClass=top|organizationalUnit
+Event Details:
+	uSNChanged=16495
+	uSNCreated=16494
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20160617203928.0Z|20160617203928.0Z|16010101000001.0Z
+08/15/2016 14:53:08.543
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=jsanchez@sedemo.local
+	name=Jaime Sanchez
+	displayName=Jaime Sanchez
+	distinguishedName=CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local
+	givenName=Jaime
+	sn=Sanchez
+	cn=Jaime Sanchez
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=Jaime Sanchez
+	logonCount=15
+	accountExpires=0
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1001
+	primaryGroupID=513
+	pwdLastSet=10:50.30 AM, Tue 10/13/2015
+	lastLogon=11:57.17 PM, Sun 06/19/2016
+	lastLogoff=0
+	badPasswordTime=11:56.05 PM, Sun 06/19/2016
+	countryCode=1
+	codePage=1252
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=70f39139-ef4a-4d96-a829-4e474491d673
+	whenChanged=03:33.54 PM, Fri 06/17/2016
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=16434
+	uSNCreated=8198
+	instanceType=4
+Additional Details:
+	msDS-SupportedEncryptionTypes=0
+	lastLogonTimestamp=03:33.54 PM, Fri 06/17/2016
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	adminCount=1
+	logonHours=<binary>
+	memberOf=CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Users,CN=Builtin,DC=sedemo,DC=local|CN=Administrators,CN=Builtin,DC=sedemo,DC=local
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Controllers
+	distinguishedName=CN=Domain Controllers,CN=Users,DC=sedemo,DC=local
+	cn=Domain Controllers
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Domain Controllers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-516
+	objectGUID=8ec0d296-9fb1-419c-9455-42817d88fd0a
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12769
+	uSNCreated=12333
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	adminCount=1
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	description=All domain controllers in the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Read-only Domain Controllers
+	distinguishedName=CN=Read-only Domain Controllers,CN=Users,DC=sedemo,DC=local
+	cn=Read-only Domain Controllers
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Read-only Domain Controllers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-521
+	objectGUID=88d58938-a5c7-4e83-895b-a572474764cd
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12768
+	uSNCreated=12419
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	adminCount=1
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	description=Members of this group are Read-Only Domain Controllers in the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=krbtgt
+	distinguishedName=CN=krbtgt,CN=Users,DC=sedemo,DC=local
+	cn=krbtgt
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=krbtgt
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-502
+	primaryGroupID=513
+	pwdLastSet=10:53.19 AM, Tue 10/13/2015
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=514
+	objectGUID=8dbd405d-2eb5-4473-925c-caad73253e81
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=12766
+	uSNCreated=12324
+	instanceType=4
+Additional Details:
+	msDS-SupportedEncryptionTypes=0
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	servicePrincipalName=kadmin/changepw
+	adminCount=1
+	showInAdvancedViewOnly=TRUE
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	description=Key Distribution Center Service Account
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Server Operators
+	distinguishedName=CN=Server Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Server Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Server Operators
+	objectSid=S-1-5-32-549
+	objectGUID=4e0c8df9-1e9e-432c-97fe-b66859a8804f
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12765
+	uSNCreated=12360
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	description=Members can administer domain servers
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Replicator
+	distinguishedName=CN=Replicator,CN=Builtin,DC=sedemo,DC=local
+	cn=Replicator
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Replicator
+	objectSid=S-1-5-32-552
+	objectGUID=32135277-514c-4f79-b9cf-86bd78cf4fd4
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12764
+	uSNCreated=8217
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	description=Supports file replication in a domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Print Operators
+	distinguishedName=CN=Print Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Print Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Print Operators
+	objectSid=S-1-5-32-550
+	objectGUID=bb69f753-4ad5-49c2-819b-ec39c3e99dfe
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12762
+	uSNCreated=8215
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	description=Members can administer printers installed on domain controllers
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Backup Operators
+	distinguishedName=CN=Backup Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Backup Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Backup Operators
+	objectSid=S-1-5-32-551
+	objectGUID=5050ac49-ad09-4300-8359-df12f434ada1
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12760
+	uSNCreated=8216
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	description=Backup Operators can override security restrictions for the sole purpose of backing up or restoring files
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Account Operators
+	distinguishedName=CN=Account Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Account Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Account Operators
+	objectSid=S-1-5-32-548
+	objectGUID=c5c02220-f9ed-4d7e-bda9-c59b8a4f759d
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12758
+	uSNCreated=12363
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	adminCount=1
+	description=Members can administer domain user and group accounts
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Schema Admins
+	distinguishedName=CN=Schema Admins,CN=Users,DC=sedemo,DC=local
+	cn=Schema Admins
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Schema Admins
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-518
+	objectGUID=9a6a2cde-bc28-4d9f-8eae-ea0260927d07
+	whenChanged=11:08.30 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12753
+	uSNCreated=12336
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013160830.0Z|20151013155319.0Z|16010101181217.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483640
+	adminCount=1
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	member=CN=Administrator,CN=Users,DC=sedemo,DC=local
+	description=Designated administrators of the schema
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	userPrincipalName=truxpin@sedemo.local
+	name=Teddy Ruxpin
+	displayName=Teddy Ruxpin
+	distinguishedName=CN=Teddy Ruxpin,CN=Users,DC=sedemo,DC=local
+	givenName=Teddy
+	sn=Ruxpin
+	cn=Teddy Ruxpin
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=truxpin
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1105
+	primaryGroupID=513
+	pwdLastSet=11:06.12 AM, Tue 10/13/2015
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66048
+	objectGUID=2c0113c9-2007-4d34-96b2-d49e9766a4fe
+	whenChanged=11:06.12 AM, Tue 10/13/2015
+	whenCreated=11:06.12 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=12719
+	uSNCreated=12714
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=DnsUpdateProxy
+	distinguishedName=CN=DnsUpdateProxy,CN=Users,DC=sedemo,DC=local
+	cn=DnsUpdateProxy
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=DnsUpdateProxy
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1104
+	objectGUID=5c7ce15a-376a-417d-8364-0781faf45510
+	whenChanged=10:53.59 AM, Tue 10/13/2015
+	whenCreated=10:53.59 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12471
+	uSNCreated=12471
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	groupType=-2147483646
+	description=DNS clients who are permitted to perform dynamic updates on behalf of some other clients (such as DHCP servers).
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=DnsAdmins
+	distinguishedName=CN=DnsAdmins,CN=Users,DC=sedemo,DC=local
+	cn=DnsAdmins
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=DnsAdmins
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1103
+	objectGUID=83ee80aa-4eb0-4f43-8d06-66f011831b16
+	whenChanged=10:53.59 AM, Tue 10/13/2015
+	whenCreated=10:53.59 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12468
+	uSNCreated=12466
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|16010101000001.0Z
+	groupType=-2147483644
+	description=DNS Administrators Group
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Protected Users
+	distinguishedName=CN=Protected Users,CN=Users,DC=sedemo,DC=local
+	cn=Protected Users
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Protected Users
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-525
+	objectGUID=be638b62-a894-4f15-af1e-3053134cb33e
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12447
+	uSNCreated=12445
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	description=Members of this group are afforded additional protections against authentication security threats. See http://go.microsoft.com/fwlink/?LinkId=298939 for more information.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Cloneable Domain Controllers
+	distinguishedName=CN=Cloneable Domain Controllers,CN=Users,DC=sedemo,DC=local
+	cn=Cloneable Domain Controllers
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Cloneable Domain Controllers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-522
+	objectGUID=7444f812-170f-494b-b8f8-b7e35853e670
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12442
+	uSNCreated=12440
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	description=Members of this group that are domain controllers may be cloned.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Denied RODC Password Replication Group
+	distinguishedName=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	cn=Denied RODC Password Replication Group
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Denied RODC Password Replication Group
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-572
+	objectGUID=45b3e668-a622-4a9f-a9dc-f057845adb5f
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12433
+	uSNCreated=12405
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483644
+	member=CN=Read-only Domain Controllers,CN=Users,DC=sedemo,DC=local|CN=Group Policy Creator Owners,CN=Users,DC=sedemo,DC=local|CN=Domain Admins,CN=Users,DC=sedemo,DC=local|CN=Cert Publishers,CN=Users,DC=sedemo,DC=local|CN=Enterprise Admins,CN=Users,DC=sedemo,DC=local|CN=Schema Admins,CN=Users,DC=sedemo,DC=local|CN=Domain Controllers,CN=Users,DC=sedemo,DC=local|CN=krbtgt,CN=Users,DC=sedemo,DC=local
+	description=Members in this group cannot have their passwords replicated to any read-only domain controllers in the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Enterprise Read-only Domain Controllers
+	distinguishedName=CN=Enterprise Read-only Domain Controllers,CN=Users,DC=sedemo,DC=local
+	cn=Enterprise Read-only Domain Controllers
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Enterprise Read-only Domain Controllers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-498
+	objectGUID=fa0e2a35-5725-4b57-9a34-bd0a7f957745
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12431
+	uSNCreated=12429
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483640
+	description=Members of this group are Read-Only Domain Controllers in the enterprise
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Allowed RODC Password Replication Group
+	distinguishedName=CN=Allowed RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	cn=Allowed RODC Password Replication Group
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Allowed RODC Password Replication Group
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-571
+	objectGUID=ae2e31ae-7ba1-4699-9e61-7b51c9efdc57
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12404
+	uSNCreated=12402
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483644
+	description=Members in this group can have their passwords replicated to all read-only domain controllers in the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Windows Authorization Access Group
+	distinguishedName=CN=Windows Authorization Access Group,CN=Builtin,DC=sedemo,DC=local
+	cn=Windows Authorization Access Group
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Windows Authorization Access Group
+	objectSid=S-1-5-32-560
+	objectGUID=4471638a-b201-47d7-a5f3-5376b23f63e2
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12396
+	uSNCreated=12372
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	member=CN=S-1-5-9,CN=ForeignSecurityPrincipals,DC=sedemo,DC=local
+	description=Members of this group have access to the computed tokenGroupsGlobalAndUniversal attribute on User objects
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Pre-Windows 2000 Compatible Access
+	distinguishedName=CN=Pre-Windows 2000 Compatible Access,CN=Builtin,DC=sedemo,DC=local
+	cn=Pre-Windows 2000 Compatible Access
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Pre-Windows 2000 Compatible Access
+	objectSid=S-1-5-32-554
+	objectGUID=228a34bc-55bd-4e4a-bd44-98c109d88513
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12393
+	uSNCreated=12366
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	member=CN=S-1-5-11,CN=ForeignSecurityPrincipals,DC=sedemo,DC=local
+	description=A backward compatibility group which allows read access on all users and groups in the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Group Policy Creator Owners
+	distinguishedName=CN=Group Policy Creator Owners,CN=Users,DC=sedemo,DC=local
+	cn=Group Policy Creator Owners
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Group Policy Creator Owners
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-520
+	objectGUID=82df964f-03f6-4534-b2a0-18ccc60c0058
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12391
+	uSNCreated=12354
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	member=CN=Administrator,CN=Users,DC=sedemo,DC=local
+	description=Members in this group can modify group policy for the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Guests
+	distinguishedName=CN=Guests,CN=Builtin,DC=sedemo,DC=local
+	cn=Guests
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Guests
+	objectSid=S-1-5-32-546
+	objectGUID=d1af802f-8230-4394-8171-4c83f674c7e4
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12383
+	uSNCreated=8212
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	member=CN=Domain Guests,CN=Users,DC=sedemo,DC=local|CN=Guest,CN=Users,DC=sedemo,DC=local
+	description=Guests have the same access as members of the Users group by default, except for the Guest account which is further restricted
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Users
+	distinguishedName=CN=Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Users
+	objectSid=S-1-5-32-545
+	objectGUID=7321641a-7631-4b4c-9a53-84917097bd9f
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12381
+	uSNCreated=8205
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	member=CN=Domain Users,CN=Users,DC=sedemo,DC=local|CN=S-1-5-11,CN=ForeignSecurityPrincipals,DC=sedemo,DC=local|CN=S-1-5-4,CN=ForeignSecurityPrincipals,DC=sedemo,DC=local|CN=Jaime Sanchez,CN=Users,DC=sedemo,DC=local
+	description=Users are prevented from making accidental or intentional system-wide changes and can run most applications
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Terminal Server License Servers
+	distinguishedName=CN=Terminal Server License Servers,CN=Builtin,DC=sedemo,DC=local
+	cn=Terminal Server License Servers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Terminal Server License Servers
+	objectSid=S-1-5-32-561
+	objectGUID=431ed5fc-0642-4d8f-b02b-a0cc87f71fd1
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12377
+	uSNCreated=12375
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can update user accounts in Active Directory with information about license issuance, for the purpose of tracking and reporting TS Per User CAL usage
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Incoming Forest Trust Builders
+	distinguishedName=CN=Incoming Forest Trust Builders,CN=Builtin,DC=sedemo,DC=local
+	cn=Incoming Forest Trust Builders
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Incoming Forest Trust Builders
+	objectSid=S-1-5-32-557
+	objectGUID=2142773e-2667-49a7-b588-0d028eaddacf
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12371
+	uSNCreated=12369
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can create incoming, one-way trusts to this forest
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=RAS and IAS Servers
+	distinguishedName=CN=RAS and IAS Servers,CN=Users,DC=sedemo,DC=local
+	cn=RAS and IAS Servers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=RAS and IAS Servers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-553
+	objectGUID=be147de3-e3cd-4c7c-a98e-25b876974e31
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12359
+	uSNCreated=12357
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483644
+	description=Servers in this group can access remote access properties of users
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Guests
+	distinguishedName=CN=Domain Guests,CN=Users,DC=sedemo,DC=local
+	cn=Domain Guests
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Domain Guests
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-514
+	objectGUID=40c09541-f791-4575-a286-e265972b5960
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12353
+	uSNCreated=12351
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	memberOf=CN=Guests,CN=Builtin,DC=sedemo,DC=local
+	description=All domain guests
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Users
+	distinguishedName=CN=Domain Users,CN=Users,DC=sedemo,DC=local
+	cn=Domain Users
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Domain Users
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-513
+	objectGUID=85d23619-e0e3-4474-84e4-20c3bebc887e
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12350
+	uSNCreated=12348
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	memberOf=CN=Users,CN=Builtin,DC=sedemo,DC=local
+	description=All domain users
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Cert Publishers
+	distinguishedName=CN=Cert Publishers,CN=Users,DC=sedemo,DC=local
+	cn=Cert Publishers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Cert Publishers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-517
+	objectGUID=84cae182-b7d8-41ef-a741-ae4cab974bdd
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12344
+	uSNCreated=12342
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483644
+	memberOf=CN=Denied RODC Password Replication Group,CN=Users,DC=sedemo,DC=local
+	description=Members of this group are permitted to publish certificates to the directory
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Domain Computers
+	distinguishedName=CN=Domain Computers,CN=Users,DC=sedemo,DC=local
+	cn=Domain Computers
+Object Details:
+	sAMAccountType=268435456
+	sAMAccountName=Domain Computers
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-515
+	objectGUID=56756f62-5fc4-4f64-b0ff-0889bf7c2acd
+	whenChanged=10:53.19 AM, Tue 10/13/2015
+	whenCreated=10:53.19 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=12332
+	uSNCreated=12330
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483646
+	description=All workstations and servers joined to the domain
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Remote Management Users
+	distinguishedName=CN=Remote Management Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Remote Management Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Remote Management Users
+	objectSid=S-1-5-32-580
+	objectGUID=a15c9965-d77f-42df-a123-1ef1a3f03f42
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8235
+	uSNCreated=8235
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can access WMI resources over management protocols (such as WS-Management via the Windows Remote Management service). This applies only to WMI namespaces that grant access to the user.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Access Control Assistance Operators
+	distinguishedName=CN=Access Control Assistance Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Access Control Assistance Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Access Control Assistance Operators
+	objectSid=S-1-5-32-579
+	objectGUID=24be017f-6fbe-4659-874a-eb47695b2643
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8234
+	uSNCreated=8234
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can remotely query authorization attributes and permissions for resources on this computer.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Hyper-V Administrators
+	distinguishedName=CN=Hyper-V Administrators,CN=Builtin,DC=sedemo,DC=local
+	cn=Hyper-V Administrators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Hyper-V Administrators
+	objectSid=S-1-5-32-578
+	objectGUID=6caaf4b0-a42d-466e-a5cc-e3a3d60c33fa
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8233
+	uSNCreated=8233
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group have complete and unrestricted access to all features of Hyper-V.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=RDS Management Servers
+	distinguishedName=CN=RDS Management Servers,CN=Builtin,DC=sedemo,DC=local
+	cn=RDS Management Servers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=RDS Management Servers
+	objectSid=S-1-5-32-577
+	objectGUID=82d46f8e-a3b5-4627-9ba3-a84269916a47
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8232
+	uSNCreated=8232
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Servers in this group can perform routine administrative actions on servers running Remote Desktop Services. This group needs to be populated on all servers in a Remote Desktop Services deployment. The servers running the RDS Central Management service must be included in this group.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=RDS Endpoint Servers
+	distinguishedName=CN=RDS Endpoint Servers,CN=Builtin,DC=sedemo,DC=local
+	cn=RDS Endpoint Servers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=RDS Endpoint Servers
+	objectSid=S-1-5-32-576
+	objectGUID=73517dc0-5c14-42d5-9731-86ce77ff413b
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8231
+	uSNCreated=8231
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Servers in this group run virtual machines and host sessions where users RemoteApp programs and personal virtual desktops run. This group needs to be populated on servers running RD Connection Broker. RD Session Host servers and RD Virtualization Host servers used in the deployment need to be in this group.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=RDS Remote Access Servers
+	distinguishedName=CN=RDS Remote Access Servers,CN=Builtin,DC=sedemo,DC=local
+	cn=RDS Remote Access Servers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=RDS Remote Access Servers
+	objectSid=S-1-5-32-575
+	objectGUID=9d1eb39d-76f5-4257-8c0f-498550b62afa
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8230
+	uSNCreated=8230
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Servers in this group enable users of RemoteApp programs and personal virtual desktops access to these resources. In Internet-facing deployments, these servers are typically deployed in an edge network. This group needs to be populated on servers running RD Connection Broker. RD Gateway servers and RD Web Access servers used in the deployment need to be in this group.
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Certificate Service DCOM Access
+	distinguishedName=CN=Certificate Service DCOM Access,CN=Builtin,DC=sedemo,DC=local
+	cn=Certificate Service DCOM Access
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Certificate Service DCOM Access
+	objectSid=S-1-5-32-574
+	objectGUID=b5a2e0d3-a1e4-489d-8b97-d955d3d344d2
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8229
+	uSNCreated=8229
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group are allowed to connect to Certification Authorities in the enterprise
+08/15/2016 14:53:08.528
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Event Log Readers
+	distinguishedName=CN=Event Log Readers,CN=Builtin,DC=sedemo,DC=local
+	cn=Event Log Readers
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Event Log Readers
+	objectSid=S-1-5-32-573
+	objectGUID=ee5699a8-1747-475b-9728-45b32cb0ff38
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8228
+	uSNCreated=8228
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can read event logs from local machine
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Cryptographic Operators
+	distinguishedName=CN=Cryptographic Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Cryptographic Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Cryptographic Operators
+	objectSid=S-1-5-32-569
+	objectGUID=2af97231-9cd3-4033-a4cf-1bce1c16bfe0
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8227
+	uSNCreated=8227
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members are authorized to perform cryptographic operations.
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Distributed COM Users
+	distinguishedName=CN=Distributed COM Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Distributed COM Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Distributed COM Users
+	objectSid=S-1-5-32-562
+	objectGUID=538d6a8a-f6cd-41a5-a96e-30d531f0016c
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8222
+	uSNCreated=8222
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members are allowed to launch, activate and use Distributed COM objects on this machine.
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Performance Log Users
+	distinguishedName=CN=Performance Log Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Performance Log Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Performance Log Users
+	objectSid=S-1-5-32-559
+	objectGUID=23f26701-a273-43c1-ae94-cabf3a5dd9b2
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8221
+	uSNCreated=8221
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group may schedule logging of performance counters, enable trace providers, and collect event traces both locally and via remote access to this computer
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Performance Monitor Users
+	distinguishedName=CN=Performance Monitor Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Performance Monitor Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Performance Monitor Users
+	objectSid=S-1-5-32-558
+	objectGUID=97f649a7-a495-4370-a6de-ca5eea7d725f
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8220
+	uSNCreated=8220
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members of this group can access performance counter data locally and remotely
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Network Configuration Operators
+	distinguishedName=CN=Network Configuration Operators,CN=Builtin,DC=sedemo,DC=local
+	cn=Network Configuration Operators
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Network Configuration Operators
+	objectSid=S-1-5-32-556
+	objectGUID=5208b460-271d-474f-b1f4-30df51d1bd21
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8219
+	uSNCreated=8219
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members in this group can have some administrative privileges to manage configuration of networking features
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Remote Desktop Users
+	distinguishedName=CN=Remote Desktop Users,CN=Builtin,DC=sedemo,DC=local
+	cn=Remote Desktop Users
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=Remote Desktop Users
+	objectSid=S-1-5-32-555
+	objectGUID=d93256ac-61b7-4275-b852-e90be206e27d
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8218
+	uSNCreated=8218
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000001.0Z
+	isCriticalSystemObject=TRUE
+	groupType=-2147483643
+	systemFlags=-1946157056
+	description=Members in this group are granted the right to logon remotely
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Group,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=WinRMRemoteWMIUsers__
+	distinguishedName=CN=WinRMRemoteWMIUsers__,CN=Users,DC=sedemo,DC=local
+	cn=WinRMRemoteWMIUsers__
+Object Details:
+	sAMAccountType=536870912
+	sAMAccountName=WinRMRemoteWMIUsers__
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-1000
+	objectGUID=bc9435b7-da2f-4b1f-b2f2-88914a21f8ca
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|group
+Event Details:
+	uSNChanged=8199
+	uSNCreated=8199
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	groupType=-2147483644
+	description=Members of this group can access WMI resources over management protocols (such as WS-Management via the Windows Remote Management service). This applies only to WMI namespaces that grant access to the user.
+08/15/2016 14:53:08.512
+dcName=DC2012R2.sedemo.local
+admonEventType=Sync
+Names:
+	objectCategory=CN=Person,CN=Schema,CN=Configuration,DC=sedemo,DC=local
+	name=Guest
+	distinguishedName=CN=Guest,CN=Users,DC=sedemo,DC=local
+	cn=Guest
+Object Details:
+	sAMAccountType=805306368
+	sAMAccountName=Guest
+	logonCount=0
+	accountExpires=Never Expires
+	objectSid=S-1-5-21-1953178079-1908664530-3612128641-501
+	primaryGroupID=514
+	pwdLastSet=0
+	lastLogon=0
+	lastLogoff=0
+	badPasswordTime=0
+	countryCode=0
+	codePage=0
+	badPwdCount=0
+	userAccountControl=66082
+	objectGUID=b1f4244e-d14e-4a06-a896-a74856e24ee7
+	whenChanged=10:52.38 AM, Tue 10/13/2015
+	whenCreated=10:52.38 AM, Tue 10/13/2015
+	objectClass=top|person|organizationalPerson|user
+Event Details:
+	uSNChanged=8197
+	uSNCreated=8197
+	instanceType=4
+Additional Details:
+	dSCorePropagationData=20160712195128.0Z|20151013155319.0Z|16010101000417.0Z
+	isCriticalSystemObject=TRUE
+	memberOf=CN=Guests,CN=Builtin,DC=sedemo,DC=local
+	description=Built-in account for guest access to the computer/domain

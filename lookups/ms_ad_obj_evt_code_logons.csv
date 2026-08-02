@@ -1,0 +1,14 @@
+EventCode,LogName,signature,auth_type,status,mn_logon
+4624,Security,An account was successfully logged on,logon,success,t
+4625,Security,An account failed to log on,logon,denied,t
+4634,Security,An account was logged off,logoff,success,f
+4647,Security,User initiated logoff,logoff,success,f
+4648,Security,A logon was attempted using explicit credentials,logon,*,f
+4768,Security,A Kerberos authentication ticket (TGT) was requested,logon,failure,t
+4771,Security,Kerberos pre-authentication failed,logon,failure,t
+4772,Security,A Kerberos authentication ticket request failed,logon,failure,f
+4773,Security,A Kerberos service ticket request failed,logon,failure,f
+4774,Security,An account was mapped for logon,logon,success,f
+4775,Security,An account could not be mapped for logon,logon,failure,f
+4776,Security,The domain controller attempted to validate the credentials for an account,logon,failure,t
+4777,Security,The domain controller failed to validate the credentials for an account,logon,failure,f

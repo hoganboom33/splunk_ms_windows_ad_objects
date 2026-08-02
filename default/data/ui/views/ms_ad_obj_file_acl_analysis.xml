@@ -1,0 +1,832 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css,ms_ad_obj_file_acl.css" version="1.1">
+  <label>AD Objects - File ACL - Analysis</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+  </init>
+  <search id="base_acls">
+    <query>`ms_obj_win_dir_acl`
+| rex max_match=0 "(?:\[)(?&lt;object_acls&gt;[^\]]+)"
+| mvexpand object_acls
+| rex max_match=0 field=object_acls "(?:\"IdentityReference\"\:\")(?&lt;IdentityReference&gt;[^\"]+)\"\,\"FileSystemRights\"\:\"(?&lt;FileSystemRights&gt;[^\"]+)\"\,\"AccessControlType\"\:\"(?&lt;AccessControlType&gt;[^\"]+)\"\,\"IsInherited\"\:\"(?&lt;IsInherited&gt;[^\"]+)\"\,\"InheritanceFlags\"\:\"(?&lt;InheritanceFlags&gt;[^\"]+)\"\,\"PropagationFlags\"\:\"(?&lt;PropagationFlags&gt;[^\"]+)\""
+| fields host,object_path,object_last_mod_time,object_size,object_dir_cnt,object_file_cnt,IdentityReference,FileSystemRights,AccessControlType,IsInherited,InheritanceFlags,PropagationFlags
+| eventstats values(FileSystemRights) AS FileSystemRights by object_path,IdentityReference,IsInherited
+| eval FileSystemRights="[".IsInherited."] (".mvjoin(FileSystemRights,",").")"
+| rex field=IdentityReference "((?&lt;object_domain&gt;[^\x5C{1}]+)\x5C{1}|^)(?&lt;object_id&gt;.*)"
+| makemv delim="," InheritanceFlags
+| fillnull value="NA" object_path,object_last_mod_time,object_size,object_dir_cnt,object_file_cnt,IdentityReference,AccessControlType,PropagationFlags,object_domain
+| stats values(FileSystemRights) AS "(IsInherited) FileSystemRights",values(InheritanceFlags) AS InheritanceFlags,count by host,object_path,object_last_mod_time,object_size,object_dir_cnt,object_file_cnt,IdentityReference,AccessControlType,PropagationFlags,object_domain,object_id
+| eval InheritanceFlags=mvjoin(InheritanceFlags,", ")
+| eval object_id=trim(object_id),object_domain=trim(object_domain)
+| lookup AD_Obj_User domain AS object_domain,sAMAccountName AS object_id OUTPUT cn AS object_u_cn,dn_path AS object_u_dn_path,dn AS object_u_dn,objectClass AS object_u_class
+| lookup AD_Obj_User domain AS object_domain,cn AS object_id OUTPUT cn AS object_u_c_cn,dn_path AS object_u_c_dn_path,dn AS object_u_c_dn,objectClass AS object_u_c_class
+| eval object_cn=if(isnull(object_u_cn),if(isnull(object_u_c_cn),"NA",object_u_c_cn),object_u_cn),object_dn_path=if(isnull(object_u_dn_path),if(isnull(object_u_c_dn_path),"NA",object_u_c_dn_path),object_u_dn_path),object_dn=if(isnull(object_u_dn),if(isnull(object_u_c_dn),"NA",object_u_c_dn),object_u_dn),object_class=if(isnull(object_u_class),if(isnull(object_u_c_class),"NA",object_u_c_class),object_u_class)
+| lookup AD_Obj_Group domain AS object_domain,sAMAccountName AS object_id OUTPUT cn AS object_g_cn,dn_path AS object_g_dn_path,dn AS object_g_dn,objectClass AS object_g_class
+| eval object_cn=if(object_cn=="NA",if(isnull(object_g_cn),"NA",object_g_cn),object_cn),object_dn_path=if(object_dn_path=="NA",if(isnull(object_g_dn_path),"NA",object_g_dn_path),object_dn_path),object_dn=if(object_dn=="NA",if(isnull(object_g_dn),"NA",object_g_dn),object_dn),object_class=if(object_class=="NA",if(isnull(object_g_class),"NA",object_g_class),object_class)
+| eval object_class=if(object_domain="NT AUTHORITY" OR object_domain=="BUILTIN","Local System",object_class),object_dn=if(object_domain="NT AUTHORITY" OR object_domain=="BUILTIN","Local",object_dn),object_dn_path=if(object_domain="NT AUTHORITY" OR object_domain=="BUILTIN","Local",object_dn_path),object_cn=if(object_domain="NT AUTHORITY" OR object_domain=="BUILTIN",object_id,object_cn)
+| fillnull value="NA" object_size,object_dir_cnt,object_file_cnt,IdentityReference,AccessControlType,PropagationFlags,object_domain,object_dn_path,object_cn,object_class
+| table host,object_domain,object_id,object_class,object_dn,object_dn_path,object_cn,object_path,object_last_mod_time,object_size,object_dir_cnt,object_file_cnt,IdentityReference,FileSystemRights,AccessControlType,InheritanceFlags,PropagationFlags</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <!--search base="base_acls" id="sub_filter_obj">
+    <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$
+| rex mode=sed field=object_path "s/x5C{1}/\\\/g"
+| stats values(object_path) AS search
+| table search
+| format</query>
+    <done>
+      <set token="tok_filter_paths">$result.search$</set>
+    </done>
+  </search-->
+  <search id="base_file_auditing">
+    <query>`ms_obj_win_events_security` Object_Server="Security"  ("File" OR "Removable Storage") $tok_object_path_dd$
+| fields _time,_raw,history,Object_Name,EventCode,RecordNumber,eventtimes,Account_Name,src_user,Object_Path,Access_Reasons,Granted_Permissions,src_user,Accesses
+| eval Object_Path=Object_Name 
+| eval temp=_time 
+| convert timeformat="%m-%d-%Y %H:%M:%S" ctime(temp) AS eventtimes 
+| eval history=eventtimes."(User: ".Account_Name." Type:".Accesses.")" 
+| rex max_match=0 "(?msi)(?:Access\sReasons\:)(?&lt;Access_Reasons&gt;.*)(?:Access Mask\:)"
+| rex field=Access_Reasons max_match=0 "(^|\r|\n)(?&lt;Granted_Permissions&gt;[^\:]+)\:\s+Granted\sby"
+| eval Granted_Permissions=if(isnull(Granted_Permissions),Accesses,Granted_Permissions)
+| table _time,_raw,history,Object_Name,EventCode,RecordNumber,eventtimes,Account_Name,src_user,Object_Path,temp,Access_Reasons,Granted_Permissions,src_user
+</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="input_tok_host">
+      <label>Select Host</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls">
+        <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$
+| stats count by host</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_host"></set>
+        </condition>
+        <condition>
+          <set token="tok_host">host="$value$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="input_tok_obj_path_filt">
+      <label>Filter Object Path</label>
+      <default> </default>
+      <initialValue> </initialValue>
+      <change>
+        <condition value=" ">
+          <set token="tok_obj_path_filt"></set>
+        </condition>
+        <condition>
+          <set token="tok_obj_path_filt">| WHERE match(object_path,"(?msi)$value$")</set>
+          <set token="form.input_tok_obj_path_dd_filt">$value$</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_tok_object_path">
+      <label>Select Object Path</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>object_path_label</fieldForLabel>
+      <fieldForValue>object_path</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls" id="sub_obj_path_list">
+        <query>search $tok_object_id$ $tok_domain$ $tok_host$ $tok_dn_path$
+| stats count by object_path
+| eval object_path_label=object_path
+| rex mode=sed field=object_path "s/\\\/\\\\\\\/g"
+$tok_obj_path_filt$</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_object_path"></set>
+          <unset token="tok_object_path_dd"></unset>
+          <set token="form.input_tok_object_path_dd">start</set>
+        </condition>
+        <condition>
+          <set token="tok_object_path">object_path="$value$"</set>
+          <set token="tok_object_path_dd">Object_Name="$value$"</set>
+          <set token="form.input_tok_object_path_dd">$label$</set>
+        </condition>
+      </change>
+    </input>
+    <input type="radio" token="tok_type">
+      <label>Select AD Type</label>
+      <choice value="user">AD User</choice>
+      <choice value="group">AD Group</choice>
+      <choice value="local">Local System</choice>
+      <default>group</default>
+      <initialValue>group</initialValue>
+      <change>
+        <condition value="user">
+          <set token="tok_object_class">top|person|organizationalPerson|user</set>
+          <set token="tok_show_user">True</set>
+          <set token="tok_show_all">True</set>
+          <unset token="tok_show_group"></unset>
+        </condition>
+        <condition value="group">
+          <set token="tok_object_class">top|group</set>
+          <set token="tok_show_group">True</set>
+          <set token="tok_show_all">True</set>
+          <unset token="tok_show_user"></unset>
+        </condition>
+        <condition value="local">
+          <set token="tok_object_class">Local System</set>
+          <set token="tok_show_user">True</set>
+          <set token="tok_show_all">True</set>
+          <unset token="tok_show_group"></unset>
+          <unset token="tok_show_ad_user"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_tok_domain">
+      <label>Select Domain</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>object_domain</fieldForLabel>
+      <fieldForValue>object_domain</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls">
+        <query>search $tok_object_id$ $tok_object_path$ $tok_dn_path$
+| stats count by object_domain</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_domain"></set>
+        </condition>
+        <condition>
+          <set token="tok_domain">object_domain="$value$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_tok_dn_path">
+      <label>Filter by OU Path</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>object_dn_path</fieldForLabel>
+      <fieldForValue>object_dn_path</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls" id="tok_user_list">
+        <query>search object_class="$tok_object_class$" $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_domain$
+| stats count by object_dn_path</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_dn_path"></set>
+        </condition>
+        <condition>
+          <set token="tok_dn_path">object_dn_path="$value$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_tok_user" depends="$tok_show_user$">
+      <label>Select AD User</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>object_cn</fieldForLabel>
+      <fieldForValue>object_id</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls">
+        <query>search object_class="$tok_object_class$" $tok_domain$ $tok_object_path$ $tok_domain$ $tok_dn_path$
+| eval object_domain=if(isnull(object_domain),"",object_domain."\x5C{1}".object_id)
+| eval object_cn=if(isnull(object_cn),object_domain."".object_id,object_cn)
+| stats count by object_id,object_cn</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_object_id"></set>
+        </condition>
+        <condition>
+          <set token="tok_object_id">object_id="$value$"</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_tok_user" depends="$tok_show_group$">
+      <label>Select AD Group</label>
+      <choice value="all">All</choice>
+      <fieldForLabel>object_cn</fieldForLabel>
+      <fieldForValue>object_id</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <search base="base_acls">
+        <query>search object_class="top|group" $tok_domain$ $tok_object_path$ $tok_domain$ $tok_dn_path$
+| eval object_domain=if(isnull(object_domain),"",object_domain."\x5C{1}".object_id)
+| eval object_cn=if(isnull(object_cn),object_domain."".object_id,object_cn)
+| stats count by object_id,object_cn</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_object_id"></set>
+        </condition>
+        <condition>
+          <set token="tok_object_id">object_id="$value$"</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_stat_ratio" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Authorization Summary</a>
+          </li>     
+          <li class="$tok_tab_2$">
+            <a href="#tab_stat_ratio" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">ACL Details</a>
+          </li>  
+          <li class="$tok_tab_3$">
+            <a href="#tab_time_user" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Object Path Counts</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_fail_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">File Auditing Drilldown</a>
+          </li>      
+          <li class="$tok_tab_5$">
+            <a href="#tab_suc_details_user" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Data Setup Details</a>
+          </li>    
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <chart>
+        <title>Total Size by Authorization (MB)</title>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$
+| stats max(object_size) AS Total_Size by object_path,object_id
+| sort -Total_Size
+| stats sum(Total_Size) AS Total_Size by object_id
+| sort -Total_Size
+| eval Total_Size=round(Total_Size/1024,2)</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <chart>
+        <title>Total Directories by Authorization</title>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$
+| stats dc(object_path) AS Total_Directories by object_id
+| sort -Total_Directories</query>
+        </search>
+        <option name="charting.axisTitleX.text">Authorization ID</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.chart">column</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Authorization Summary</title>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$
+| stats sum(object_size) AS Total_Size by object_id,object_cn,object_dn
+| sort -Total_Size</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <title>ACL Details</title>
+      <table>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel>
+      <chart>
+        <title>Top 10 Object Paths by Authorization ID Count</title>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$ 
+| stats dc(object_id) AS Authorization_IDs by object_path
+| sort -Authorization_IDs
+| head 10</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+    <panel>
+      <table>
+        <title>Top 10 Directories by Size (MB)</title>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$
+| stats max(object_size) AS Total_Size, max(object_dir_cnt) AS Total_Directories,max(object_file_cnt) AS Total_Files by object_path
+| sort -Total_Size
+| head 10
+| eval Total_Size=round(Total_Size/1024,2)</query>
+        </search>
+        <option name="count">10</option>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+        <format type="color" field="Total_Size">
+          <colorPalette type="minMidMax" maxColor="#DC4E41" minColor="#FFFFFF"></colorPalette>
+          <scale type="minMidMax"></scale>
+        </format>
+        <format type="number" field="Total_Size">
+          <option name="unit">KB</option>
+        </format>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel>
+      <table>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$ 
+| stats values(object_path) As Directory by object_id
+| eval Directory_Count=mvcount(Directory)
+| rename object_id AS Authorization_IDs
+| sort -Directory_Count</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+      <table>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_object_path$ $tok_dn_path$ $tok_host$ 
+| stats max(object_size) AS Directory_Size, max(object_file_cnt) AS Total_Files by object_path 
+| sort -Directory_Size</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel id="pan_audit_dd_input">
+      <title>File Audit Events - Select Object Path for viewing File Audit Windows Events</title>
+      <input type="text" token="input_tok_obj_path_dd_filt" id="input_filt_dd_path">
+        <label>Filter Object Path</label>
+        <default> </default>
+        <initialValue> </initialValue>
+        <change>
+          <condition value=" ">
+            <set token="tok_obj_path_dd_filt"></set>
+          </condition>
+          <condition>
+            <set token="tok_obj_path_dd_filt">| WHERE match(object_path,"(?msi)$value$")</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="input_tok_object_path_dd" id="input_dd_path">
+        <label>Select Object Path</label>
+        <choice value="start">Select Object Path</choice>
+        <fieldForLabel>object_path_label</fieldForLabel>
+        <fieldForValue>object_path</fieldForValue>
+        <default>start</default>
+        <initialValue>start</initialValue>
+        <search base="base_acls">
+          <query>search $tok_object_id$ $tok_domain$ $tok_host$ $tok_dn_path$
+| stats count by object_path
+| eval object_path_label=object_path
+| rex mode=sed field=object_path "s/\\\/\\\\\\\/g"
+$tok_obj_path_dd_filt$</query>
+        </search>
+        <change>
+          <condition value="start">
+            <unset token="tok_object_path_dd"></unset>
+            <set token="tok_show_audit_msg">True</set>
+          </condition>
+          <condition>
+            <set token="tok_object_path_dd">Object_Name="$value$"</set>
+            <unset token="tok_show_audit_msg"></unset>
+          </condition>
+        </change>
+      </input> 
+      <input type="link" token="tok_audit_dd_view" searchWhenChanged="true" depends="$tok_object_path_dd$" id="select_audit_dd_view">
+      <label>Select Audit View</label>
+      <choice value="counts">View Counts</choice>
+      <choice value="details">View Details</choice>
+      <choice value="raw">View Raw</choice>
+      <default>counts</default>
+      <initialValue>counts</initialValue>
+      <change>
+        <condition value="counts">
+          <set token="tok_show_audit_counts">True</set>
+          <unset token="tok_show_audit_details">True</unset>
+          <unset token="tok_show_audit_raw">True</unset>
+        </condition>
+        <condition value="details">
+          <set token="tok_show_audit_details">True</set>
+          <unset token="tok_show_audit_counts">True</unset>
+          <unset token="tok_show_audit_raw">True</unset>
+        </condition>     
+        <condition value="raw">
+          <set token="tok_show_audit_raw">True</set>
+          <unset token="tok_show_audit_counts">True</unset>
+          <unset token="tok_show_audit_details">True</unset>
+        </condition>  
+      </change>
+    </input>
+    </panel>     
+    <panel depends="$tok_show_audit_msg$" id="pan_audit_dd_msg">
+      <html><center><h1><i class="icon-info-circle splkblue felarge" /> Select an <i>Object Path</i> in the panel to the left in order to see if any File Auditing Windows Events are available for the specific directory path.</h1></center></html>
+    </panel>
+    <panel depends="$tok_show_audit_counts$" id="pan_audit_dd_counts">
+      <chart>
+        <title>Count Over Time by src_user and Change Types</title>
+        <search base="base_file_auditing">
+          <query>fields _time, Object_Path
+| timechart count by Object_Path </query>
+        </search>
+        <option name="charting.chart">area</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+      <table>
+        <title>Counts by src_user and Change Types</title>
+        <search base="base_file_auditing">
+          <query>stats count,values(src_user) AS src_user,max(_time) AS Last_Time,values(Granted_Permissions) AS Granted_Permissions by Object_Name
+| eval Granted_Permissions=replace(mvjoin(Granted_Permissions,","),"\s\s+","")
+| eval Last_Time=strftime(Last_Time,"%m/%d/%y %I:%M:%S %P")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="refresh.display">progressbar</option>
+      </table>      
+    </panel>
+    <panel depends="$tok_show_audit_details$" id="pan_audit_dd_details">
+      <title>Detailed Summary of File or Directory Changes</title>
+      <table>
+        <search base="base_file_auditing">
+          <query>stats values(history) as Change_History, values(EventCode) as Win_Event_IDs, values(RecordNumber) as Win_Event_Record, min(eventtimes) as First_Change_Time, values(Account_Name) as Change_Admin by Object_Path  
+| dedup Object_Path  
+| eval Win_Event_Record=mvjoin(Win_Event_Record,", ")  
+| eval Win_Event_IDs=mvjoin(Win_Event_IDs,", ") 
+| eval Change_Type=mvjoin(Change_Type,", ") 
+| table First_Change_Time, Object_Path, Change_Admin, Win_Event_IDs, Win_Event_Record, Change_History, 
+| sort First_Change_Time</query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+    <panel depends="$tok_show_audit_raw$" id="pan_audit_dd_raw">
+      <title>File Auditing Raw Events</title>
+      <event>
+        <search base="base_file_auditing">
+          <query>fields _raw,_time</query>
+        </search>
+        <option name="list.drilldown">none</option>
+      </event>
+    </panel>    
+  </row>
+  <row depends="$tok_tab_5$">
+    <panel>
+      <html>
+        <div class="left-body-box">
+        	<div class="msobj-list-heading">
+            <center>
+              <h2>
+                <i class="icon-greater splkgreen pright flarge"/>Collecting Directory ACL Details - <i>Powershell Script</i>
+              </h2>
+            </center>
+          </div>
+        	<div role="separator" class="divider"/>
+        	<p style="padding-bottom: 5px;padding-top: 5px;">
+            <i class="icon-greater splkgreen pright flarge"/>
+            <i>DESCRIPTION:</i> 
+            <ul>
+              <li>
+                  The <b>MS Windows AD Objects</b> application provides an embedded add-on with a simple Powershell script that can be leveraged for collecting the ACL, Size, File Count and Sub-Directory Count for a single or multiple Windows Directories. The data collected can then be correlated with the AD User/Group Lookups to enhance the ACL IDs. Also, if File Auditing is enabled, you can use the <b>File Auditing Drilldown</b> to review the Windows Events for the selected objects using native Windows File Object Auditing.
+              </li>
+            </ul>
+          </p>
+        	<p style="padding-bottom: 5px;padding-top: 5px;">
+            <i class="icon-greater splkgreen pright flarge"/>
+            <i>Components used for the ACL data collection Script:</i> 
+            <div role="separator" class="divider"/>
+          </p>
+        	<ul class="msobj-comp-list">
+        		<li>
+              <i class="icon-check splkgreen pright fsmall"/><b><i>ms_ad_obj_ta_acl </i> - Splunk Add-On</b> 
+        		  <ul>
+        		    <li><i class="icon-minus splkgreen pright flarge"/> <b>Note:</b> <i>This add-on is <b>Not</b> available on Splunkbase, it is embedded in the MS Windows AD Objects application's folders - ...\splunk\etc\apps\ms_windows_ad_objects\appserver\static\ex_win_ta\ms_ad_obj_ta_acl.zip</i></li>
+        		    <li><i class="icon-minus splkgreen pright flarge"/> <b>Description:</b> This zip file contains the content you can use for creating a TA to collect local or remote (via UNC Path) ACL Details for specified directories.</li>
+        		    <li><i class="icon-minus splkgreen pright flarge"/> <b>Add-On Content Location: </b><i>...\splunk\etc\apps\ms_windows_ad_objects\appserver\static\ms_ad_obj_ta_acl.zip</i></li>
+        		    <li><i class="icon-minus splkgreen pright flarge"/> <b>How to Use: </b> This zip file contains the PowerShell script, example inputs.conf and supporting scripted input files.   You can either use this app, or create a new TA and add the .conf/script files to it or add them to an existing TA already deployed to your Windows Splunk Forwarders.</li>
+        		    <li><i class="icon-minus splkgreen pright flarge"/>  <b>Main Components: </b>
+        		      <ul>
+                    <li><i class="icon-gear splkblue pright flarge"/><b>Scripted Input Content (<i>ms_ad_obj_ta_acl/bin/...</i>):</b>
+                      <ul>
+                        <li><b>bin/...</b> files:
+                          <ul>
+                            <li><i class="icon-paintbrush splkblue pright flarge"/> <b><i>runpowershell.cmd</i></b>
+                              <ul>
+                                <li><b><i>Description: </i></b>This file is only used when the "Invoke-MonitoredScript" method is used.   It is an optional PowerShell exe location pointer file, used when working with PowerShell versions below 3.0.</li>
+                                <li><b><i>Deployed Example Location (Ex App: ms_ad_obj_ta_acl):</i></b> <i>C:\Program Files\SplunkUniversalForwarder\etc\apps\ms_ad_obj_ta_acl\bin\runpowershell.cmd</i></li>
+                              </ul>
+                            </li>
+                            <li><i class="icon-paintbrush splkblue pright flarge"/> <b><i>Invoke-MonitoredScript.ps1</i></b>
+                              <ul>
+                                <li><b><i>Description: </i></b>This file is only used when the "Invoke-MonitoredScript" method is used.   This script is used to initiate the powershell script \powershell\splunk_win_acls.ps1.</li>
+                                <li><b><i>Deployed Example Location (Ex App: ms_ad_obj_ta_acl):</i></b> <i>C:\Program Files\SplunkUniversalForwarder\etc\apps\ms_ad_obj_ta_acl\bin\Invoke-MonitoredScript.ps1</i></li>
+                              </ul>
+                            </li>        		          
+                          </ul>
+                        </li>
+                      </ul>
+                      <ul>
+                        <li><b>bin/powershell/...</b> files:
+                          <ul>
+                            <li><i class="icon-paintbrush splkblue pright flarge"/> <b><i>splunk_win_acls.ps1</i></b>
+                              <ul>
+                                <li><b><i>Description: </i></b>This is the main powershell script that first retreives the target list of directories you enter in the text file (<i>splunk_win_acls_list.txt</i>).  After getting the list of target directories, it then uses the <b>Get Content</b> PowerShell command to recursively retrieve the data for the sub-directories, and the <b>Get-Acl</b> Powershell Command to retrieve the current <i>Access Control List (IdentityReference, FileSystemRights, AccessControlType, IsInherited, InheritanceFlags, and PropagationFlags)</i> information.</li>
+                                <li><b><i>Deployed Example Location (Ex App: ms_ad_obj_ta_acl):</i></b> <i>C:\Program Files\SplunkUniversalForwarder\etc\apps\ms_ad_obj_ta_acl\bin\powershell\splunk_win_acls.ps1</i></li>
+                              </ul>
+                            </li>
+                            <li><i class="icon-paintbrush splkblue pright flarge"/> <b><i>splunk_win_acls_list.txt</i></b>
+                              <ul>
+                                <li><b><i>Description: </i></b>This is a simple text file that contains 1 or more Local/UNC Path directies that you want to collect the ACL details from, including the sub-directories.  If you want to specify multiple target directories, then enter each target directory on it's own line.   If you are going to specify a <b>UNC Path</b>, then ensure that you have the Splunk Service running as an <b>AD Account </b> that has access to the remote directory.</li>
+                                <li><b><i>Deployed Example Location (Ex App: ms_ad_obj_ta_acl):</i></b> <i>C:\Program Files\SplunkUniversalForwarder\etc\apps\ms_ad_obj_ta_acl\bin\powershell\splunk_win_acls_list.txt</i></li>
+                              </ul>
+                            </li>        		          
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+        	        </ul>
+        		    </li>
+        	    </ul>
+            </li>
+          </ul>
+        	<div class="msobj-list-heading">
+            <h4>Steps for Deploying the ACL data collection Script (<b><i>splunk_win_acls.ps1</i></b>):</h4>
+          </div>
+        	<div role="separator" class="divider"/>
+        	<ol class="msobj-comp-list">
+        		<li>Click <a class="btn btn-mini" href="/static/app/ms_windows_ad_objects/ex_win_ta/ms_ad_obj_ta_acl.zip" style="padding-left:10px !important;"><i class="icon-export" style="font-size: 20px;color: #000000;padding-top: 6px;padding-right: 4px;"/></a> to download <b>ms_ad_obj_ta_acl.zip</b> file locally</li>
+        		<li>Extract the contents of the ms_ad_obj_ta_acl.zip file.
+        			<ul>
+        				<li><b>Note:</b> The <b>ms_ad_obj_ta_acl</b> app is located in the extracted <i>Windows Folder Acl TA</i> folder.</li>
+        			</ul>
+        		</li>
+        		<li>Navigate into the <b>...\Windows Folder Acl TA\ms_ad_obj_ta_acl\bin\powershell\</b> directory.</li>
+        		<li>Using a text editor, open the <b>splunk_win_acls_list.txt</b> file.
+        			<ul>
+        				<li>This file is used by the <i>splunk_win_acls.ps1</i> powershell script to determine what folders, and subfolders, to retrieve the ACL data from.
+        					<ol>
+        						<li>First, replace the example directories and then Add any addittional <i>Local</i> or <i>UNC Path</i> locations for the target directories, subdirectories, you want to collect ACL Data for:
+									    <ul>
+									      <li><b>Example:</b>
+										      <pre>C:\Critical_Files
+\\test_server\c$\Important_files</pre>
+									      </li>
+									    </ul>
+								    </li>
+								    <li>Save the Changes to the <b>splunk_win_acls_list.txt</b> file </li>
+							    </ol>
+        				</li>
+        			</ul>
+        		</li>
+        		<li>Navigate into the <b>...\Windows Folder Acl TA\ms_ad_obj_ta_acl\local\</b> directory.</li>
+        		<li>Using a text editor, open the <b>inputs.conf</b> file.
+        			<ol>
+        				<li>For the below input, update the setting(s), <b>disabled</b> from <i>1</i> to <b>0</b>, and optionally the index if you have your Windows data going to a different index then <b>windows</b> index.  You can also adjust the schedule setting.
+        				  <pre>[powershell://splunk_win_acls]
+script = ."$SplunkHome\etc\apps\ms_ad_obj_ta_windows_acl\bin\powershell\splunk_win_acls.ps1"
+schedule = 0 */24 * * *
+sourcetype = WinDirAcl
+source = Powershell
+index=windows
+disabled = 1</pre>
+                </li>
+        				<li>Save the changes to the <b>...\Windows Folder Acl TA\ms_ad_obj_ta_acl\local\inputs.conf</b> file.</li>
+        			</ol>
+        		</li>
+				    <li>Copy the <b>(ms_ad_obj_ta_acl)</b> folder, <b>DO Not Copy the <i>Windows Folder Acl TA</i> parent folder</b>, and paste the <b>ms_ad_obj_ta_acl</b> in either the (<b>...\splunk\etc\deployment-apps\)</b> directory if using <i>Deployment Server</i> or to a directory that the target remote system will have access to.</li>
+        		<li>Either complete the <b>Deployment Server</b> steps for adding the the <b>ms_ad_obj_ta_acl</b> app to a server class.   Or by manually copying to the <b>ms_ad_obj_ta_acl</b> folder into a remote Splunk Forwarder system's ...\splunkUniversalForwarder\etc\apps directory.</li>
+        	</ol>
+        	<ul>
+        		<li><b><i class="icon-warning splkred pright flarge"> IMPORTANT NOTE:</i></b>
+        		  <i>If you want to use a different name than <b>ms_ad_obj_ta_acl</b>, you will need to update the referenced paths in the <b>inputs.conf</b>, and <b>...\ms_ad_obj_ta_acl\bin\Invoke-MonitoredScript.ps1</b>. with the new app folder name)</i>
+            </li>
+        		<li>Once the data is received you can see the results in this dashboard <b>MS Windows AD Objects / Windows / File Auditing / AD Objects - File ACL - Analysis</b></li>
+        	</ul>        	
+        </div>
+      </html>
+    </panel>
+    <panel>
+      <html>
+        <div class="right-body-box">
+        	<div class="msobj-list-heading">
+            <center>
+              <h2>
+                <i class="icon-greater splkgreen pright flarge"/>Setting up Windows Native File Auditing
+              </h2>
+            </center>
+          </div>
+        	
+        	<div class="msobj-list-heading">
+            <i class="icon-greater splkgreen pright flarge"/>
+            <i>DESCRIPTION:</i>
+            <div role="separator" class="divider"/>
+            <ul>
+              <li>The below 2 sections, <b>Step 1: Deploy Security Auditing with Central Audit Policies</b> and <b>Step 2: Applying Auditing to file or folder</b>, provide steps for enabling <i>Basic Windows File Auditing</i>.   For more details, please refer to the below links:
+                <ul>
+                  <li><a href="https://docs.splunk.com/Documentation/Splunk/latest/Data/MonitorfilesystemchangesonWindows" target="_blank"> Splunk Documentation: MonitorfilesystemchangesonWindows</a></li>
+                  <li><a href="https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/basic-audit-object-access" target="_blank"> Microsoft Documentation: basic-audit-object-access</a></li>
+                  <li><a href="https://docs.microsoft.com/en-us/windows-server/identity/solution-guides/scenario--central-access-policy" target="_blank"> Microsoft Documentation: scenario--central-access-policy</a></li>
+                  <li><a href="https://docs.microsoft.com/en-us/windows-server/identity/solution-guides/scenario--file-access-auditing" target="_blank"> Microsoft Documentation: scenario--file-access-auditing</a></li>
+                  <li><a href="https://docs.microsoft.com/en-us/windows-server/identity/solution-guides/scenario--file-access-auditing?redirectedfrom=MSDN" target="_blank"> Microsoft Documentation: scenario--file-access-auditing steps</a></li>
+                  <li><a href="https://docs.microsoft.com/en-us/archive/blogs/askds/global-object-access-auditing-is-magic" target="_blank"> Microsoft Documentation: global-object-access-auditing-is-magic</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div>
+          
+        	<div class="msobj-list-heading">
+            <i class="icon-greater splkgreen pright flarge"/>
+            <i>Step 1: Deploy Security Auditing with Central Audit Policies</i>
+            <div role="separator" class="divider"/>
+            <p>In this step, you configure the global object access policy on the domain controller.</p>
+          </div>
+        	
+        	<div class="msobj-list-heading">
+        	  <ul>
+        	    <li>
+            <details ontoggle="mydetfunction()">    
+  						<summary class="msobj_summary_step_details"> <i class="icon-greater splkgreen pright flarge"> Configure Global Object Access</i></summary> <!--class="metadata page-metadata"-->
+  						<ul class="msobja-comp-list" data-bi-name="page info" lang="en-us" dir="ltr">
+                  <li class="msobj-comp-sub-list"><p><strong>Applies to</strong> (Windows 10, Windows Server 2016, Windows Server 2012 R2, Windows Server 2012)</p></li>
+                  <li><p><strong>Note:</strong></p>
+                    <ul>
+                      <li><p>You can apply audit policies to individual files and folders on your computer by setting the permission type to record successful access attempts or failed access attempts in the security log.</p></li>
+                      <li><p>To complete this procedure, you must be signed in as a member of the built-in Administrators group or have <strong>Manage auditing and security log</strong> rights.</p></li>
+                    </ul>
+                  </li>
+                  <li class="msobj-comp-sub-list">
+                      <p><strong>In this step, you configure the global object access policy on the domain controller.</strong></p>
+                      <ol>
+                        <li><p>Sign in to the domain controller as an Administrator</p></li>
+                        <li><p>In Server Manager, point to <strong>Tools</strong>, and then click <strong>Group Policy Management</strong>.</p></li>
+                        <li><p>Navigate to the designated Group Policy that is associated with the Organization Unit/Container where the targeted "File Audit" Computer Accounts are located.</p></li>
+                        <li><p><strong>Right-Click</strong> on the Group Policy and <strong>Click Edit</strong></p></li>
+                        <li><p><strong>Double-click</strong> Computer Configuration, <strong>double-click</strong> Policies, and then <strong>double-click</strong> Windows Settings.</p></li>
+                       <li><p><strong>Double-click</strong> Security Settings, <strong>double-click</strong> Advanced Audit Policy Configuration, and then <strong>double-click</strong> Audit Policies.</p></li>
+                       <li><p><strong>Double-click</strong> Object Access, and then <strong>double-click</strong> Audit File System.</p></li>
+                       <li><p><strong>Select</strong> the <i>Configure the following events</i> check box, <strong>select</strong> the <i>Success and Failure</i> check boxes, and then <strong>click</strong> <i>OK</i>.</p></li>
+                       <li><p>In the navigation pane, <strong>double-click</strong> <i>Global Object Access Auditing</i>, and then <strong>double-click</strong> <i>File system</i></p></li>
+                       <li><p>In the navigation pane, <strong>double-click</strong> <i>Global Object Access Auditing</i>, and then <strong>double-click</strong> <i>File system</i></p></li>                       
+                        <li><p>In the <strong>Advanced Security Settings</strong> dialog box, select the <strong>Auditing</strong> tab, and then select <strong>Continue</strong>.</p></li>
+                        <li><p><strong>Select</strong> the <i>Define this policy setting</i> check box, and <strong>click</strong> <i>Configure</i>.</p></li>
+                        <li><p>In the <i>Advanced Security Settings</i> for <i>Global File SACL</i> box, <strong>click</strong> <i>Add</i>, then <strong>click</strong> <i>Select a principal</i>, <strong>type</strong> <i>Everyone</i> (Or another group with users you want to specifically audit), and then <strong>click</strong> <i>OK</i>.</p></li>
+                        <li><p>Optional: In the <i>Add a condition:</i> section, <strong>click</strong> <i>Add</i> a condition and in the drop-down lists <strong>select</strong> <i>(Ex. [Resource] [Department] [Any of] [Value] [Finance] )</i></p></li>
+                        <li><p><strong>Click</strong> <i>OK</i> three times to complete the configuration of the global object access audit policy setting..</p></li>
+                      </ol>
+                    </li>
+                    <li class="msobj-comp-sub-list"> <strong>Note:</strong> <i>Complete the Steps in the <b>Applying Auditing to file or folder:</b> section below on the Target Computers and Folders you would like to audit.</i></li>
+                    <li class="msobj-comp-sub-head">Article Contributers
+                      <a href="https://github.com/MicrosoftDocs/windows-itpro-docs/blob/public/windows/security/threat-protection/auditing/apply-a-basic-audit-policy-on-a-file-or-folder.md" title="10 Contributors" aria-label="10 Contributors">Microsoft Document: apply-a-basic-audit-policy-on-a-file-or-folder</a>
+                      <ul class="contributors" data-bi-name="contributors" aria-hidden="true">
+                        <li><a href="https://github.com/Dansimp.png?size=32" role="presentation">https://github.com/Dansimp</a></li>
+                        <li><a href="https://github.com/tiburd.png?size=32" role="presentation">https://github.com/tiburd</a></li>
+                        <li><a href="https://github.com/martyav.png?size=32" role="presentation">https://github.com/martyav</a></li>
+                        <li><a href="https://github.com/e0i.png?size=32" role="presentation">https://github.com/e0i</a></li>
+                        <li><a href="https://github.com/nschonni.png?size=32" role="presentation">https://github.com/nschonni</a></li>
+                      </ul>
+                    </li>                
+                </ul>
+              </details>
+        	    </li>
+        	  </ul>              
+          </div>          
+        	<div class="msobj-list-heading">
+            <i class="icon-greater splkgreen pright flarge"/>
+            <i>Step 2: Applying Auditing to file or folder:</i>
+            <div role="separator" class="divider"/>
+          </div>
+        	<div class="msobj-list-heading">
+        	  <ul>
+        	    <li>        	  
+            <details ontoggle="mydetfunction()">    
+  						<summary class="msobj_summary_step_details"> <i class="icon-greater splkgreen pright flarge"> How to Apply a basic audit policy on a file or folder</i></summary> <!--class="metadata page-metadata"-->
+  						<ul class="msobja-comp-list" data-bi-name="page info" lang="en-us" dir="ltr">
+  								<li class="msobj-comp-sub-list">
+                        <p class="alert-title"><span class="docon docon-status-info-outline" aria-hidden="true"></span> <i class="icon-warning splkred pright flarge"> Important</i></p>
+                        <p>Before you set up auditing for files and folders, you must enable <a href="https://docs.microsoft.com/en-us/windows/security/threat-protection/auditing/basic-audit-object-access" data-linktype="relative-path">object access auditing</a>. To do this, follow the steps above to define auditing policy settings for the object access event category. If you don't enable object access auditing, you'll receive an error message when you set up auditing for files and folders, and no files or folders will be audited.</p>
+  								</li>
+                  <li  class="msobj-comp-sub-list"><p><strong>Applies to</strong> (Windows 10, Windows Server 2016, Windows Server 2012 R2, Windows Server 2012)</p></li>
+                  <li><p><strong>Note:</strong></p>
+                    <ul>
+                      <li><p>You can apply audit policies to individual files and folders on your computer by setting the permission type to record successful access attempts or failed access attempts in the security log.</p></li>
+                      <li><p>To complete this procedure, you must be signed in as a member of the built-in Administrators group or have <strong>Manage auditing and security log</strong> rights.</p></li>
+                    </ul>
+                  </li>
+                  <li class="msobj-comp-sub-list">
+                      <p><strong>To apply or modify auditing policy settings for a local file or folder</strong></p>
+                      <ol>
+                        <li><p>Select and hold (or right-click) the file or folder that you want to audit, select <strong>Properties</strong>, and then select the <strong>Security</strong> tab.</p></li>
+                        <li><p>Select <strong>Advanced</strong>.</p></li>
+                        <li><p>In the <strong>Advanced Security Settings</strong> dialog box, select the <strong>Auditing</strong> tab, and then select <strong>Continue</strong>.</p></li>
+                        <li><p>Do one of the following:</p>
+                            <ul>
+                              <li>To set up auditing for a new user or group, select <strong>Add</strong>. Select <strong>Select a principal</strong>, type the name of the user or group that you want, and then select <strong>OK</strong>.</li>
+                              <li>To remove auditing for an existing group or user, select the group or user name, select <strong>Remove</strong>, select <strong>OK</strong>, and then skip the rest of this procedure.</li>
+                              <li>To view or change auditing for an existing group or user, select its name, and then select <strong>Edit.</strong></li>
+                            </ul>
+                        </li>
+                        <li><p>In the <strong>Type</strong> box, indicate what actions you want to audit by selecting the appropriate check boxes:</p>
+                            <ul>
+                              <li>To audit successful events, select <strong>Success.</strong></li>
+                              <li>To audit failure events, select <strong>Fail.</strong></li>
+                              <li>To audit all events, select <strong>All.</strong></li>
+                            </ul>
+                        </li>
+                        <li><p>In the <strong>Applies to</strong> box, select the object(s) to which the audit of events will apply. These include:</p>
+                          <ul>
+                            <li><strong>This folder only</strong></li>
+                            <li><strong>This folder, subfolders and files</strong></li>
+                            <li><strong>This folder and subfolders</strong></li>
+                            <li><strong>This folder and files</strong></li>
+                            <li><strong>Subfolders and files only</strong></li>
+                            <li><strong>Subfolders only</strong></li>
+                            <li><strong>Files only</strong></li>
+                          </ul>
+                        </li>
+                        <li><p>By default, the selected <strong>Basic Permissions</strong> to audit are the following:</p>
+                          <ul>
+                            <li><strong>Read and execute</strong></li>
+                            <li><strong>List folder contents</strong></li>
+                            <li><strong>Read</strong></li>
+                            <li>Additionally, with your selected audit combination, you can select any combination of the following permissions:
+                              <ul>
+                                <li><strong>Full control</strong></li>
+                                <li><strong>Modify</strong></li>
+                                <li><strong>Write</strong></li>
+                              </ul>
+                            </li>
+                          </ul>
+                        </li>
+                      </ol>
+                    </li>
+                    <li class="msobj-comp-sub-head">Article Contributers
+                      <a href="https://github.com/MicrosoftDocs/windows-itpro-docs/blob/public/windows/security/threat-protection/auditing/apply-a-basic-audit-policy-on-a-file-or-folder.md" title="10 Contributors" aria-label="10 Contributors">Microsoft Document: apply-a-basic-audit-policy-on-a-file-or-folder</a>
+                      <ul class="contributors" data-bi-name="contributors" aria-hidden="true">
+                        <li><a href="https://github.com/Dansimp.png?size=32" role="presentation">https://github.com/Dansimp</a></li>
+                        <li><a href="https://github.com/tiburd.png?size=32" role="presentation">https://github.com/tiburd</a></li>
+                        <li><a href="https://github.com/martyav.png?size=32" role="presentation">https://github.com/martyav</a></li>
+                        <li><a href="https://github.com/e0i.png?size=32" role="presentation">https://github.com/e0i</a></li>
+                        <li><a href="https://github.com/nschonni.png?size=32" role="presentation">https://github.com/nschonni</a></li>
+                      </ul>
+                    </li>                
+                  </ul>
+                </details>
+              </li>
+            </ul>              
+          </div>
+        </div>
+      </html>
+    </panel>
+  </row>
+</form>

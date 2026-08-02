@@ -1,0 +1,232 @@
+{
+    "modelName": "MS_Windows_AD_Changes",
+    "displayName": "MS_Windows_AD_Changes",
+    "description": "",
+    "objectSummary": {
+        "Event-Based": 0,
+        "Transaction-Based": 0,
+        "Search-Based": 6
+    },
+    "objects": [
+        {
+            "objectName": "ms_ad_obj_audit_changes",
+            "displayName": "ms_ad_obj_audit_changes",
+            "parentName": "BaseSearch",
+            "comment": "",
+            "fields": [
+                {
+                    "fieldName": "_time",
+                    "owner": "ms_ad_obj_audit_changes",
+                    "type": "timestamp",
+                    "fieldSearch": "_time=*",
+                    "required": true,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "_time",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "EventCode",
+                    "owner": "ms_ad_obj_audit_changes",
+                    "type": "number",
+                    "fieldSearch": "EventCode=*",
+                    "required": true,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "EventCode",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "msad_action",
+                    "owner": "ms_ad_obj_audit_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "msad_action",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "src_user",
+                    "owner": "ms_ad_obj_audit_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "src_user",
+                    "comment": ""
+                },
+                {
+                    "fieldName": "obj_type",
+                    "owner": "ms_ad_obj_audit_changes",
+                    "type": "string",
+                    "fieldSearch": "",
+                    "required": false,
+                    "multivalue": false,
+                    "hidden": false,
+                    "editable": true,
+                    "displayName": "obj_type",
+                    "comment": ""
+                }
+            ],
+            "calculations": [
+                {
+                    "outputFields": [
+                        {
+                            "fieldName": "signature",
+                            "owner": "ms_ad_obj_audit_changes",
+                            "type": "string",
+                            "fieldSearch": "signature=*",
+                            "required": true,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "signature",
+                            "comment": "",
+                            "lookupOutputFieldName": "signature"
+                        },
+                        {
+                            "fieldName": "change_action",
+                            "owner": "ms_ad_obj_audit_changes",
+                            "type": "string",
+                            "fieldSearch": "change_action=*",
+                            "required": true,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "change_action",
+                            "comment": "",
+                            "lookupOutputFieldName": "change_action"
+                        },
+                        {
+                            "fieldName": "change_category",
+                            "owner": "ms_ad_obj_audit_changes",
+                            "type": "string",
+                            "fieldSearch": "change_category=*",
+                            "required": true,
+                            "multivalue": false,
+                            "hidden": false,
+                            "editable": true,
+                            "displayName": "change_category",
+                            "comment": "",
+                            "lookupOutputFieldName": "change_category"
+                        }
+                    ],
+                    "calculationType": "Lookup",
+                    "lookupName": "AD_Audit_Change_EventCodes",
+                    "comment": "",
+                    "lookupInputs": [
+                        {
+                            "inputField": "EventCode",
+                            "lookupField": "EventCode"
+                        },
+                        {
+                            "inputField": "obj_type",
+                            "lookupField": "obj_type"
+                        }
+                    ],
+                    "owner": "ms_ad_obj_audit_changes",
+                    "calculationID": "d9nxe8yfh4d",
+                    "editable": true
+                }
+            ],
+            "constraints": [],
+            "lineage": "ms_ad_obj_audit_changes",
+            "baseSearch": "`ms_obj_changes_base_all`"
+        },
+        {
+            "objectName": "ms_ad_obj_audit_group_changes",
+            "displayName": "ms_ad_obj_audit_group_changes",
+            "parentName": "ms_ad_obj_audit_changes",
+            "comment": "",
+            "fields": [],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "change_category=\"Group\" OR change_category=\"Group Membership\"",
+                    "owner": "ms_ad_obj_audit_changes.ms_ad_obj_audit_group_changes"
+                }
+            ],
+            "lineage": "ms_ad_obj_audit_changes.ms_ad_obj_audit_group_changes",
+            "baseSearch": ""
+        },
+        {
+            "objectName": "ms_ad_obj_gpo_changes",
+            "displayName": "ms_ad_obj_audit_gpo_changes",
+            "parentName": "ms_ad_obj_audit_changes",
+            "comment": "",
+            "fields": [],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "change_category=\"Group Policy\"",
+                    "owner": "ms_ad_obj_audit_changes.ms_ad_obj_gpo_changes"
+                }
+            ],
+            "lineage": "ms_ad_obj_audit_changes.ms_ad_obj_gpo_changes",
+            "baseSearch": ""
+        },
+        {
+            "objectName": "ms_ad_obj_audit_user_changes",
+            "displayName": "ms_ad_obj_audit_user_changes",
+            "parentName": "ms_ad_obj_audit_changes",
+            "comment": "",
+            "fields": [],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "change_category=\"User\"",
+                    "owner": "ms_ad_obj_audit_changes.ms_ad_obj_audit_user_changes"
+                }
+            ],
+            "lineage": "ms_ad_obj_audit_changes.ms_ad_obj_audit_user_changes",
+            "baseSearch": ""
+        },
+        {
+            "objectName": "ms_ad_obj_audit_ou_changes",
+            "displayName": "ms_ad_obj_audit_ou_changes",
+            "parentName": "ms_ad_obj_audit_changes",
+            "comment": "",
+            "fields": [],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "change_category=OU",
+                    "owner": "ms_ad_obj_audit_changes.ms_ad_obj_audit_ou_changes"
+                }
+            ],
+            "lineage": "ms_ad_obj_audit_changes.ms_ad_obj_audit_ou_changes",
+            "baseSearch": ""
+        },
+        {
+            "objectName": "ms_ad_obj_audit_computer_changes",
+            "displayName": "ms_ad_obj_audit_computer_changes",
+            "parentName": "ms_ad_obj_audit_changes",
+            "comment": "",
+            "fields": [],
+            "calculations": [],
+            "constraints": [
+                {
+                    "search": "change_category=\"Computer\"",
+                    "owner": "ms_ad_obj_audit_changes.ms_ad_obj_audit_computer_changes"
+                }
+            ],
+            "lineage": "ms_ad_obj_audit_changes.ms_ad_obj_audit_computer_changes",
+            "baseSearch": ""
+        }
+    ],
+    "objectNameList": [
+        "ms_ad_obj_audit_changes",
+        "ms_ad_obj_audit_group_changes",
+        "ms_ad_obj_gpo_changes",
+        "ms_ad_obj_audit_user_changes",
+        "ms_ad_obj_audit_ou_changes",
+        "ms_ad_obj_audit_computer_changes"
+    ]
+}

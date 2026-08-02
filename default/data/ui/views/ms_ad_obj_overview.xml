@@ -1,0 +1,3942 @@
+<form isVisible="true" script="splunk_management_console:common_control.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>MS Windows AD Objects - Overview</label>
+  <init>
+    <set token="show_refresh">display:none;</set>
+  </init>
+  <search id="check_app_update_status">
+    <query>| inputlookup AD_Obj_Config_State
+| head 1
+| stats count
+| where count&gt;0
+  	</query>
+    <progress>
+      <condition>
+        <set token="show_new_setup">Auto Search ($job.dispatchState$) - Searching for Configuration State</set>
+        <set token="show_new_setup_color">blue</set>
+        <unset token="show_tabs"></unset>
+        <unset token="tok_tab_1"></unset>
+        <unset token="tok_exec_admon_srch"></unset>
+        <unset token="tok_exec_macro_srch"></unset>
+        <unset token="tok_exec_chg_srch"></unset>
+      </condition>
+    </progress>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="show_new_setup">Warning - Auto Search Results - MS Windows AD Objects not Configured.</set>
+        <set token="show_new_setup_color">red</set>
+        <set token="role_check_trigger">True</set>
+        <unset token="show_tabs"></unset>
+        <unset token="tok_tab_1"></unset>
+        <unset token="tok_exec_admon_srch"></unset>
+        <unset token="tok_exec_macro_srch"></unset>
+        <unset token="tok_exec_chg_srch"></unset>
+      </condition>
+      <condition>
+        <unset token="show_new_setup"></unset>
+        <set token="show_new_setup_color">green</set>
+        <set token="show_tabs">true</set>
+        <set token="tok_exec_admon_srch">ms_obj_admon_flt_obj_type</set>
+        <set token="tok_exec_macro_srch">ms_ad_obj_cfg_idx_base</set>
+        <set token="tok_exec_chg_srch">tstats</set>
+        <set token="tok_tab_1">active</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_get_role_for_links">
+    <query>| makeresults
+| eval splk_prd="$env:instance_type$"
+| eval base_url=if(splk_prd=="enterprise","/manager/ms_windows_ad_objects/admin/macros","/manager/ms_windows_ad_objects/data/macros")
+| table base_url</query>
+    <done>
+      <set token="tok_macro_base_url">$result.base_url$</set>
+    </done>
+  </search>
+  <search id="force_cfg_state_upd">
+    <query>| `ms_obj_config_st_upd($tok_force_config_compl$)`</query>
+    <done>
+      <set token="show_refresh">display:inline;</set>
+    </done>
+  </search>
+  <search id="base_admon_search">
+    <query>`$tok_exec_admon_srch$(ms_obj_md_admon_base_a_obj("$tok_dc_val$"),ms_obj_admon_base_a_type)`
+| fields objectClass, admonEventType
+| eval AD_Object=case(objectClass="top|person|organizationalPerson|user","Users",objectClass="top|group","Groups",objectClass="top|person|organizationalPerson|user|computer","Computers",objectClass="","Distribution List",objectClass="top|organizationalUnit","Organizational Units",objectClass="top|container|groupPolicyContainer","Group Policies")
+| eval admon_Type=case(admonEventType="Sync","Baseline",admonEventType="Update","Update",admonEventType="Deleted","Deleted")
+| stats max(_time) AS last_time,count by AD_Object, admon_Type 
+| table last_time, AD_Object,admon_Type,count</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="base_macro_search">
+    <query>| `$tok_exec_macro_srch$`
+| mvexpand index
+| join type=left index [| `ms_ad_obj_cfg_idx_avail` ]
+| join type=left index [| `ms_ad_obj_cfg_idx_data` ]
+| sort flag,-Total_Events
+| eval Total_Sourcetypes=if(isnull(cmb),0,mvcount(cmb))
+| fillnull 0 Total_Events,currentDBSizeMB
+| eval flag=if(isnull(index_flag),2,if(isnull(data_flag),1,0))
+| eval flag_msg=case(flag=2,"index Not Created: ".index,flag=1,"Missing Index Data: ".index,flag=0,"OK: ".index)
+| rename index as macro_index, cmb as sourcetypes
+| fillnull value=0 Total_Events,currentDBSizeMB
+| eval sourcetypes=if(isnull(sourcetypes),flag_msg,sourcetypes)
+| makemv delim="|" sourcetypes
+| sort -flag macro_name
+| table macro_name,macro_definition,macro_index,flag,flag_msg,Total_Events,currentDBSizeMB,sourcetypes</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="base_admin_change">
+    <query>| $tok_exec_chg_srch$ count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY ms_ad_obj_audit_changes.change_action, ms_ad_obj_audit_changes.change_category, ms_ad_obj_audit_changes.src_user 
+| rename ms_ad_obj_audit_changes.change_category AS Change_Category,ms_ad_obj_audit_changes.src_user AS Admin_User, ms_ad_obj_audit_changes.change_action AS Change_Action
+| eval Admin_User=lower(Admin_User)
+| table data_child, Change_Category, Admin_User, Change_Action,count</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <sampleRatio>1</sampleRatio>
+  </search>
+  <search id="bs_dom_list">
+    <query>| inputlookup AD_Obj_Domain
+| fields domain,user_lookup,group_lookup,computer_lookup,dc_val</query>
+  </search>
+  <search base="bs_dom_list" id="dom_lkp_vals">
+    <query>search domain="$tok_sel_domain$"
+| fields domain,user_lookup,group_lookup,computer_lookup,dc_val
+| fillnull value="*" dc_val
+| stats count by domain,user_lookup,group_lookup,computer_lookup,dc_val</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+    <input type="dropdown" token="tok_sel_domain" depends="$show_tabs$" searchWhenChanged="true">
+      <label>Select Domain</label>
+      <selectFirstChoice>True</selectFirstChoice>
+      <search base="bs_dom_list">
+        <query>stats count by domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+    </input>
+    <input type="time" token="field1" depends="$show_tabs$">
+      <label>Select Time Period</label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row depends="$show_new_setup$">
+    <panel>
+      <html>
+  			<center>
+          <b style="color:$show_new_setup_color$;">$show_new_setup$</b>
+  			<h2>The <i>MS Windows AD Objects</i> application has not been completed. Choose one of the following <i>Options</i> to complete the required configuration steps:</h2>
+          <table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+            <tr style="padding:4px;border: 4px solid #f99d1c;padding: 2px;margin: 2px;">
+              <th style="padding:3px;border: 3px solid #f99d1c;padding: 2px;margin: 2px;">
+                <center>
+                  <h3>
+                    <i>Option 1:</i>
+                  </h3>
+                  <h4>Walk Through and Complete the <i>Configuration - Getting Data In</i> wizard</h4>
+                </center>
+              </th>
+              <th style="padding:3px;border: 3px solid #f99d1c;padding: 2px;margin: 2px;">
+                <center>
+                  <h3>
+                    <i>Option 2:</i>
+                  </h3>
+                  <h4>Build the lookups using the <i>Build AD Lookup Lists - Main</i> dashboard</h4>
+                </center>
+              </th>
+              <th style="padding:3px;border: 3px solid #f99d1c;padding: 2px;margin: 2px;">
+                <center>
+                  <h3>
+                    <i>Option 3:</i>
+                  </h3>
+                  <h4>Manually Set the <i>Completed</i> Flag in the <i>AD_Obj_Config_State lookup</i>
+                  </h4>
+                </center>
+              </th>
+            </tr>
+            <tr style="padding:4px;border: 2px solid #e20082;padding: 2px;margin: 2px;">
+              <td style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;vertical-align:top;" rowspan="2">
+                 <center>
+                    <h3>Configuration - Getting Data In Steps:</h3>
+                 </center>
+                 <ul style="list-style: none;">
+                    <li>Complete the <b>Configuration - Getting Data In</b> configuration wizard: <a class="btn btn-mini" href="ad_objects__configuration__getting_data_in">Configuration - Getting Data In  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+                    </a>
+                  </li>
+                    <li>
+												<ul class="note_lst">
+													<li class="mrk_note">Recommended for new Deployments, or you are new to Splunk.</li>
+												</ul>                    </li>
+                    <li>
+                      <h4>This Configuration Dashboard walks you through the below steps:</h4>
+                        <table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+                					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+                						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+                							<img src="/static/app/ms_windows_ad_objects/icons/icon_edit_input.png" style="height: 40px;width: 40px;" title="Scope Definition"/>
+                						</td>
+                						<td style="padding:2px;">
+                							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+                								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									Section Step 1: <i>Scope Definition</i>
+                								</dt>
+                								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									<i>
+                                <b>Required:</b> This step is used to align the subsequent steps with your environment and deployment plans.</i>
+                								</dd>
+                							</dl>
+                						</td>
+                					</tr>
+                					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+                						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+                							<img src="/static/app/ms_windows_ad_objects/icons/icon_priority_list.png" style="height: 40px;width: 40px;" title="Preparation"/>
+                						</td>
+                						<td style="padding:2px;">
+                							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+                								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									Section Step 2: <i>Preparation</i>
+                								</dt>
+                								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									<i>Provides the preparation steps for the Splunk Core components, MS Windows AD Objects and TA Configuration are ready to receive the Windows data and deployment.</i>
+                								</dd>
+                							</dl>
+                						</td>
+                					</tr>
+                					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+                						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">							
+                							<img src="/static/app/ms_windows_ad_objects/icons/icon_splk_forwarder.png" style="height: 40px;width: 40px;" title="Deployment"/>
+                						</td>
+                						<td style="padding:2px;">
+                							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+                								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									Section Step 3: <i>Deployment</i>
+                								</dt>
+                								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									<i>Covers the steps for distributing the previously configured Splunk Technical Add-Ons to the target Windows Systems.</i>
+                								</dd>
+                							</dl>
+                						</td>
+                					</tr>
+                					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+                						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+                							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+                						</td>
+                						<td style="padding:2px;">
+                							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+                								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									Section Step 4: <i>Check Data</i>
+                								</dt>
+                								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+                									<i>This section provides you a way of verifying, and if necessary troubleshooting, previous configuration steps.</i>
+                								</dd>
+                							</dl>
+                						</td>
+                					</tr>
+                					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+                						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+                							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+                						</td>
+                						<td style="padding:2px;">
+                							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+                								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+                									Section Step 5: <i>Build Lookups</i>
+                								</dt>
+                								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+                									<i>This last section walks through the the final step of building the MS Windows AD Object's lookup tables.</i>
+                								</dd>
+                							</dl>
+                						</td>
+                					</tr>
+                				</table>
+                  </li>
+                </ul>                
+              </td>
+              <td style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;vertical-align:top;">
+                 <center>
+                    <h3>Build AD Lookup List - Main:</h3>
+                 </center>
+                <ol class="nbr_ts_list">
+                    <li class="nbr_ts_step">Verify Data Collection and Index macro definitions below before proceeding to Step 2 for this option.</li>
+                    <li class="nbr_ts_step">Open the <b>Build AD Lookup Lists - Main</b> dashboard to build the required AD Lookup Lists: <a class="btn btn-mini" href="ms_ad_obj_build_ad_lookup_lists__main">Build AD Lookup Lists - Main  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+                    </a>
+                  </li>
+                </ol>
+              </td>
+              <td style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;vertical-align:top;">
+                 <center>
+                    <h3>Manual Set Completion Flag:</h3>
+                 </center>
+                 <ol class="nbr_ts_list">
+                    <li class="nbr_ts_step">Verify Data Collection and Index macro definitions below before proceeding to Step 2 for this option.</li>
+                    <li class="nbr_ts_step">Click <a class="btn btn-mini" data-token-json="{&quot;tok_force_config_compl&quot;:&quot;completed&quot;}">Set Configuration Flag as Completed</a>  <div style="$show_refresh$">
+                      <i class="icon-check-circle" style="$show_refresh$"> Completed.</i>
+                    </div>
+                  </li>
+                    <li class="nbr_ts_step" style="$show_refresh$">Click <a class="btn btn-mini" href="ms_ad_obj_overview">Refresh Overview Dashboard</a> to refresh this page.</li>
+                  </ol>
+              </td>
+            </tr>
+            <tr style="padding:4px;border: 2px solid #e20082;padding: 2px;margin: 2px;">
+              <td style="padding:3px;border: 3px solid #e20082;padding: 2px;margin: 2px;vertical-align:top;" colspan="2">
+                <ul style="list-style: none;">
+                    <li>
+                    <b>
+                      <i class="icon-warning">  </i>Important: </b>Make sure that you have verified the following data has been indexed and defined index macros are correct before using either of the above options:
+                      <ol class="nbr_ts_list">
+                        <li class="nbr_ts_step">
+                        <b>Verify - Data Collection:</b>
+                          <ul>
+                            <li>
+                            <b>sourcetype=ActiveDirectory admonEventType="Sync"</b>
+                              <ul>
+                                <li>Click <a class="btn btn-mini" target="_blank" href="%40go?s=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fsaved%2Fsearches%2FAD%2520Objects%2520-%2520Verify%2520Baseline%2520Data%2520-%2520Overall">Verify AD Sync Data  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+                                </a>to verify this data.</li>
+                              </ul>
+                            </li>
+                            <li>
+                            <b>source=powershell sourcetype="MSAD:*:Health"</b>
+                              <ul>
+                                <li>Click <a class="btn btn-mini" target="_blank" href="search?q=search%20%60ms__obj_win_ad_index%60%20eventtype%3D%22ms_ad_obj_msad-dc-health%22%20earliest%3D%40d%0A%7C%20fields%20_time%2Chost%0A%7C%20stats%20max(_time)%20AS%20l_evt_time%2Cdc(host)%20AS%20count%0A%7C%20eval%20ObjectType%3D%22Domain%20Details%22%0A%7C%20table%20l_evt_time%2Ccount%2CObjectType&amp;display.page.search.mode=verbose&amp;earliest=-7d%40h&amp;latest=now">Verify AD Domain Data  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+                                </a>to verify this data.</li>
+                              </ul>                          
+                            </li>
+                            <li>
+                            <b>(source=WinEventLog:Security OR source=XMLWinEventLog:Security OR source=WMIWineventLog:Security)</b>
+                              <ul>
+                                <li>Click <a class="btn btn-mini" target="_blank" href="search?q=search%20%60ms_obj_win_events_security%60&amp;display.page.search.mode=verbose&amp;earliest=-2h%40h&amp;latest=now">Verify Windows Security Event Data  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+                                </a>to verify this data.</li>
+                              </ul>                          
+                            </li>
+                          </ul>
+                        </li>
+                        <li class="nbr_ts_step">
+                        <b>Verify - Index Macro Definitions:</b>
+                        <ul>
+                          <li>
+                            <div class="li_content">Click <a href="$tok_macro_base_url$?ns=ms_windows_ad_objects&amp;pwnr=-&amp;app_only=1&amp;search=index%3D&amp;count=4" class="btn btn-mini" target="_blank">Macro Settings</a> to open the settings page for the macros used for pointing to the required indexes.</div>
+                          </li>
+														<li>
+															<div>Use the below list to match up the custom indexes you created for your windows data with the appropriate macro:</div>
+															<ul>
+																<li>
+                                <i>Macro - </i> <b>ms__obj_win_events_index:</b>
+																	<ul>
+																		<li>All Windows Event Logs (ie. Security,Application,System,Directory Service,etc)</li>
+																	</ul>
+																</li>
+																<li>
+                                <i>Macro - </i> <b>ms__obj_win_perfmon_index:</b>
+																	<ul>
+																		<li>All Windows Performance Count Data (ie. Perfmon:CPU,Perfmon:Memory,etc)</li>
+																	</ul>
+																</li>
+																<li>
+                                <i>Macro - </i> <b>ms__obj_win_ad_index:</b>
+																	<ul>
+																		<li>All Active Directory Specific Data (ie. ActiveDirectory,DHCP,DNS,Powershell AD Scripts,etc)</li>
+																	</ul>
+																</li>
+																<li>
+                                <i>Macro - </i> <b>ms__obj_win_api_index:</b>
+																	<ul>
+																		<li>All Windows OS Api and Scripts (ie. WinHostMon,WinNetMon,Update Logs,etc)</li>
+																	</ul>
+																</li>
+															</ul>
+														</li>
+                        </ul>                      
+                        </li>
+                      </ol>
+                    </li>
+                  </ul>
+              </td> 
+            </tr>
+          </table>
+          </center>
+  		</html>
+    </panel>
+  </row>
+  <row id="tabs_row" depends="$show_tabs$">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Object Lookup Counts</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}">Indexed Data Counts</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">Change Data Counts</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;}" style="$tok_display_dd$">General Information</a>
+          </li>         
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <title>sourcetype="ActiveDirectory" - Event Statistics</title>
+      <table>
+        <title>Total admon Event Counts by AD Object</title>
+        <search base="base_admon_search">
+          <query>| eval baseline_last_time=if(admon_Type=="Baseline",last_time,"Never")
+| eval update_last_time=if(admon_Type=="Update",last_time,"Never")
+| eval deleted_last_time=if(admon_Type=="Deleted",last_time,"Never")| eval base_cnt=if(admon_Type=="Baseline",count,0)
+| eval upd_cnt=if(admon_Type=="Update",count,0)
+| eval del_cnt=if(admon_Type=="Deleted",count,0)
+| eval update_last_time=if(admon_Type=="Update",last_time,"Never")
+| eval deleted_last_time=if(admon_Type=="Deleted",last_time,"Never")
+| stats max(baseline_last_time) AS baseline_last_time,max(update_last_time) AS update_last_time,max(deleted_last_time) AS deleted_last_time,sum(base_cnt) AS Baseline_Count,sum(upd_cnt) AS Update_Count,sum(del_cnt) AS Deleted_Count,sum(count) AS Total_Count by AD_Object 
+| fillnull value=0 Baseline_Count,Update_Count,Deleted_Count,Total_Count
+| eval Baseline_Event_Summary=if(baseline_last_time=="Never","Total Events: ".tostring(Baseline_Count,"commas"),"Total Events: ".tostring(Baseline_Count,"commas")."|Last Event Time: ".strftime(baseline_last_time,"%m/%d/%y %H:%M:%S"))
+| eval Update_Event_Summary=if(update_last_time=="Never","Total Events: ".tostring(Update_Count,"commas"),"Total Events: ".tostring(Update_Count,"commas")."|Last Event Time: ".strftime(update_last_time,"%m/%d/%y %H:%M:%S"))
+| eval Deleted_Event_Summary=if(deleted_last_time=="Never","Total Events: ".tostring(Deleted_Count,"commas"),"Total Events: ".tostring(Deleted_Count,"commas")."|Last Event Time: ".strftime(deleted_last_time,"%m/%d/%y %H:%M:%S"))
+| makemv delim="|" Baseline_Event_Summary
+| makemv delim="|" Update_Event_Summary
+| makemv delim="|" Deleted_Event_Summary
+| sort -Total_Count
+| table AD_Object, Baseline_Event_Summary,Update_Event_Summary,Deleted_Event_Summary,Total_Count
+| eval Total_Count=tostring(Total_Count,"commas")</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <title>Built and Updated AD Object Lookup Table Counts</title>
+      <single>
+        <search>
+          <query>| inputlookup $tok_user_lkp$ WHERE domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Users</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup $tok_group_lkp$ WHERE domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="rangeColors">["0x53a051","0x0877a6","0xf8be34","0xf1813f","0xdc4e41"]</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="underLabel">Groups</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup $tok_group_lkp$ WHERE sAMAccountType="268435457" AND  domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Distribution Lists</option>
+      </single>
+      <html>
+        <hr/>
+      </html>
+      <single>
+        <search>
+          <query>| inputlookup $tok_computer_lkp$ WHERE domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Computers</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_OU WHERE domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Organizational Units</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_GPO WHERE domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Group Policies</option>
+      </single>
+      <single>
+        <search>
+          <query>| inputlookup AD_Obj_Admin_Audit WHERE admin_domain="$tok_sel_domain$"
+| fields
+| stats count</query>
+          <earliest>0</earliest>
+          <latest></latest>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="underLabel">Administrators</option>
+      </single>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <table>
+        <title>Windows Events Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_events_index"
+| mvexpand sourcetypes
+| rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+| search count>0
+| table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows Perfmon Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_perfmon_index"
+| mvexpand sourcetypes
+| rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+| search count>0
+| table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows AD Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_ad_index"
+| mvexpand sourcetypes
+| rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+| search count>0
+| table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Windows API Data</title>
+        <search base="base_macro_search">
+          <query>search macro_name="ms__obj_win_api_index"
+| mvexpand sourcetypes
+| rex field=sourcetypes "(?&lt;sourcetype&gt;[^\(]+)\((?&lt;count&gt;[^\)]+)\)"
+| search count>0
+| table sourcetype,count
+          </query>
+        </search>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel id="pan_dm_inputs">
+      <input type="dropdown" token="tok_search" searchWhenChanged="true">
+        <label>Select Search By Criteria</label>
+        <choice value="obj_type">Object Type</choice>
+        <choice value="change_action">Change Action</choice>
+        <choice value="src_user">Administrators</choice>
+        <default>obj_type</default>
+        <initialValue>obj_type</initialValue>
+        <change>
+          <condition value="obj_type">
+            <set token="tok_label">Object Type</set>
+            <set token="tok_time_srch">change_category</set>
+            <set token="tok_ovr_srch">Change_Category</set>
+            <set token="tok_show_admins">True</set>
+            <unset token="tok_time_admin_srch"></unset>
+          </condition>
+          <condition value="change_action">
+            <set token="tok_label">Change Action</set>
+            <set token="tok_time_srch">change_action</set>
+            <set token="tok_ovr_srch">Change_Action</set>
+            <set token="tok_show_admins">True</set>
+            <unset token="tok_time_admin_srch"></unset>
+          </condition>
+          <condition value="src_user">
+            <set token="tok_label">All Administrators</set>
+            <set token="tok_time_admin_srch">src_user</set>
+            <set token="tok_ovr_srch">Admin_User</set>
+            <set token="tok_admin_sel">*</set>
+            <unset token="form.tok_admin_user"></unset>
+            <unset token="tok_show_admins"></unset>
+            <unset token="tok_time_srch"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_admin_user" searchWhenChanged="true" depends="$tok_show_admins$">
+        <label>Select Specific Administrator</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <fieldForLabel>Admin_User</fieldForLabel>
+        <fieldForValue>Admin_User</fieldForValue>
+        <search base="base_admin_change">
+          <query>stats count by Admin_User
+  | table Admin_User
+  | sort Admin_User</query>
+        </search>
+        <change>
+          <condition value="all">
+            <set token="tok_admin_sel">*</set>
+            <set token="tok_user_label"></set>
+          </condition>
+          <condition>
+            <set token="tok_admin_sel">$value$</set>
+            <set token="tok_user_label">(Admin - $value$)</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+    <panel id="pan_dm_link">
+      <html>
+  	    Click <a class="btn btn-mini" href="data_model_editor?model=%2FservicesNS%2Fnobody%2Fms_windows_ad_objects%2Fdatamodel%2Fmodel%2FMS_Windows_AD_Changes" target="_blank">MS_Windows_AD_Changes  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+        </a> to view Data Model.
+  	  </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel>
+      <single>
+        <title>Group Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Group" OR Change_Category="Group Membership"| stats sum(count)</query>
+        </search>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>User Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="User"  | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Computer Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Computer" | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>Group Policy Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="Group Policy" | stats sum(count) AS count
+| eval count=if(isnull(count),"No GPO Changes",count)</query>
+        </search>
+        <option name="height">90</option>
+      </single>
+    </panel>
+    <panel>
+      <single>
+        <title>OU Changes</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$" Change_Category="OU" | stats sum(count)</query>
+        </search>
+        <option name="drilldown">all</option>
+        <option name="height">90</option>
+      </single>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$,$tok_user_label$">
+    <panel>
+      <chart>
+        <title>Total AD Changes by $tok_label$ $tok_user_label$ - Overall</title>
+        <search base="base_admin_change">
+          <query>search Admin_User="$tok_admin_sel$"
+    | table $tok_ovr_srch$,count          
+    | stats sum(count) AS Total_Changes by $tok_ovr_srch$
+    | sort -Total_Changes</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">bar</option>
+        <option name="charting.chart.showDataLabels">all</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel>
+      <chart rejects="$tok_time_admin_srch$">
+        <title>Total AD Changes by $tok_label$  $tok_user_label$ - Overtime</title>
+        <search>
+          <query>| $tok_exec_chg_srch$ count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY _time,ms_ad_obj_audit_changes.$tok_time_srch$,ms_ad_obj_audit_changes.src_user
+| search ms_ad_obj_audit_changes.src_user="$tok_admin_sel$"
+| rename ms_ad_obj_audit_changes.$tok_time_srch$ AS $tok_ovr_srch$
+| timechart span=1d count by $tok_ovr_srch$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+      <chart depends="$tok_time_admin_srch$">
+        <title>Total AD Changes by $tok_label$ - Overtime</title>
+        <search>
+          <query>| $tok_exec_chg_srch$ count FROM datamodel=MS_Windows_AD_Changes.ms_ad_obj_audit_changes WHERE nodename=ms_ad_obj_audit_changes BY _time,ms_ad_obj_audit_changes.$tok_time_admin_srch$
+| rename ms_ad_obj_audit_changes.$tok_time_admin_srch$ AS $tok_ovr_srch$
+| timechart span=1d count by $tok_ovr_srch$</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.chart.stackMode">stacked</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel>
+      <input type="dropdown" token="tok_show_category" searchWhenChanged="true">
+        <label>Select Overview Category</label>
+        <choice value="app_overview">Application Details</choice>
+        <choice value="app_arch">Application Architecture</choice>
+        <choice value="app_ad_obj_details">AD Object Details</choice>
+        <default>app_overview</default>
+        <initialValue>app_overview</initialValue>
+        <change>
+          <condition value="app_overview">
+            <set token="show_app_overview">true</set>
+            <unset token="show_app_arch"></unset>
+            <unset token="show_app_ad_obj_details"></unset>
+          </condition>
+          <condition value="app_arch">
+            <set token="show_app_arch">true</set>
+            <unset token="show_app_overview"></unset>
+            <unset token="show_app_ad_obj_details"></unset>
+          </condition>
+          <condition value="app_ad_obj_details">
+            <set token="show_app_ad_obj_details">true</set>
+            <unset token="show_app_overview"></unset>
+            <unset token="show_app_arch"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_show_app_ad_obj_details" searchWhenChanged="true" depends="$show_app_ad_obj_details$">
+        <label>Select AD Object Category:</label>
+        <choice value="app_ad_obj_user">User AD Attributes</choice>
+        <choice value="app_ad_obj_group">Group AD Attributes</choice>
+        <choice value="app_ad_obj_computer">Computer AD Attributes</choice>
+        <choice value="app_ad_obj_ou">OU AD Attributes</choice>
+        <choice value="app_ad_obj_gpo">GPO AD Attributes</choice>
+        <default>app_ad_obj_user</default>
+        <initialValue>app_ad_obj_user</initialValue>
+        <change>
+          <condition value="app_ad_obj_user">
+            <set token="show_app_ad_obj_user">true</set>
+            <unset token="show_app_ad_obj_group"></unset>
+            <unset token="show_app_ad_obj_computer"></unset>
+            <unset token="show_app_ad_obj_ou"></unset>
+            <unset token="show_app_ad_obj_gpo"></unset>
+          </condition>
+          <condition value="app_ad_obj_group">
+            <set token="show_app_ad_obj_group">true</set>
+            <unset token="show_app_ad_obj_user"></unset>
+            <unset token="show_app_ad_obj_computer"></unset>
+            <unset token="show_app_ad_obj_ou"></unset>
+            <unset token="show_app_ad_obj_gpo"></unset>
+          </condition>
+          <condition value="app_ad_obj_computer">
+            <set token="show_app_ad_obj_computer">true</set>
+            <unset token="show_app_ad_obj_user"></unset>
+            <unset token="show_app_ad_obj_group"></unset>
+            <unset token="show_app_ad_obj_ou"></unset>
+            <unset token="show_app_ad_obj_gpo"></unset>
+          </condition>
+          <condition value="app_ad_obj_ou">
+            <set token="show_app_ad_obj_ou">true</set>
+            <unset token="show_app_ad_obj_user"></unset>
+            <unset token="show_app_ad_obj_group"></unset>
+            <unset token="show_app_ad_obj_computer"></unset>
+            <unset token="show_app_ad_obj_gpo"></unset>
+          </condition>
+          <condition value="app_ad_obj_gpo">
+            <set token="show_app_ad_obj_gpo">true</set>
+            <unset token="show_app_ad_obj_user"></unset>
+            <unset token="show_app_ad_obj_group"></unset>
+            <unset token="show_app_ad_obj_computer"></unset>
+            <unset token="show_app_ad_obj_ou"></unset>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel depends="$show_app_overview$">
+      <html depends="$show_app_overview$">
+        <center>
+          <h1>Description:</h1>
+        </center>
+        <p>
+           The MS Windows AD Objects application leverages admon(ActiveDirectory) data for building and updating AD object lookup files, and Windows Event Logs/Perfmon Counters, WinHostMon for data analytics.   The KVStore lookup files can be leveraged for looking up AD attribute information of User, Groups, Group Policies, Organizational Units, and Computer AD objects.  </p>
+        <p>This app contains updated dashboard files for the Splunk® for Windows Infrastructure app and Splunk® for Microsoft Exchange app.  These updated dashboards replace the use of the SA_LDAPSearch (Splunk® Support for Active Directory) ldap queries in the searches/macros/dashboards to instead use the AD Objects lookup tables.</p>    
+      </html>
+    </panel>
+    <panel depends="$show_app_overview$">
+      <html depends="$show_app_overview$">
+          <center>
+          <h1>Use Cases:</h1>
+        </center>
+        <ul style="list-style: none;">
+          <li>
+            <h4>
+              <img src="/static/app/ms_windows_ad_objects/number_icon_1.png" style="padding-right: 10px;height: 20px;"/>
+              <b>Stand Alone:</b>
+            </h4>
+            <li>
+              	<ui type="square">
+                	<li style="padding-left: 50px;">
+                	  <i>This application provides numurous dashboards and reports for analyzing your Active Directory objects as well as core Microsoft Windows.  These are all provided within this application and do not depend on either the Splunk® for Windows Infrastructure or Splunk® for Microsoft Exchange applications</i>
+                  </li>
+                </ui>
+            </li>
+          </li>
+        </ul>        
+        <ul style="list-style: none;">
+          <li>
+            <h4>
+              <img src="/static/app/ms_windows_ad_objects/number_icon_2.png" style="padding-right: 10px;height: 20px;"/>
+              <b>Integration Options:</b>
+            </h4>
+            <li style="padding-left: 50px;">
+              <ui type="square">
+            	  <b>Splunk® Cloud Environments:</b>
+                <ui type="square">
+                  <li style="padding-left: 60px;">
+                    <i>Splunk® Cloud environments that are leveraging either the Splunk® for Windows Infrastructure or Splunk® for Microsoft Exchange applications, where either corporate policies or Security practices prevent external access to AD Environment using the required implementations of the Splunk® Support for Active Directory LDAP Queries.</i>
+                  </li>
+                </ui>
+              </ui>  
+            </li>
+            <li style="padding-left: 50px;">
+              <ui type="square">
+                <b>Splunk® Enterprise On-Premise Environments:</b>
+                <ui type="square">
+                  <li style="padding-left: 60px;">
+                    <i>Splunk On-Premise environments that are leveraging either the Splunk® for Windows Infrastructure or Splunk® for Microsoft Exchange applications, where current implementations of the Splunk® Support for Active Directory LDAP Queries are seeing slow response times.</i>
+                  </li>
+                </ui>
+              </ui>  
+            </li>
+          </li>
+        </ul>           
+      </html>
+    </panel>
+    <panel depends="$show_app_overview$">
+      <html depends="$show_app_overview$">
+                 <center>
+          <h1>Application Configuration Steps:</h1>
+        </center>
+    	<ul style="list-style: none;">
+          <li>Complete the <b>Configuration - Getting Data In</b> configuration wizard: <a class="btn btn-mini" href="ad_objects__configuration__getting_data_in">Configuration - Getting Data In  <i class="icon-external" style="height:16px !important;color:#40A540;"/>
+            </a>
+          </li>
+          <li>
+          	<h4>This Configuration Dashboard walks you through the below steps:</h4>
+      				<table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<img src="/static/app/ms_windows_ad_objects/icons/icon_edit_input.png" style="height: 40px;width: 40px;" title="Scope Definition"/>
+      						</td>
+      						<td style="padding:2px;">
+      							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+      								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									Section Step 1: <i>Scope Definition</i>
+      								</dt>
+      								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									<i>
+                        <b>Required:</b> This step is used to align the subsequent steps with your environment and deployment plans.</i>
+      								</dd>
+      							</dl>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<img src="/static/app/ms_windows_ad_objects/icons/icon_priority_list.png" style="height: 40px;width: 40px;" title="Preparation"/>
+      						</td>
+      						<td style="padding:2px;">
+      							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+      								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									Section Step 2: <i>Preparation</i>
+      								</dt>
+      								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									<i>Provides the preparation steps for the Splunk Core components, MS Windows AD Objects and TA Configuration are ready to receive the Windows data and deployment.</i>
+      								</dd>
+      							</dl>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">							
+      							<img src="/static/app/ms_windows_ad_objects/icons/icon_splk_forwarder.png" style="height: 40px;width: 40px;" title="Deployment"/>
+      						</td>
+      						<td style="padding:2px;">
+      							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+      								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									Section Step 3: <i>Deployment</i>
+      								</dt>
+      								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									<i>Covers the steps for distributing the previously configured Splunk Technical Add-Ons to the target Windows Systems.</i>
+      								</dd>
+      							</dl>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+      						</td>
+      						<td style="padding:2px;">
+      							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+      								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									Section Step 4: <i>Check Data</i>
+      								</dt>
+      								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+      									<i>This section provides you a way of verifying, and if necessary troubleshooting, previous configuration steps.</i>
+      								</dd>
+      							</dl>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+      						</td>
+      						<td style="padding:2px;">
+      							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+      								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+      									Section Step 5: <i>Build Lookups</i>
+      								</dt>
+      								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+      									<i>This last section walks through the the final step of building the MS Windows AD Object's lookup tables.</i>
+      								</dd>
+      							</dl>
+      						</td>
+      					</tr>
+      				</table>
+		  </li>
+    </ul>
+  </html>
+    </panel>
+    <panel depends="$show_app_arch$">
+      <html depends="$show_app_arch$">
+		<center>
+	    	<h2>MS Windows AD Objects - Base AD Objects Lookup Definition Architecture</h2>
+            </center>
+            <center>
+      				<table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+      					<tr style="padding:4px;border: 3px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<th style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 3px solid #f99d1c;">
+      							<center>
+                  <b>KVStore Lookup</b>
+                </center>
+      						</th>
+      						<th style="text-align:center;width: 80% !important;padding: 10px !important;padding:4px;border: 3px solid #f99d1c;">
+      							<center>
+                  <i>Lookup Table Description</i>
+                </center>
+      						</th>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_Domain</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD Domain(s) DNS, NetBios, Site, Forest information, collected by the <code>[powershell://AD-Health]</code> OR <code>[script://.\bin\runpowershell.cmd nt6-health.ps1]</code> data input on an AD Domain Controller.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_User</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD User collected, and updated, Attributes.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_Group</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD Group collected, and updated, Attributes.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_Computer</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD Computer collected, and updated, Attributes.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_OU</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD Organizational Unit and Container collected, and updated, Attributes.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_GPO</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains the AD Group Policies collected, and updated, Attributes.</h4>
+      						</td>
+      					</tr>
+      					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+      						<td style="text-align:center;width: 20% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+      							<b>AD_Obj_Admin_Audit</b>
+      						</td>
+      						<td style="text-align:left;width: 80% !important;">
+      							<h4>This lookup contains a list of Administrators, and their AD Attributes.  Administrators are determined by source user (src_user) accounts that make changes to AD Objects other than their own account.</h4>
+      						</td>
+      					</tr>
+      				</table>
+         </center>
+      </html>
+    </panel>
+    <panel depends="$show_app_ad_obj_details$">
+      <html depends="$show_app_ad_obj_user$">
+        <center>
+          <h1>User AD Object Attributes</h1>
+          <h3>(<i>
+              <a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|person|organizationalPerson|user&quot;)" target="_blank">objectClass="top|person|organizationalPerson|user"</a>
+            </i>)</h3>
+        </center>     
+        <p>
+          <i>Below is the list of User AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_User" target="_blank">AD_Obj_User</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                   
+        <table border="1">
+<tr>
+            <td>
+              <center>
+                <b>Attribute Name</b>
+              </center>
+            </td>
+            <td>
+              <center>
+                <b>Object Description</b>
+              </center>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675098%28v=vs.85%29.aspx" target="_blank">accountExpires</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when the account expires. This value represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of 0 or 0x7FFFFFFFFFFFFFFF (9223372036854775807) indicates that the account never expires.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675212%28v=vs.85%29.aspx" target="_blank">adminCount</a>
+              </b>
+            </td>
+            <td>
+              <i>Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675243%28v=vs.85%29.aspx" target="_blank">badPasswordTime</a>
+              </b>
+            </td>
+            <td>
+              <i>The last time and date that an attempt to log on to this account was made with a password that is not valid. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last time a incorrect password was used is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675244%28v=vs.85%29.aspx" target="_blank">badPwdCount</a>
+              </b>
+            </td>
+            <td>
+              <i>The number of times the user tried to log on to the account using an incorrect password. A value of 0 indicates that the value is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a>
+              </b>
+            </td>
+            <td>
+              <i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675451%28v=vs.85%29.aspx" target="_blank">codePage</a>
+              </b>
+            </td>
+            <td>
+              <i>Specifies the code page for the user's language of choice.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675466%28v=vs.85%29.aspx" target="_blank">countryCode</a>
+              </b>
+            </td>
+            <td>
+              <i>Specifies the country/region code for the user's language of choice.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a>
+              </b>
+            </td>
+            <td>
+              <i>The DS-Core-Propagation-Data attribute is for internal use only.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a>
+              </b>
+            </td>
+            <td>
+              <i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a>
+              </b>
+            </td>
+            <td>
+              <i>displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675719%28v=vs.85%29.aspx" target="_blank">givenName</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains the given name (first name) of the user.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a>
+              </b>
+            </td>
+            <td>
+              <i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a>
+              </b>
+            </td>
+            <td>
+              <i>Is the object recycled. For use with AD Recycle Bin</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a>
+              </b>
+            </td>
+            <td>
+              <i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676823%28v=vs.85%29.aspx" target="_blank">lastLogon</a>
+              </b>
+            </td>
+            <td>
+              <i>The last time the user logged on. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last logon time is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676824%28v=vs.85%29.aspx" target="_blank">lastLogonTimestamp</a>
+              </b>
+            </td>
+            <td>
+              <i>This is the time that the user last logged into the domain. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). Whenever a user logs on, the value of this attribute is read from the DC. If the value is older [ current_time - msDS-LogonTimeSyncInterval ], the value is updated. The initial update after the raise of the domain functional level is calculated as 14 days minus random percentage of 5 days.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676843%28v=vs.85%29.aspx" target="_blank">lockoutTime</a>
+              </b>
+            </td>
+            <td>
+              <i>The date and time (UTC) that this account was locked out. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the account is not currently locked out.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676845%28v=vs.85%29.aspx" target="_blank">logonCount</a>
+              </b>
+            </td>
+            <td>
+              <i>The number of times the account has successfully logged on. A value of 0 indicates that the value is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676846%28v=vs.85%29.aspx" target="_blank">logonHours</a>
+              </b>
+            </td>
+            <td>
+              <i>The hours that the user is allowed to logon to the domain.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a>
+              </b>
+            </td>
+            <td>
+              <i>The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677827%28v=vs.85%29.aspx" target="_blank">msDS-SupportedEncryptionTypes</a>
+              </b>
+            </td>
+            <td>
+              <i>The encryption algorithms supported by user, computer or trust accounts. (Note  The KDC uses this information while generating a service ticket for this account. Services and Computers can automatically update this attribute on their respective accounts in Active Directory, and therefore need write access to this attribute.)</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a>
+              </b>
+            </td>
+            <td>
+              <i>name = Guy Thomas.  Exactly the same as CN.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a>
+              </b>
+            </td>
+            <td>
+              <i>Defines the Active Directory Schema category. For example, objectCategory = Person</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a>
+              </b>
+            </td>
+            <td>
+              <i>Usually, User, or Computer</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a>
+              </b>
+            </td>
+            <td>
+              <i>The unique identifier for an object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a>
+              </b>
+            </td>
+            <td>
+              <i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679375%28v=vs.85%29.aspx" target="_blank">primaryGroupID</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains the relative identifier (RID) for the primary group of the user. By default, this is the RID for the Domain Users group.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679430%28v=vs.85%29.aspx" target="_blank">pwdLastSet</a>
+              </b>
+            </td>
+            <td>
+              <i>The date and time that the password for this account was last changed. This value is stored as a large integer that represents the number of 100 nanosecond intervals since January 1, 1601 (UTC). If this value is set to 0 and the User-Account-Control attribute does not contain the UF_DONT_EXPIRE_PASSWD flag, then the user must set the password at the next logon.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a>
+              </b>
+            </td>
+            <td>
+              <i>This is a mandatory property, sAMAccountName = guyt.  The old NT 4.0 logon name, must be unique in the domain. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a>
+              </b>
+            </td>
+            <td>
+              <i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679785%28v=vs.85%29.aspx" target="_blank">servicePrincipalName</a>
+              </b>
+            </td>
+            <td>
+              <i>List of principal names used for mutual authentication with an instance of a service on this computer.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679827%28v=vs.85%29.aspx" target="_blank">showInAdvancedViewOnly</a>
+              </b>
+            </td>
+            <td>
+              <i>TRUE if this attribute is to be visible in the Advanced mode of the UI.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679872%28v=vs.85%29.aspx" target="_blank">sn</a>
+              </b>
+            </td>
+            <td>
+              <i>The user's surname (family name or last name).</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680832%28v=vs.85%29.aspx" target="_blank">userAccountControl</a>
+              </b>
+            </td>
+            <td>
+              <i>Used to disable an account.  A value of 514 disables the account, while 512 makes the account ready for logon. (Ex. Enable (512) / disable account (514))</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680857%28v=vs.85%29.aspx" target="_blank">userPrincipalName</a>
+              </b>
+            </td>
+            <td>
+              <i>userPrincipalName = guyt@CP.com  Often abbreviated to UPN, and looks like an email address.  Very useful for logging on especially in a large Forest.  Note UPN must be unique in the forest.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680868%28v=vs.85%29.aspx" target="_blank">userWorkstations</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains the NetBIOS or DNS names of the computers running Windows NT Workstation or Windows 2000 Professional from which the user can log on. Each NetBIOS name is separated by a comma. Multiple names should be separated by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was created. This value is replicated and is in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>host</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>src_nt_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>uac_bin_map</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the converted binary value for the userAccountControl value. It is used for determining the settings configured for the User Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>uac_details</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the text string values from the uac_binmap field, displaying the User Account Settings configured for the User Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>evt_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the User Account admon event.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>deleted_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the User Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>new_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i>
+            </td>
+          </tr>
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_group$">
+        <center>
+          <h1>Group AD Object Attributes</h1>
+          <h3>(<i>
+              <a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|group&quot;)" target="_blank">objectClass="top|group"</a>
+            </i>)</h3>
+        </center>       
+        <p>
+          <i>Below is the list of Group AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_Group" target="_blank">AD_Obj_Group</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                 
+        <table border="1">
+          <tr>
+            <td>
+              <center>
+                <b>Attribute Name</b>
+              </center>
+            </td>
+            <td>
+              <center>
+                <b>Object Description</b>
+              </center>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675212%28v=vs.85%29.aspx" target="_blank">adminCount</a>
+              </b>
+            </td>
+            <td>
+              <i>Indicates that a given object has had its ACLs changed to a more secure value by the system because it was a member of one of the administrative groups (directly or transitively).</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a>
+              </b>
+            </td>
+            <td>
+              <i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property. See also sAMAccountName.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a>
+              </b>
+            </td>
+            <td>
+              <i>The DS-Core-Propagation-Data attribute is for internal use only.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a>
+              </b>
+            </td>
+            <td>
+              <i>What you see in Active Directory Users and Computers. Not to be confused with displayName on the Users property sheet.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a>
+              </b>
+            </td>
+            <td>
+              <i>"displayName = Guy Thomas. If you script this property, be sure you understand which field you are configuring.DisplayName can be confused with CN or description."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a>
+              </b>
+            </td>
+            <td>
+              <i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a>
+              </b>
+            </td>
+            <td>
+              <i>"If TRUE, the object hosting this attribute must be replicated during installation of a new replica."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a>
+              </b>
+            </td>
+            <td>
+              <i>"If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a>
+              </b>
+            </td>
+            <td>
+              <i>Is the object recycled. For use with AD Recycle Bin</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a>
+              </b>
+            </td>
+            <td>
+              <i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a>
+              </b>
+            </td>
+            <td>
+              <i>"The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a>
+              </b>
+            </td>
+            <td>
+              <i>name = Guy Thomas. Exactly the same as CN.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a>
+              </b>
+            </td>
+            <td>
+              <i>"Defines the Active Directory Schema category. For example, objectCategory = Person"</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a>
+              </b>
+            </td>
+            <td>
+              <i>"Usually, User, or Computer</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a>
+              </b>
+            </td>
+            <td>
+              <i>The unique identifier for an object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a>
+              </b>
+            </td>
+            <td>
+              <i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a>
+              </b>
+            </td>
+            <td>
+              <i>"This is a mandatory property, sAMAccountName = guyt. The old NT 4.0 logon name, must be unique in the domain."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a>
+              </b>
+            </td>
+            <td>
+              <i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>"The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>"The update sequence number (USN) assigned at object creation. See also, USN-Changed"</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was created. This value is replicated and is in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675935%28v=vs.85%29.aspx" target="_blank">groupType</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains a set of flags that define the type and scope of a group object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677097%28v=vs.85%29.aspx" target="_blank">member</a>
+              </b>
+            </td>
+            <td>
+              <i>The list of users that belong to the group.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679376%28v=vs.85%29.aspx" target="_blank">primaryGroupToken</a>
+              </b>
+            </td>
+            <td>
+              <i>"A computed attribute that is used in retrieving the membership list of a group, such as Domain Users. The complete membership of such groups is not stored explicitly for scaling reasons."</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a>
+              </b>
+            </td>
+            <td>
+              <i>An integer value that contains flags that define additional properties of the class.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>DomainDNSName</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>host</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.  "</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>src_nt_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  "</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>member_dn</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Contains the same information as the member field.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>member_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Contains the extracted member domain information from the member field.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>member_name</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Contains the extracted member name information from the member field.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>membercount</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Contains the count of members in the member field.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>mv_combo</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Holder for future testing.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>member_type</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Holder for future testing.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>evt_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the Group Account admon event.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>deleted_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the Group Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>new_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i>
+            </td>
+          </tr>
+         
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_gpo$">
+        <center>
+          <h1>Group Policy AD Object Attributes</h1>
+          <h3>(<i>
+              <a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|container|groupPolicyContainer&quot;)" target="_blank">objectClass="top|container|groupPolicyContainer"</a>
+            </i>)</h3>
+        </center>
+        
+        <p>
+          <i>Below is the list of Group Policy AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_GPO" target="_blank">AD_Obj_GPO</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>  
+                  
+        <table border="1">      
+<tr>
+            <td>
+              <center>
+                <b>Attribute Name</b>
+              </center>
+            </td>
+            <td>
+              <center>
+                <b>Object Description</b>
+              </center>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a>
+              </b>
+            </td>
+            <td>
+              <i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property.  See also sAMAccountName.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a>
+              </b>
+            </td>
+            <td>
+              <i>displayName = Guy Thomas.  If you script this property, be sure you understand which field you are configuring.  DisplayName can be confused with CN or description.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a>
+              </b>
+            </td>
+            <td>
+              <i>The DS-Core-Propagation-Data attribute is for internal use only.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675677%28v=vs.85%29.aspx" target="_blank">flags</a>
+              </b>
+            </td>
+            <td>
+              <i>To be used by the object to store bit information.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675722%28v=vs.85%29.aspx" target="_blank">gPCFileSysPath</a>
+              </b>
+            </td>
+            <td>
+              <i>True if the object is enabled.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675723%28v=vs.85%29.aspx" target="_blank">gPCFunctionalityVersion</a>
+              </b>
+            </td>
+            <td>
+              <i>The version of the Group Policy Editor that created this object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675724%28v=vs.85%29.aspx" target="_blank">gPCMachineExtensionNames</a>
+              </b>
+            </td>
+            <td>
+              <i>Used by the Group Policy Object for computer policies.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a>
+              </b>
+            </td>
+            <td>
+              <i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a>
+              </b>
+            </td>
+            <td>
+              <i>Is the object recycled. For use with AD Recycle Bin</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a>
+              </b>
+            </td>
+            <td>
+              <i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a>
+              </b>
+            </td>
+            <td>
+              <i>name = Guy Thomas.  Exactly the same as CN.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a>
+              </b>
+            </td>
+            <td>
+              <i>Defines the Active Directory Schema category. For example, objectCategory = Person</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a>
+              </b>
+            </td>
+            <td>
+              <i>Usually, User, or Computer</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a>
+              </b>
+            </td>
+            <td>
+              <i>The unique identifier for an object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a>
+              </b>
+            </td>
+            <td>
+              <i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was created. This value is replicated and is in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a>
+              </b>
+            </td>
+            <td>
+              <i>An integer value that contains flags that define additional properties of the class.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680897%28v=vs.85%29.aspx" target="_blank">versionNumber</a>
+              </b>
+            </td>
+            <td>
+              <i>A general purpose version number.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>DomainDNSName</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>host</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>lc</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using distinguishedName to create the lc field used for linking GPO to containers and OUs.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>src_nt_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>     
+<tr>
+            <td align="center">
+              <b>evt_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the GPO admon event.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>deleted_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the GPO Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center"/>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i>
+            </td>
+          </tr>
+    
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_computer$">
+        <center>
+          <h1>Computer AD Object Attributes</h1>
+          <h3>(<i>
+              <a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|person|organizationalPerson|user|computer&quot;)" target="_blank">objectClass="top|person|organizationalPerson|user|computer"</a>
+            </i>)</h3>
+        </center>       
+        <p>
+          <i>Below is the list of Computer AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_Computer" target="_blank">AD_Obj_Computer</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                  
+        <table border="1">         
+<tr>
+            <td>
+              <center>
+                <b>Attribute Name</b>
+              </center>
+            </td>
+            <td>
+              <center>
+                <b>Object Description</b>
+              </center>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675098%28v=vs.85%29.aspx" target="_blank">accountExpires</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when the account expires. This value represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of 0 or 0x7FFFFFFFFFFFFFFF (9223372036854775807) indicates that the account never expires.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675243%28v=vs.85%29.aspx" target="_blank">badPasswordTime</a>
+              </b>
+            </td>
+            <td>
+              <i>The last time and date that an attempt to log on to this account was made with a password that is not valid. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last time a incorrect password was used is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675244%28v=vs.85%29.aspx" target="_blank">badPwdCount</a>
+              </b>
+            </td>
+            <td>
+              <i>The number of times the user tried to log on to the account using an incorrect password. A value of 0 indicates that the value is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675449%28v=vs.85%29.aspx" target="_blank">cn</a>
+              </b>
+            </td>
+            <td>
+              <i>Maps to 'Name' in the LDAP provider. Remember CN is a mandatory property. See also sAMAccountName.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675451%28v=vs.85%29.aspx" target="_blank">codePage</a>
+              </b>
+            </td>
+            <td>
+              <i>Specifies the code page for the user's language of choice.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675466%28v=vs.85%29.aspx" target="_blank">countryCode</a>
+              </b>
+            </td>
+            <td>
+              <i>Specifies the country/region code for the user's language of choice.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a>
+              </b>
+            </td>
+            <td>
+              <i>What you see in Active Directory Users and Computers. Not to be confused with displayName on the Users property sheet.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675514%28v=vs.85%29.aspx" target="_blank">displayName</a>
+              </b>
+            </td>
+            <td>
+              <i>displayName = Guy Thomas. If you script this property, be sure you understand which field you are configuring. DisplayName can be confused with CN or description.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675524%28v=vs.85%29.aspx" target="_blank">dNSHostName</a>
+              </b>
+            </td>
+            <td>
+              <i>Name of computer as registered in DNS.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a>
+              </b>
+            </td>
+            <td>
+              <i>The DS-Core-Propagation-Data attribute is for internal use only.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a>
+              </b>
+            </td>
+            <td>
+              <i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a>
+              </b>
+            </td>
+            <td>
+              <i>Is the object recycled. For use with AD Recycle Bin</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a>
+              </b>
+            </td>
+            <td>
+              <i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676823%28v=vs.85%29.aspx" target="_blank">lastLogon</a>
+              </b>
+            </td>
+            <td>
+              <i>The last time the user logged on. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). A value of zero means that the last logon time is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676824%28v=vs.85%29.aspx" target="_blank">lastLogonTimestamp</a>
+              </b>
+            </td>
+            <td>
+              <i>This is the time that the user last logged into the domain. This value is stored as a large integer that represents the number of 100-nanosecond intervals since January 1, 1601 (UTC). Whenever a user logs on, the value of this attribute is read from the DC. If the value is older [ current_time - msDS-LogonTimeSyncInterval ], the value is updated. The initial update after the raise of the domain functional level is calculated as 14 days minus random percentage of 5 days.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676837%28v=vs.85%29.aspx" target="_blank">localPolicyFlags</a>
+              </b>
+            </td>
+            <td>
+              <i>Flags that determine where a computer gets its policy. Local-Policy-Reference.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676845%28v=vs.85%29.aspx" target="_blank">logonCount</a>
+              </b>
+            </td>
+            <td>
+              <i>The number of times the account has successfully logged on. A value of 0 indicates that the value is unknown.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677099%28v=vs.85%29.aspx" target="_blank">memberOf</a>
+              </b>
+            </td>
+            <td>
+              <i>The memberOf attribute is a multi-valued attribute that contains groups of which the user is a direct member, except for the primary group, which is represented by the primaryGroupId.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677140%28v=vs.85%29.aspx" target="_blank">msDFSR-ComputerReferenceBL</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains the backward link for the ms-DFSR-ComputerReference attribute.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms677827%28v=vs.85%29.aspx" target="_blank">msDS-SupportedEncryptionTypes</a>
+              </b>
+            </td>
+            <td>
+              <i>The encryption algorithms supported by user, computer or trust accounts. (Note  The KDC uses this information while generating a service ticket for this account. Services and Computers can automatically update this attribute on their respective accounts in Active Directory, and therefore need write access to this attribute.)</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a>
+              </b>
+            </td>
+            <td>
+              <i>name = Guy Thomas.  Exactly the same as CN.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a>
+              </b>
+            </td>
+            <td>
+              <i>Defines the Active Directory Schema category. For example, objectCategory = Person</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a>
+              </b>
+            </td>
+            <td>
+              <i>Usually, User, or Computer</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a>
+              </b>
+            </td>
+            <td>
+              <i>The unique identifier for an object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679024%28v=vs.85%29.aspx" target="_blank">objectSid</a>
+              </b>
+            </td>
+            <td>
+              <i>A binary value that specifies the security identifier (SID) of the user. The SID is a unique value used to identify the user as a security principal.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679076%28v=vs.85%29.aspx" target="_blank">operatingSystem</a>
+              </b>
+            </td>
+            <td>
+              <i>The Operating System name, for example, Windows Vista Enterprise.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679078%28v=vs.85%29.aspx" target="_blank">operatingSystemServicePack</a>
+              </b>
+            </td>
+            <td>
+              <i>The operating system service pack ID string (for example, SP3).</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679079%28v=vs.85%29.aspx" target="_blank">operatingSystemVersion</a>
+              </b>
+            </td>
+            <td>
+              <i>The operating system version string, for example, 4.0.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679375%28v=vs.85%29.aspx" target="_blank">primaryGroupID</a>
+              </b>
+            </td>
+            <td>
+              <i>Contains the relative identifier (RID) for the primary group of the user. By default, this is the RID for the Domain Users group.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679430%28v=vs.85%29.aspx" target="_blank">pwdLastSet</a>
+              </b>
+            </td>
+            <td>
+              <i>The date and time that the password for this account was last changed. This value is stored as a large integer that represents the number of 100 nanosecond intervals since January 1, 1601 (UTC). If this value is set to 0 and the User-Account-Control attribute does not contain the UF_DONT_EXPIRE_PASSWD flag, then the user must set the password at the next logon.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679462%28v=vs.85%29.aspx" target="_blank">rIDSetReferences</a>
+              </b>
+            </td>
+            <td>
+              <i>List of references to RID-Set objects that manage Relative Identifier (RID) allocation.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679635%28v=vs.85%29.aspx" target="_blank">sAMAccountName</a>
+              </b>
+            </td>
+            <td>
+              <i>This is a mandatory property, sAMAccountName = guyt.  The old NT 4.0 logon name, must be unique in the domain. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679637%28v=vs.85%29.aspx" target="_blank">sAMAccountType</a>
+              </b>
+            </td>
+            <td>
+              <i>The sAMAccountType attribute specifies an integer that represents the account type. This is set by the operating system when the object is created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679774%28v=vs.85%29.aspx" target="_blank">serverReferenceBL</a>
+              </b>
+            </td>
+            <td>
+              <i>Found in the domain naming context. The distinguished name of a computer under the sites folder.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679785%28v=vs.85%29.aspx" target="_blank">servicePrincipalName</a>
+              </b>
+            </td>
+            <td>
+              <i>List of principal names used for mutual authentication with an instance of a service on this computer.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680832%28v=vs.85%29.aspx" target="_blank">userAccountControl</a>
+              </b>
+            </td>
+            <td>
+              <i>Used to disable an account.  A value of 514 disables the account, while 512 makes the account ready for logon. (Ex. Enable (512) / disable account (514))</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was created. This value is replicated and is in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>DomainDNSName</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>host</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.  </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>src_nt_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.  </i>
+            </td>
+          </tr>     
+<tr>
+            <td align="center">
+              <b>uac_bin_map</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the converted binary value for the userAccountControl value. It is used for determining the settings configured for the Computer Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>uac_details</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the text string values from the uac_binmap field, displaying the User Account Settings configured for the Computer Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>evt_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the User Account admon event.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>deleted_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the Computer Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>new_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i>
+            </td>
+          </tr>
+          
+        </table>
+      </html>
+      <html depends="$show_app_ad_obj_ou$">
+        <center>
+          <h1>OU AD Object Attributes</h1>
+          <h3>(<i>
+              <a href="/app/ms_windows_ad_objects/search?q=eventtype=ms_ad_obj_msad_data (objectClass=&quot;top|organizationalUnit&quot;)" target="_blank">objectClass="top|organizationalUnit"</a>
+            </i>)</h3>
+        </center>      
+        <p>
+          <i>Below is the list of OU AD Attributes that are placed into the <a href="/app/ms_windows_ad_objects/search?q=|inputlookup AD_Obj_OU" target="_blank">AD_Obj_OU</a> lookup.</i>
+        </p>
+          <p>
+          <i>Click the Attribute Name to see more details, or to see all available AD Attributes <a href="https://msdn.microsoft.com/en-us/library/ms675090%28v=vs.85%29.aspx" target="_blank">click here</a>.</i>
+        </p>                    
+        <table border="1">         
+<tr>
+            <td>
+              <center>
+                <b>Attribute Name</b>
+              </center>
+            </td>
+            <td>
+              <center>
+                <b>Object Description</b>
+              </center>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675492%28v=vs.85%29.aspx" target="_blank">description</a>
+              </b>
+            </td>
+            <td>
+              <i>What you see in Active Directory Users and Computers.  Not to be confused with displayName on the Users property sheet.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">distinguishedName</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas. </i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">dn</a>
+              </b>
+            </td>
+            <td>
+              <i>A DN is a sequence of relative distinguished names (RDN) connected by commas.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675655%28v=vs.85%29.aspx" target="_blank">dSCorePropagationData</a>
+              </b>
+            </td>
+            <td>
+              <i>The DS-Core-Propagation-Data attribute is for internal use only.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675727%28v=vs.85%29.aspx" target="_blank">gPLink</a>
+              </b>
+            </td>
+            <td>
+              <i>A sorted list of Group Policy options. Each option is a DWORD. Use of the UNICODE string is a convenience.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676204%28v=vs.85%29.aspx" target="_blank">instanceType</a>
+              </b>
+            </td>
+            <td>
+              <i>A bitfield that dictates how the object is instantiated on a particular server. The value of this attribute can differ on different replicas even if the replicas are in sync.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676798%28v=vs.85%29.aspx" target="_blank">isCriticalSystemObject</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, the object hosting this attribute must be replicated during installation of a new replica.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676802%28v=vs.85%29.aspx" target="_blank">isDeleted</a>
+              </b>
+            </td>
+            <td>
+              <i>If TRUE, this object has been marked for deletion and cannot be instantiated. After the tombstone period has expired, it will be removed from the system.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/hh339641%28v=vs.85%29.aspx" target="_blank">isRecycled</a>
+              </b>
+            </td>
+            <td>
+              <i>Is the object recycled. For use with AD Recycle Bin</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms676821%28v=vs.85%29.aspx" target="_blank">lastKnownParent</a>
+              </b>
+            </td>
+            <td>
+              <i>The Distinguished Name (DN) of the last known parent of an orphaned object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms675516%28v=vs.85%29.aspx" target="_blank">name</a>
+              </b>
+            </td>
+            <td>
+              <i>name = Guy Thomas.  Exactly the same as CN.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679011%28v=vs.85%29.aspx" target="_blank">objectCategory</a>
+              </b>
+            </td>
+            <td>
+              <i>Defines the Active Directory Schema category. For example, objectCategory = Person</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679012%28v=vs.85%29.aspx" target="_blank">objectClass</a>
+              </b>
+            </td>
+            <td>
+              <i>Usually, User, or Computer</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679021%28v=vs.85%29.aspx" target="_blank">objectGUID</a>
+              </b>
+            </td>
+            <td>
+              <i>The unique identifier for an object.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms683886%28v=vs.85%29.aspx" target="_blank">ou</a>
+              </b>
+            </td>
+            <td>
+              <i>A container for storing users, computers, and other account objects.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679455%28v=vs.85%29.aspx" target="_blank">revision</a>
+              </b>
+            </td>
+            <td>
+              <i>The revision level for a security descriptor or other change. Only used in the sam-server and ds-ui-settings objects.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms679827%28v=vs.85%29.aspx" target="_blank">showInAdvancedViewOnly</a>
+              </b>
+            </td>
+            <td>
+              <i>TRUE if this attribute is to be visible in the Advanced mode of the UI.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680022%28v=vs.85%29.aspx" target="_blank">systemFlags</a>
+              </b>
+            </td>
+            <td>
+              <i>An integer value that contains flags that define additional properties of the class.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680871%28v=vs.85%29.aspx" target="_blank">uSNChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned by the local directory for the latest change, including creation. See also , USN-Created.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680874%28v=vs.85%29.aspx" target="_blank">uSNCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The update sequence number (USN) assigned at object creation. See also, USN-Changed</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680921%28v=vs.85%29.aspx" target="_blank">whenChanged</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was last changed. This value is not replicated and exists in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>
+                <a href="https://msdn.microsoft.com/en-us/library/ms680924%28v=vs.85%29.aspx" target="_blank">whenCreated</a>
+              </b>
+            </td>
+            <td>
+              <i>The date when this object was created. This value is replicated and is in the global catalog.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>DomainDNSName</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>gpo</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Extracted from gPLink field.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>guid_lookup</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - To be used for future linking of GPO to OU.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>host</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Splunk forwarder host that is sending admon data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>Linked_GPO</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Extracted from gPLink field, displayName.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>src_nt_domain</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Using dn to create the fqdn, then populating this with the netbios name using Splunk collected ad data.</i>
+            </td>
+          </tr>
+<tr>
+            <td align="center">
+              <b>versionNumber</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - Same as revision field.</i>
+            </td>
+          </tr>      
+<tr>
+            <td align="center">
+              <b>evt_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains the latest admonEventType value for the OU Account admon event.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>deleted_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows the last admon event was for a deletion of the OU Account.</i>
+            </td>
+          </tr>          
+<tr>
+            <td align="center">
+              <b>new_flg</b>
+            </td>
+            <td>
+              <i>
+                <font color="blue">Splunk Build Search Created</font> - This field contains either a True or False, where True shows that this account was added since the initial admonEventType=Sync event.</i>
+            </td>
+          </tr>          
+        </table>
+      </html>
+    </panel>
+  </row>
+  <row>
+    <panel depends="$show_app_main_deploy$,$show_app_deploy_winfra$">
+      <title>Splunk® for Windows Infrastructure - Dashboard Enhancements and Field Extraction Workaround Information</title>
+      <input type="dropdown" token="tok_show_info_winfra_extra" searchWhenChanged="true" depends="$show_app_main_deploy$,$show_app_deploy_winfra$">
+        <label>Select Which Information To View:</label>
+        <choice value="enhance">Dashboard Enhancements</choice>
+        <choice value="fields">Field Extraction Workarounds</choice>
+        <default>enhance</default>
+        <initialValue>enhance</initialValue>
+        <change>
+          <condition value="enhance">
+            <set token="show_winfra_enhance_info">True</set>
+            <unset token="show_winfra_workaround_info"></unset>
+          </condition>
+          <condition value="fields">
+            <set token="show_winfra_workaround_info">True</set>
+            <unset token="show_winfra_enhance_info"></unset>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_winfra_enhance_info$">
+        <h4>
+          <b>Description:</b>
+        </h4> 
+        <ul>
+          <i>Below is the information on Enhancements that come with the <b>MS Windows AD Objects</b> application for the <b>Splunk for Windows Infrastructure's</b> application.</i>
+        </ul>
+        <table border="1">
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                  <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" style="height: 20px;"/>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Dashboard Enhancements - Adding "All" as default Drop Down Selections in the following dashboards:</h4>
+  <ul>
+                    <li>
+                        <b>Note:</b> This following enhancements are done by updating the <b>paletteinputs.conf</b> file and placing it in the <i>  $Splunk_Home/etc/apps/splunk_for_windows_infrastructure/local</i> directory.
+                    </li>
+                  </ul>
+ </ul>    
+  </p>
+            </td>
+          </tr>          
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>User Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Users --&gt; Administrative Audit</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>
+           <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Computer Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Computer --&gt; Computer Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>      
+           <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Group Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Group --&gt; Group Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>     
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Group Policy Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Group Policy --&gt; Group Policy Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>          
+        </table>         
+      </html>
+      <html depends="$show_app_main_deploy$,$show_app_deploy_winfra$,$show_winfra_workaround_info$">
+        <h4>
+          <b>Description:</b>
+        </h4> 
+        <ul>
+          <i>Below is the information on Pre-Released Workarounds that come with the <b>MS Windows AD Objects</b> application for the <b>Splunk for Windows Infrastructure's</b> application.
+        <a href="/manager/ms_windows_ad_objects/data/props/extractions" target="_blank">Click Here</a> to view or modify any of the below field extractions.</i>
+        </ul>                
+        <table border="1">
+          		<tr>
+          			<td style="width: 15%">
+                  		<center>
+                  			<img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" style="height: 20px;"/>
+                  		</center>
+          			</td>
+          			<td style="width: 85%">                 
+						<p>  
+							<ul>
+  								<h4>Field Extraction Workarounds:</h4>
+  								<ul>
+                    				<li>
+                      <b>Note:</b> The following workarounds are done by adding updated field extractions in the <b>props.conf</b> file, <b>under the Stanza [source::WinEventLog:Security]</b>, in the <i>$Splunk_Home/etc/apps/ms_windows_ad_objects/local</i> directory.</li>
+                  				</ul>
+ 							</ul>    
+  						</p>
+            		</td>
+          	</tr>          
+          	<tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Fields - src_nt_domain and dest_nt_domain</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_dest_nt_domain = (?msi)(?:Account Domain.*Account Domain|Account Domain(?!(Account Domain)))\:\s+(?<dest_nt_domain>[a-zA-Z0-9._[\S\-\S]+)$]]>
+                  </li>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_src_nt_domain = (?msi)Account Domain\:\s+(?<src_nt_domain>[a-zA-Z0-9._[\S-\S][^\r|\n]+)(?:.*Account Domain|(?!(Account Domain)))]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            	</td>
+          	</tr>
+          	<tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Field - src_ip_login:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_src_ip_login = (?msi)EventCode=4624\n.*?Source Network Address:\s+?(?<src_ip>[^\n]+)]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            </td>
+          </tr>         
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Field - sessin_id</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_session_id = (?msi)(?:Logon ID.*Logon ID|Logon ID(?!(Logon ID)))\:\s+(?<session_id>[a-zA-Z0-9._[\S\-\S]+)$]]>
+                  </li>
+    					</ul>        
+  					</p>
+            	</td>
+          </tr>               
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Groups</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+					<ul>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_member_changes = (?msi)EventCode=(4728|4729|4732|4733|4746|4747|4751|4752|4756|4757|4761|4762)\s*\n.*Message=A member was (?<msad_action>.*) (to|from) a (?<MSADGroupClass>.*)\-(?<MSADGroupClassID>(enabled|disabled))\s(?<MSADGroupType>.*)\sgroup\.]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_change_groupname = (?msi)EventCode=(4756)(\n|\r).*Group:(\n|\r).*Security ID:(?<Group_Domain>.*)\\(?<Group_Name>[^(\n|\r)]+)(\r|\n).*Account Name:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_msad_changes = (?msi)EventCode=(4760|4755|4758|4727|4737|4735).*Message=A (?<MSADGroupClass>.*)\-(?<MSADGroupClassID>(enabled|disabled))\s(?<MSADGroupType>.*)\sgroup\swas\s(?<msad_action>[^\.]+)]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_srcuser = (?msi)Account Name\:\s+(?<src_user>[^(\n|\r|\s)]+)(\r|\n|\s).*Account\sDomain\:\s+(?<src_nt_domain>[^(\n|\r|\s)]+)(\r|\n|\s).*Logon\sID\:\s+(?<session_id>[^(\n|\r|\s)]+)(\r|\n|\s).*Group\:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_member_info = (?msi)Subject\:(\s|\r|\n).*Security\sID\:\s+(?<src_nt_domain>[^\\]+)\\(?<src_user>[^(\r|\n)]+)(\s|\r|\n).*Member\:(\s|\r|\n).*Security\sID\:\s+(?<dest_nt_domain>[^\\]+)\\(?<member_id>[^(\r|\n)]+)(\s|\r|\n).*Group\:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_member_dn = (?msi)Member\:(\s|\r|\n).*Account\sName\:\s+(?<member_dn>CN[^(\r|\n)]+)(\r|\n).*Group]]>
+                  </li>    
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_eventcode_4764 = (?msi)EventCode=(4764)(\n|\r).*Message\=A group’s type was (?<msad_action>[^\.]+)]]>
+                  </li>
+    				</ul>        
+  					</p>           
+            	</td>
+          </tr>    
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Locked and Unlocked</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_Locked_Accounts = (?msi)Message\=A\suser\saccount\swas\s(?<msad_action>[^(\.|\s)]+)(\.|\s+|\n+|\r+).*Subject\:(\s+|\n+|\r+).*Account\sName\:\s+(?<src_user>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Logon\sID\:\s+(?<session_id>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*(Account\sThat\sWas\sLocked\sOut|Target\sAccount)\:(\s+|\n+|\r+).*Account Name\:\s+(?<user>[^(\s+|\n+|\r+)]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_Unlocked_Accounts = (?msi)Message\=A\suser\saccount\swas\s(?<msad_action>[^\.]+)\.(\s+|\n+|\r+).*Subject\:(\s+|\n+|\r+).*Account\sName\:\s+(?<src_user>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Logon\sID\:\s+(?<session_id>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Target\sAccount\:(\s+|\n+|\r+).*Account Name\:\s+(?<user>[^(\s+|\n+|\r+)]+)]]>
+                  </li>
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>    
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Directory Services - Changes</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_dir_svcs_changes_msad_action = (?msi)Message\=A\sdirectory\sservice\sobject\swas\s(?<msad_action>[^\.]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_fix_dir_svcs_changes_dn_objtype = (?msi)Object:(\s+|\n|\r).*DN\:\s+(?<distinguishedName>[^(\r|\n)]+)(\s+|\n|\r).*Class\:\s+(?<Object_Type>[^(\r|\n)]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_fix_dir_svcs_changes_gpo_guid = (?msi)(Object Type\:|Object\:)(\s+|\n|\r).*(Object\sName|GUID)\:\s+CN(=\"|=\{)(?<Object_Name_Guid>[^(\"|\})]+)]]>
+                  </li>
+                  
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>              
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - msad actions - Vers NT5</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_msad_action_oldevents = (?msi)EventCode=(624|628|642)(\n|\r).*Message\=User\sAccount\s(?<msad_action>[^\:]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_msad_changes_oldevents_a = (?msi)EventCode=(624|628)(\n|\r).*Message\=(?<MSADChanges>[^\:]+)]]>
+                  </li>
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>       
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Group Policy</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_gpo_changes_srcuser = (?msi)Account Name\:\s+(?<src_user>[^(\n|\r|\s)]+)(\r|\n|\s).*Account\sDomain\:\s+(?<src_nt_domain>[^(\n|\r|\s)]+)(\r|\n|\s).*Logon\sID\:\s+(?<session_id>[^(\n|\r|\s)]+)(\r|\n|\s).*Object\:]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            	</td>
+          </tr>         
+        </table>         
+      </html>
+    </panel>
+    <panel depends="$show_app_main_deploy$,$show_app_deploy_msexch$">
+      <title>Splunk® for Microsoft Exchange - Dashboard Enhancements and Field Extraction Workaround Information</title>
+      <input type="dropdown" token="tok_show_info_exch_extra" searchWhenChanged="true" depends="$show_app_main_deploy$,$show_app_deploy_msexch$">
+        <label>Select Which Information To View:</label>
+        <choice value="enhance">Dashboard Enhancements</choice>
+        <choice value="fields">Field Extraction Workarounds</choice>
+        <default>enhance</default>
+        <initialValue>enhance</initialValue>
+        <change>
+          <condition value="enhance">
+            <set token="show_exch_enhance_info">True</set>
+            <unset token="show_exch_workaround_info"></unset>
+          </condition>
+          <condition value="fields">
+            <set token="show_exch_workaround_info">True</set>
+            <unset token="show_exch_enhance_info"></unset>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_app_main_deploy$,$show_app_deploy_msexch$,$show_exch_enhance_info$">
+        <h4>
+          <b>Description:</b>
+        </h4>
+		<ul>
+           <i>Below is the information on Enhancements that come with the <b>MS Windows AD Objects</b> application for the <b>Splunk for Microsoft Exchange's</b> application.</i>
+        </ul>  
+        <table border="1">
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                  <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" style="height: 20px;"/>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Dashboard Enhancements - Adding "All" as default Drop Down Selections in the following dashboards:</h4>
+  <ul>
+                    <li>
+                        <b>Note:</b> The following enhancements are done by updates to the <b>paletteinputs.conf</b> file and placing it in the <i>  $Splunk_Home/etc/apps/splunk_for_microsoft_exchange/local</i> directory.
+                    </li>
+                  </ul>
+ </ul>    
+  </p>
+            </td>
+          </tr>          
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>User Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Users --&gt; Administrative Audit</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>
+           <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Computer Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Computer --&gt; Computer Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>      
+           <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Group Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Group --&gt; Group Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>     
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Group Policy Dashboards:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  <p>  
+<ul>
+  <h4>Path: Active Directory --&gt; Group Policy --&gt; Group Policy Changes</h4>
+</ul>    
+  </p>
+                 
+            </td>
+          </tr>          
+        </table>         
+      </html>
+      <html depends="$show_app_main_deploy$,$show_app_deploy_msexch$,$show_exch_workaround_info$">
+        <h4>
+          <b>Description:</b>
+        </h4> 
+        <ul>
+          <i>Below is the information on Pre-Released Workarounds that come with the <b>MS Windows AD Objects</b> application for the <b>Splunk for Microsoft Exchange's</b> application.
+          <a href="/manager/ms_windows_ad_objects/data/props/extractions" target="_blank">Click Here</a> to view or modify any of the below field extractions.</i>
+        </ul>        
+        <table border="1">
+          		<tr>
+          			<td style="width: 15%">
+                  		<center>
+                  			<img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" style="height: 20px;"/>
+                  		</center>
+          			</td>
+          			<td style="width: 85%">                 
+						<p>  
+							<ul>
+  								<h4>Field Extraction Workarounds:</h4>
+  								<ul>
+                    				<li>
+                      <b>Note:</b> The following workarounds are done by adding updated field extractions in the <b>props.conf</b> file, <b>under the Stanza [source::WinEventLog:Security]</b>, in the <i>$Splunk_Home/etc/apps/ms_windows_ad_objects/local</i> directory.</li>
+                  				</ul>
+ 							</ul>    
+  						</p>
+            		</td>
+          	</tr>          
+          	<tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Fields - src_nt_domain and dest_nt_domain</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_dest_nt_domain = (?msi)(?:Account Domain.*Account Domain|Account Domain(?!(Account Domain)))\:\s+(?<dest_nt_domain>[a-zA-Z0-9._[\S\-\S]+)$]]>
+                  </li>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_src_nt_domain = (?msi)Account Domain\:\s+(?<src_nt_domain>[a-zA-Z0-9._[\S-\S][^\r|\n]+)(?:.*Account Domain|(?!(Account Domain)))]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            	</td>
+          	</tr>
+          	<tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Field - src_ip_login:</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_src_ip_login = (?msi)EventCode=4624\n.*?Source Network Address:\s+?(?<src_ip>[^\n]+)]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            </td>
+          </tr>         
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Field - sessin_id</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_session_id = (?msi)(?:Logon ID.*Logon ID|Logon ID(?!(Logon ID)))\:\s+(?<session_id>[a-zA-Z0-9._[\S\-\S]+)$]]>
+                  </li>
+    					</ul>        
+  					</p>
+            	</td>
+          </tr>               
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Groups</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+					<ul>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_member_changes = (?msi)EventCode=(4728|4729|4732|4733|4746|4747|4751|4752|4756|4757|4761|4762)\s*\n.*Message=A member was (?<msad_action>.*) (to|from) a (?<MSADGroupClass>.*)\-(?<MSADGroupClassID>(enabled|disabled))\s(?<MSADGroupType>.*)\sgroup\.]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_change_groupname = (?msi)EventCode=(4756)(\n|\r).*Group:(\n|\r).*Security ID:(?<Group_Domain>.*)\\(?<Group_Name>[^(\n|\r)]+)(\r|\n).*Account Name:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_msad_changes = (?msi)EventCode=(4760|4755|4758|4727|4737|4735).*Message=A (?<MSADGroupClass>.*)\-(?<MSADGroupClassID>(enabled|disabled))\s(?<MSADGroupType>.*)\sgroup\swas\s(?<msad_action>[^\.]+)]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_srcuser = (?msi)Account Name\:\s+(?<src_user>[^(\n|\r|\s)]+)(\r|\n|\s).*Account\sDomain\:\s+(?<src_nt_domain>[^(\n|\r|\s)]+)(\r|\n|\s).*Logon\sID\:\s+(?<session_id>[^(\n|\r|\s)]+)(\r|\n|\s).*Group\:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_member_info = (?msi)Subject\:(\s|\r|\n).*Security\sID\:\s+(?<src_nt_domain>[^\\]+)\\(?<src_user>[^(\r|\n)]+)(\s|\r|\n).*Member\:(\s|\r|\n).*Security\sID\:\s+(?<dest_nt_domain>[^\\]+)\\(?<member_id>[^(\r|\n)]+)(\s|\r|\n).*Group\:]]>
+                  </li>
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_member_dn = (?msi)Member\:(\s|\r|\n).*Account\sName\:\s+(?<member_dn>CN[^(\r|\n)]+)(\r|\n).*Group]]>
+                  </li>    
+  						<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_group_changes_eventcode_4764 = (?msi)EventCode=(4764)(\n|\r).*Message\=A group’s type was (?<msad_action>[^\.]+)]]>
+                  </li>
+    				</ul>        
+  					</p>           
+            	</td>
+          </tr>    
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Locked and Unlocked</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_Locked_Accounts = (?msi)Message\=A\suser\saccount\swas\s(?<msad_action>[^(\.|\s)]+)(\.|\s+|\n+|\r+).*Subject\:(\s+|\n+|\r+).*Account\sName\:\s+(?<src_user>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Logon\sID\:\s+(?<session_id>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*(Account\sThat\sWas\sLocked\sOut|Target\sAccount)\:(\s+|\n+|\r+).*Account Name\:\s+(?<user>[^(\s+|\n+|\r+)]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_Unlocked_Accounts = (?msi)Message\=A\suser\saccount\swas\s(?<msad_action>[^\.]+)\.(\s+|\n+|\r+).*Subject\:(\s+|\n+|\r+).*Account\sName\:\s+(?<src_user>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Logon\sID\:\s+(?<session_id>[^(\s+|\n+|\r+)]+)(\s+|\n+|\r+).*Target\sAccount\:(\s+|\n+|\r+).*Account Name\:\s+(?<user>[^(\s+|\n+|\r+)]+)]]>
+                  </li>
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>    
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Directory Services - Changes</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_dir_svcs_changes_msad_action = (?msi)Message\=A\sdirectory\sservice\sobject\swas\s(?<msad_action>[^\.]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_fix_dir_svcs_changes_dn_objtype = (?msi)Object:(\s+|\n|\r).*DN\:\s+(?<distinguishedName>[^(\r|\n)]+)(\s+|\n|\r).*Class\:\s+(?<Object_Type>[^(\r|\n)]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_fix_dir_svcs_changes_gpo_guid = (?msi)(Object Type\:|Object\:)(\s+|\n|\r).*(Object\sName|GUID)\:\s+CN(=\"|=\{)(?<Object_Name_Guid>[^(\"|\})]+)]]>
+                  </li>
+                  
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>              
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - msad actions - Vers NT5</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+  							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_msad_action_oldevents = (?msi)EventCode=(624|628|642)(\n|\r).*Message\=User\sAccount\s(?<msad_action>[^\:]+)]]>
+                  </li>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_msad_changes_oldevents_a = (?msi)EventCode=(624|628)(\n|\r).*Message\=(?<MSADChanges>[^\:]+)]]>
+                  </li>
+    					</ul>        
+  					</p>         
+            	</td>
+          </tr>       
+          <tr>
+          		<td style="width: 15%">
+                  <center>
+                    <b>
+                  <i>Events - Group Policy</i>
+                </b>
+                  </center>
+          		</td>
+          		<td style="width: 85%">                 
+  					<p>  
+						<ul>
+							<li>
+                    <![CDATA[EXTRACT-ms_ad_obj_tmp_fix_gpo_changes_srcuser = (?msi)Account Name\:\s+(?<src_user>[^(\n|\r|\s)]+)(\r|\n|\s).*Account\sDomain\:\s+(?<src_nt_domain>[^(\n|\r|\s)]+)(\r|\n|\s).*Logon\sID\:\s+(?<session_id>[^(\n|\r|\s)]+)(\r|\n|\s).*Object\:]]>
+                  </li>
+    					</ul>        
+  					</p>
+                 
+            	</td>
+          </tr>         
+        </table>          
+      </html>
+    </panel>
+  </row>
+  <row depends="$hiddenstyle$">
+    <panel>
+      <html>
+        <style>
+#pan_dm_inputs {width:70% !important;}
+#pan_dm_link {width:30% !important;}
+.icon-external {font-size:18px !important;color:#40A540;}
+ol.nbr_ts_list {list-style: none!important;counter-reset: nbr_ts_steps!important;padding: 0px 10px 0px 5px !important;margin-bottom: 5px !important; margin-left: 5px !important;}
+ol.nbr_ts_list li.nbr_ts_step {counter-increment: nbr_ts_steps!important;}
+ol.nbr_ts_list li.nbr_ts_step::before {content: counter(nbr_ts_steps)!important;display: inline-block!important;vertical-align: baseline!important;padding: 2px 4px 3px 4px!important;line-height: 10px!important;min-width: 10px!important;text-align: center!important;border-radius: 9px!important;white-space: nowrap!important;font-weight: normal!important;background: #f99d1c!important;color: #FFFFFF!important;margin-right: 4px!important;}
+ol.nbr_ts_list li.nbr_ts_step.mrk_important::before {content: counter(nbr_ts_steps)!important;display: inline-block!important;vertical-align: baseline!important;padding: 2px 4px 3px 4px!important;line-height: 10px!important;min-width: 10px!important;text-align: center!important;border-radius: 9px!important;white-space: nowrap!important;font-weight: normal!important;background: #DC4E41!important;color: #FFFFFF!important;margin-right: 4px!important;}
+ol.nbr_ts_list ol.nbr_ts_lista {list-style: none!important;counter-reset: nbr_ts_stepsa!important;}
+ol.nbr_ts_list ol.nbr_ts_lista li.nbr_ts_stepa {counter-increment: nbr_ts_stepsa!important;}
+ol.nbr_ts_list ol.nbr_ts_lista li.nbr_ts_stepa:before {content: counter(nbr_ts_steps) "." counter(nbr_ts_stepsa) " "!important;}
+ol.nbr_ts_list ol.nbr_ts_lista ol.nbr_ts_listb {list-style: none!important;counter-reset: nbr_ts_stepsb!important;}
+ol.nbr_ts_list ol.nbr_ts_lista ol.nbr_ts_listb li.nbr_ts_stepb {counter-increment: nbr_ts_stepsb!important;}
+ol.nbr_ts_list ol.nbr_ts_lista ol.nbr_ts_listb li.nbr_ts_stepb:before {content: counter(nbr_ts_steps) "." counter(nbr_ts_stepsa) "." counter(nbr_ts_stepsb) " "!important;}
+ul.note_lst {list-style: none!important;padding-bottom:0px!important;margin-bottom:0px!important;}
+ul.note_lst li.mrk_note::before {font-weight: 800!important;content: "📌Note:"!important;padding-right: 5px!important;}
+
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

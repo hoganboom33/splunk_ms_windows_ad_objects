@@ -1,0 +1,116 @@
+<form script="ms_ad_obj_update_input.js" version="1.1">
+  <label>AD Objects - Windows Input Builder</label>
+  <search id="input_base_search">
+    <query>| inputlookup ms_ad_obj_inputs WHERE input_stanza_type="$tok_input_type$" AND input_stanza="$tok_input_stanza$"
+| table input_stanza,input_key,input_value,input_setting_example,*</query>
+  </search>
+  <fieldset submitButton="false">
+    <input type="radio" token="field1">
+      <label>Filter System Type</label>
+      <choice value="base_windows">Member Server</choice>
+      <choice value="domain_controller">Domain Controller</choice>
+    </input>
+    <input type="radio" token="tok_os_vers_range">
+      <label>Windows OS Version Range</label>
+      <choice value="win_2012_r2">Windows 2012/R2</choice>
+      <choice value="win_2016">Windows 10/2016</choice>
+    </input>
+    <input type="dropdown" token="tok_input_type">
+      <label>Select Input Type</label>
+      <fieldForLabel>input_stanza_type</fieldForLabel>
+      <fieldForValue>input_stanza_type</fieldForValue>
+      <search>
+        <query>| inputlookup ms_ad_obj_inputs
+| stats count by input_stanza_type
+| sort input_stanza_type</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+    <input type="dropdown" token="tok_input_stanza">
+      <label>Select Input Stanza</label>
+      <fieldForLabel>input_stanza</fieldForLabel>
+      <fieldForValue>input_stanza</fieldForValue>
+      <search>
+        <query>| inputlookup ms_ad_obj_inputs WHERE input_stanza_type="$tok_input_type$"
+| stats count by input_stanza</query>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </search>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <html>
+        <div id="tbl_input_view_id"></div>
+      </html>
+    </panel>
+   <panel id="pan_uc_data_top">
+      <html>
+          <div class="box">
+                <center>
+                  <h4>Every environment has its own unique footprint of machine data. Below are a some examples.</h4>                      
+                </center>
+                <div id="tbl_uc_data_view_id" style="max-height:400px !important;overflow:scroll !important;"/>
+              </div>  
+            </html>
+    </panel>    
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Enable Input</title>
+        <search base="input_base_search">
+          <query>fields - input_settings_example
+| eventstats values(disabled) AS disabled by input_stanza
+| eval enabled=if(disabled="1" OR disabled="true" OR isnull(disabled),"false","true")
+| stats values(enabled) AS enabled by input_stanza,input_description
+| table enabled,input_stanza,input_description</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>  
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Settings</title>
+        <search base="input_base_search">
+          <query>fields - input_settings_example
+| table input_stanza,input_key,input_value</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Example</title>
+        <search base="input_base_search">
+          <query>stats values(input_setting_example) AS Example
+| makemv delim="#SEP#" Example</query>
+        </search>
+        <option name="count">20</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">none</option>
+        <option name="percentagesRow">false</option>
+        <option name="rowNumbers">false</option>
+        <option name="totalsRow">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+</form>

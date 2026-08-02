@@ -1,0 +1,262 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" hideFilters="True" version="1.1">
+  <label>AD Objects - Windows App - Installs</label>
+  <init>
+    <set token="tok_tab_1">active</set>
+  </init>
+  <search id="base_app_install_search">
+    <query>`ms_obj_win_events_all` [| inputlookup ms_ad_obj_app_eventcodes | stats values(EventCode) AS EventCode | format]
+| fields _time,_raw,host,EventCode,product_*,install_*,Message,LogName,Channel,SourceName
+| eval LogName=if(isnull(LogName),Channel,LogName)
+| join EventCode,LogName [|inputlookup ms_ad_obj_app_eventcodes | table EventCode,LogName,signature,state,more_info]
+| rex max_match=0 "(?:\&lt;Application\&gt;)(?&lt;application&gt;[^\&lt;]+)"
+| eval product_name=if(n_apps=1,application,if(n_apps&gt;1,"Multiple Apps",if(isnull(product_name),Policy_Name,product_name)))
+| eval install_msg=if(isnull(install_msg),signature,install_msg)
+| eval product_path=if(match(product_name,"\x5C{1}"),product_name,NULL)
+| rex field=product_path "(\{|\x5C{1})(?&lt;product_name&gt;[\{\}a-zA-Z0-9._\-]+)(\}$|$)"
+| rex field=install_transaction "(\{|\x5C{1})(?&lt;product_name&gt;[\{\}a-zA-Z0-9._\-]+)(\}$|$)"
+| eval install_msg_state=case(match(install_msg,"Ending"),"Ending",match(install_msg,"Beginning"),"Beginning",match(install_msg,"(?si)(Removed|Removal)"),"Removed",match(install_msg,"(?si)installed"),"Installed",match(install_msg,"(?si)Installation.*completed successfully"),"Installed",match(install_msg,"(?si)failed"),"Failed")
+| eval install_state=if(isnull(state),install_msg_state,state),product_name=if(isnull(product_name),SourceName,product_name)
+| table _time,host,LogName,SourceName,EventCode,product_path,product_name,install_state,install_msg,more_info,Message,_raw,signature</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="EventHost" searchWhenChanged="true">
+      <label>Event Host</label>
+      <choice value="*">All</choice>
+      <search base="base_app_install_search">
+        <query>search product_name="$Product$" install_state="$install_state$"
+| fields host
+| stats count by host
+| sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="Product" searchWhenChanged="true">
+      <label>Product</label>
+      <choice value="*">All</choice>
+      <search base="base_app_install_search">
+        <query>search host="$EventHost$" install_state="$install_state$"
+| fields product_name
+| stats count by product_name
+| sort product_name</query>
+      </search>
+      <fieldForLabel>product_name</fieldForLabel>
+      <fieldForValue>product_name</fieldForValue>
+      <default>*</default>
+    </input>
+    <input type="dropdown" token="install_state" searchWhenChanged="true">
+      <label>Installation State</label>
+      <choice value="*">All</choice>
+      <search base="base_app_install_search">
+        <query>search host="$EventHost$" product_name="$Product$" 
+| fields install_state
+| stats count by install_state
+| sort install_state</query>
+      </search>
+      <fieldForLabel>install_state</fieldForLabel>
+      <fieldForValue>install_state</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="time" token="Time">
+      <label></label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row id="tabs_row">
+    <panel>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Summary Counts</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Counts Overtime</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;}">Detailed Events</a>
+          </li>
+          <li class="$tok_tab_4$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}">Detailed Events By Host</a>
+          </li>
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_tab_1$">
+    <panel>
+      <table>
+        <title>Total Installs By Host</title>
+        <search base="base_app_install_search">
+          <query>search host="$EventHost$" product_name="$Product$" install_state="$install_state$"
+| stats sparkline as "Trend", count by host 
+| sort -count</query>
+        </search>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Total Installs By Install State</title>
+        <search base="base_app_install_search">
+          <query>search host="$EventHost$" product_name="$Product$" install_state="$install_state$"
+| stats sparkline as "Trend", count by install_state 
+| sort -count</query>
+        </search>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel>
+      <table>
+        <title>Total Installs By Application</title>
+        <search base="base_app_install_search">
+          <query>search  host="$EventHost$"  product_name="$Product$" install_state="$install_state$"
+| stats sparkline as "Trend", count by product_name 
+| sort -count</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_tab_2$">
+    <panel>
+      <chart>
+        <title>Installs Over Time By Application</title>
+        <search base="base_app_install_search">
+          <query>search  host="$EventHost$"  product_name="$Product$" install_state="$install_state$"
+| timechart count by product_name</query>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+      <chart>
+        <title>Installs Over Time By Application</title>
+        <search base="base_app_install_search">
+          <query>search  host="$EventHost$"  product_name="$Product$" install_state="$install_state$"
+| timechart count by install_state</query>
+        </search>
+        <option name="charting.chart">line</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+  <row depends="$tok_tab_3$">
+    <panel id="pan_raw_events">
+      <event id="evt_view_raw">
+        <title>Installation Raw Events</title>
+        <search base="base_app_install_search">
+          <query>search  host="$EventHost$"  product_name="$Product$" install_state="$install_state$"
+| table _time,_raw</query>
+        </search>
+        <option name="count">5</option>
+        <option name="list.drilldown">inner</option>
+        <option name="maxLines">0</option>
+        <option name="raw.drilldown">inner</option>
+      </event>
+    </panel>
+  </row>
+  <row depends="$tok_tab_4$">
+    <panel>
+      <input type="dropdown" token="tok_host_dd" searchWhenChanged="true">
+        <label>Select Host To View Install Summary</label>
+        <choice value="*">All</choice>
+        <search base="base_app_install_search">
+          <query>fields host
+| stats count by host
+| sort host</query>
+        </search>
+        <fieldForLabel>host</fieldForLabel>
+        <fieldForValue>host</fieldForValue>
+        <selectFirstChoice>True</selectFirstChoice>
+      </input>
+      <table>
+        <title>Installation Details By Host</title>
+        <search base="base_app_install_search">
+          <query>search  host="$tok_host_dd$"
+| stats count, latest(_time) AS ltime by host, install_state,product_name,signature 
+| convert ctime(ltime) | eval comb="|(State: ".install_state.") ".product_name." (Last Event Time = ".ltime." )| - - Signature: ".signature 
+| stats values(comb) AS Installed_Product_Summary, sum(count) AS Total_Events by host
+| makemv delim="|" Installed_Product_Summary</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="refresh.display">progressbar</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <html>
+        <style>
+#evt_view_raw {height:550px !important;overflow:scroll;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

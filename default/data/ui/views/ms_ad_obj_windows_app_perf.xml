@@ -1,0 +1,189 @@
+<form version="1.1">
+  <label>AD Objects - Windows App - Performance</label>
+  <description>Dashboard for analyzing performance around Windows Application Installs and Crashes.</description>
+  <search id="base_perf_search">
+    <query>`ms__obj_win_perfmon_index` instance="_Total"
+| fields host,counter, object, Value, instance
+| stats count by counter,object,instance,host</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>-24h@h</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="inp_perf_host">
+      <label>Select Perf Host</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <search base="base_perf_search">
+        <query>fields host
+| stats count by host
+| sort host</query>
+      </search>
+      <change>
+        <condition value="all">
+          <set token="tok_perf_host">*</set>
+        </condition>
+        <condition>
+          <set token="tok_perf_host">$value$*</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_perf_obj">
+      <label>Select Perf Object</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>object</fieldForLabel>
+      <fieldForValue>object</fieldForValue>
+      <search base="base_perf_search">
+        <query>search host="$tok_perf_host$"
+| fields object
+| stats count by object
+| sort object</query>
+      </search>
+    </input>
+    <input type="dropdown" token="tok_perf_counter">
+      <label>Select Perf Counter</label>
+      <choice value="*">All</choice>
+      <default>*</default>
+      <initialValue>*</initialValue>
+      <fieldForLabel>counter</fieldForLabel>
+      <fieldForValue>counter</fieldForValue>
+      <search base="base_perf_search">
+        <query>search host="$tok_perf_host$" object="$tok_perf_obj$"
+| fields counter
+| stats count by counter
+| sort counter</query>
+      </search>
+    </input>
+    <input type="radio" token="tok_app_type">
+      <label>App Event Type</label>
+      <choice value="install">App Installs</choice>
+      <choice value="crash">App Messages</choice>
+      <default>install</default>
+      <initialValue>install</initialValue>
+      <change>
+        <condition value="install">
+          <set token="tok_show_install">True</set>
+          <unset token="tok_show_crash"></unset>
+        </condition>
+        <condition value="crash">
+          <set token="tok_show_crash">True</set>
+          <unset token="tok_show_install"></unset>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <chart depends="$tok_show_crash$">
+        <search type="annotation" id="base_crash_srch">
+          <query>`ms_obj_win_events_application` [| inputlookup ms_ad_obj_app_eventcodes where state_type="error" | stats values(EventCode) AS EventCode | format | table search] host="$tok_perf_host$*"
+| fields _time,_raw,sourcetype,host,Event_Name,Report_Status,Report_Id,fault_bucket,Attached_Files,Response,Cab_Id,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,EventCode,Message,Type,SourceName
+| rex max_match=0 "(?:\&lt;EventData\&gt;)\&lt;Data\&gt;\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;fault_bucket&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Event_Name&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Response&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(?&lt;Cab_Id&gt;[^\&lt;]+)\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P1&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P2&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P3&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P4&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P5&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P6&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P7&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P8&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P9&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;P10&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Attached_Files&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Attached_Files_other&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Analysis_symbol&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Solution_recheck&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Report_Id&gt;[^\&lt;]+))\&lt;\/Data\&gt;\&lt;Data\&gt;(|(?&lt;Report_Status&gt;[^\&lt;]+))\&lt;\/Data\&gt;"
+| eval trigger="$tok_show_crash$"
+| join type=left EventCode [|inputlookup ms_ad_obj_app_eventcodes | table EventCode,LogName,signature,state,more_info]
+| eval Response=if(isnull(Response),if(isnull(signature),signature,Message),Response)
+| eval Event_Name=if(isnull(Event_Name),state,Event_Name),P1=if(isnull(P1),SourceName,P1)
+| eval state=if(isnull(Type),state,Type)
+| search state!="Information"
+| fillnull value="NA" P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,fault_bucket,cab_id,Report_Id,Report_Status,Response
+| eval application=if(Event_Name=="APPCRASH",P1." (version: ".P2.")",Event_Name),app_file=if(Event_Name=="APPCRASH",P1,if(match(Event_Name,"WindowsUpdateFailure"),"Wuauclt.exe",Event_Name))
+| eval annotation_label = application
+| eval annotation_category = Event_Name</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <search>
+          <query>`ms__obj_win_perfmon_index` host="*" host="$tok_perf_host$" object="$tok_perf_obj$" counter="$tok_perf_counter$"
+| fields _time,host,Value
+| eval trigger="$tok_show_crash$"
+| timechart avg(Value) as Average by host</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <!-- Secondary search that drives the annotations -->
+        <!-- Customize the event annotation colors based on category name -->
+        <option name="charting.annotation.categoryColors">{"APPCRASH":"#ff3300","WindowsUpdateFailure":"#ffcc00"}</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">1</option>
+        <option name="charting.seriesColors">[#339933]</option>
+        <option name="height">287</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+      <chart depends="$tok_show_install$">
+        <search type="annotation" id="base_install_srch">
+          <query>`ms_obj_win_events_all` [| inputlookup ms_ad_obj_app_eventcodes where state_type="install" | stats values(EventCode) AS EventCode by LogName| format | table search] host="$tok_perf_host$*"
+| fields _time,_raw,host,EventCode,product_*,install_*,Message,LogName,Channel,SourceName
+| eval trigger="$tok_show_install$"
+| eval LogName=if(isnull(LogName),Channel,LogName)
+| join type=left EventCode [|inputlookup ms_ad_obj_app_eventcodes | table EventCode,signature,state,more_info]
+| rex max_match=0 "(?:\&lt;Application\&gt;)(?&lt;application&gt;[^\&lt;]+)"
+| eval product_name=if(n_apps=1,application,if(n_apps&gt;1,"Multiple Apps",if(isnull(product_name),Policy_Name,product_name)))
+| eval install_msg=if(isnull(install_msg),signature,install_msg)
+| eval product_path=if(match(product_name,"\x5C{1}"),product_name,NULL)
+| rex field=product_path "(\{|\x5C{1})(?&lt;product_name&gt;[\{\}a-zA-Z0-9._\-]+)(\}$|$)"
+| rex field=install_transaction "(\{|\x5C{1})(?&lt;product_name&gt;[\{\}a-zA-Z0-9._\-]+)(\}$|$)"
+| eval install_msg_state=case(match(install_msg,"Ending"),"Ending",match(install_msg,"Beginning"),"Beginning",match(install_msg,"(?si)(Removed|Removal)"),"Removed",match(install_msg,"(?si)installed"),"Installed",match(install_msg,"(?si)Installation.*completed successfully"),"Installed",match(install_msg,"(?si)failed"),"Failed")
+| eval install_state=if(isnull(state),install_msg_state,state),product_name=if(isnull(product_name),SourceName,product_name)
+| table _time,host,LogName,SourceName,EventCode,product_path,product_name,install_state,install_msg,more_info,Message,_raw,signature
+| eval annotation_label = product_name
+| eval annotation_category = install_state</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <search>
+          <query>`ms__obj_win_perfmon_index` host="$tok_perf_host$" object="$tok_perf_obj$" counter="$tok_perf_counter$"
+| fields _time,host,Value
+| eval trigger="$tok_show_install$"
+| timechart avg(Value) as Average by host</query>
+          <earliest>$field1.earliest$</earliest>
+          <latest>$field1.latest$</latest>
+        </search>
+        <!-- Secondary search that drives the annotations -->
+        <!-- Customize the event annotation colors based on category name -->
+        <option name="charting.annotation.categoryColors">{"Failed":"#ff3300","Policy Violation":"#ffcc00","Success Install":"#5CC05C"}</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.drilldown">none</option>
+        <option name="charting.legend.placement">none</option>
+        <option name="charting.lineWidth">1</option>
+        <option name="charting.seriesColors">[#339933]</option>
+        <option name="height">287</option>
+        <option name="refresh.display">progressbar</option>
+      </chart>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table depends="$tok_show_install$">
+        <search base="base_install_srch">
+          <query>| table _time,host,LogName,SourceName,EventCode,product_path,product_name,install_state,install_msg,more_info,Message,signature</query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+      <table depends="$tok_show_crash$">
+        <search base="base_crash_srch">
+          <query>| table _time,_raw,sourcetype,host,application,Event_Name,P1,P2,P3,P4,P5,P6,P7,P8,P9,P10,fault_bucket,cab_id,Report_Id,Report_Status,Response,Attached_Files,Attached_Files_other,app_file
+| eval Attached_Files=if(isnull(Attached_Files),if(isnull(Attached_Files_other),"NA",mvjoin(Attached_Files_other,"|")),if(isnull(Attached_Files_other),mvjoin(Attached_Files,"|"),mvjoin(Attached_Files,"|")."| Other: -".mvjoin(Attached_Files_other," - ")))
+| eval Problem_Signature="P1: ".P1."|P2: ".P2."|P3: ".P3."|P4: ".P4."|P5: ".P5."|P6: ".P6."|P7: ".P7."|P8: ".P8."|P9: ".P9."|P10: ".P10."|Attached Files: ".Attached_Files
+| eval Info="Time: ".strftime(_time,"%m/%d/%y %I:%M:%S %P")."|Host: ".host."|Event Name: ".Event_Name."|sourcetype: ".sourcetype."|Fault Bucket: ".fault_bucket."|Response: ".Response."|Cab ID: ".cab_id."|Report ID: ".Report_Id."|Report Status Code:".Report_Status
+| table Info,Problem_Signature
+| makemv delim="|" Problem_Signature
+| makemv delim="|" Info</query>
+        </search>
+        <option name="drilldown">none</option>
+      </table>
+    </panel>
+  </row>
+</form>

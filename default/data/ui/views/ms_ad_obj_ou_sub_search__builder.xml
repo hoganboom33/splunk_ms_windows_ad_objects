@@ -1,0 +1,740 @@
+<form script="ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - OU - Sub Search - Builder</label>
+  <init>
+    <set token="tok_user_count">Pending</set>
+    <set token="tok_ou_label">Pending</set>
+    <set token="tok_base_src_data_filt"></set>
+    <set token="tok_results_count">0</set>
+  </init>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_time_filt">
+    <query>| makeresults
+| eval t_filt_s ="$field1.earliest$", t_filt_e="$field1.latest$"
+| eval t_filt_s_f=case(match(t_filt_s,"^\d+$"),t_filt_s,t_filt_s="",0,match(t_filt_s,"^(\-|\@)"),relative_time(now(),t_filt_s))
+| eval t_filt_e_f=case(match(t_filt_e,"^\d+$"),t_filt_e,t_filt_e="",9999999999,match(t_filt_e,"^(\-|\@)"),relative_time(now(),t_filt_e),t_filt_e="now",now())
+| eval t_filt_s_l=if(t_filt_s_f=0,"0",strftime(t_filt_s_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_e_l=if(t_filt_e_f=9999999999,"All Time",strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_full_l=if(t_filt_e_f=9999999999,"All Time","From: ".strftime(t_filt_s_f,"%m/%d/%y %I:%M %P")." To: ".strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| table t_filt_s_f, t_filt_s_l,t_filt_e_f, t_filt_e_l,t_filt_full_l</query>
+    <progress>
+      <condition>
+        <set token="tok_filt_start">$result.t_filt_s_l$</set>
+        <set token="tok_filt_end">$result.t_filt_e_l$</set>
+        <set token="tok_filt_msg">$result.t_filt_full_l$</set>
+      </condition>
+    </progress>
+  </search>
+  <search id="base_ad_ou_objects">
+    <query>| inputlookup $tok_user_lkp$
+| fields dn_path
+| rename dn_path AS distinguishedName
+| stats count as user_count by distinguishedName
+| lookup AD_Obj_OU distinguishedName OUTPUT displayName,deletedDate
+| fillnull value="0" deletedDate
+| rex field=distinguishedName max_match=0 "(\w\w\=)(?&lt;levels&gt;[^(\,|$)]+)"
+| eval a_levels="(".user_count.") ".mvindex(levels,0)." &gt; ".mvindex(levels,1)." ...",b_levels="(".user_count.") ".mvindex(levels,0)." &gt; ".mvindex(levels,1)." &gt; ".mvindex(levels,2)." ...",c_levels="(".user_count.") ".mvindex(levels,0)." &gt; ".mvindex(levels,1)." &gt; ".mvindex(levels,2)." &gt; ".mvindex(levels,3)." ...",full_level="(".user_count.") ".mvjoin(levels," &gt; ")." ..."
+| eventstats count AS a_count by displayName
+| eventstats count as b_count by a_levels
+| eventstats count as c_count by b_levels
+| eventstats count as d_count by c_levels
+| eval displayName=if(a_count&gt;1,if(b_count&gt;1,if(c_count&gt;1,if(d_count&gt;1,full_level,c_levels),b_levels),a_levels),"(".count.") ".displayName." ...")
+| eval displayName=if(deletedDate=="0",if(isnull(displayName),a_levels,displayName),"(Deleted) ".displayName)
+| sort distinguishedName
+| table user_count,displayName,distinguishedName</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <set token="tok_user_count">0</set>
+      <set token="tok_user_count_color">blue</set>
+      <set token="tok_results_count">0</set>
+      <set token="tok_results_count_color">blue</set>
+    </done>
+  </search>
+  <search id="base_user_list">
+    <query>| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| WHERE match(distinguishedName, "$tok_ou$")
+| fields *
+</query>
+    <earliest>0</earliest>
+    <latest></latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_group_user_list">0</set>
+        <set token="tok_no_users_found">True</set>
+        <set token="tok_user_count">0</set>
+        <set token="tok_user_count_color">red</set>
+        <unset token="tok_users_found"></unset>
+      </condition>
+      <condition>
+        <set token="tok_users_found">True</set>
+        <set token="tok_user_count">$job.resultCount$</set>
+        <set token="tok_user_count_color">green</set>
+        <unset token="tok_no_users_found"></unset>
+      </condition>
+    </done>
+  </search>
+  <search id="sub_rex_filter" base="base_user_list">
+    <query>stats values($tok_source_link_field$) AS tgt_filt | eval tgt_filt=mvjoin(tgt_filt,"|") | table tgt_filt
+    </query>
+    <done>
+      <set token="tok_tgt_filt">$result.tgt_filt$</set>
+    </done>
+  </search>
+  <search id="base_filter" base="base_user_list">
+    <query>stats values($tok_source_link_field$) AS search
+| $tok_target_link_field_filt$
+| table search</query>
+    <preview>
+      <set token="tok_filter">$result.search$</set>
+    </preview>
+  </search>
+  <search id="base_built_search">
+    <query>$tok_base_src_data_filt$ $tok_filter_text$ 
+$tok_base_srch_filt$ 
+$tok_sec_srch_res$
+| table $tok_base_srch_fld_list$</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+    <progress>
+      <condition>
+        <eval token="tok_results_count">$job.dispatchState$." ".toString($job.eventCount$,"commas")</eval>
+        <set token="tok_results_count_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_results_count">0</set>
+        <set token="tok_results_count_color">red</set>
+        <unset token="tok_user_drilldown"></unset>
+        <unset token="tok_user_drilldown_label"></unset>
+      </condition>
+      <condition>
+        <eval token="tok_results_count">toString($job.eventCount$,"commas")</eval>
+        <set token="tok_results_count_color">green</set>
+        <set token="tok_user_drilldown">*</set>
+        <set token="tok_user_drilldown_label">All Results</set>
+      </condition>
+    </done>
+  </search>
+  <!--row id="tab_results">
+    <panel depends="$tok_sourcetype$">
+      <event>
+        <title>Resulting Events - Total Events ($tok_results_count$)</title>
+        <search base="base_built_search">
+          <query></query>
+        </search>
+      </event>
+    </panel>
+  </row-->
+  <fieldset submitButton="true">
+    <html>
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Step 1</font>: Selected Domain, OU, and Field for the Target Users as the source data.  The Field selected with the <font color="green">Select Source Link Field</font> will contain the values that will be returned in the sub-search and used to filter the configured target data:</i>
+        </b>
+      </p>
+	</html>
+    <input type="dropdown" token="input_tok_domain" searchWhenChanged="true">
+      <label>1.1 Select OU Domain</label>
+      <choice value="sel">Select Domain</choice>
+      <search base="base_domain_search">
+        <query>table domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_domain"></unset>
+          <unset token="tok_show_ou_filter"></unset>
+        </condition>
+        <condition>
+          <set token="tok_domain">$value$</set>
+          <set token="tok_show_ou_filter">True</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_ou" searchWhenChanged="true" id="input_src_filt_element_ou" depends="$tok_show_ou_filter$">
+      <label>1.2 Select OU or Container</label>
+      <default></default>
+      <initialValue></initialValue>
+      <search base="base_ad_ou_objects">
+        <query>stats count by displayName,distinguishedName 
+| sort 0 displayName
+| table displayName, distinguishedName</query>
+      </search>
+      <fieldForLabel>displayName</fieldForLabel>
+      <fieldForValue>distinguishedName</fieldForValue>
+      <change>
+        <condition value="">
+          <set token="tok_ou_label">pending</set>
+          <unset token="tok_audit_value"></unset>
+          <unset token="tok_tab_1"></unset>
+        </condition>
+        <condition>
+          <set token="tok_audit_value">$value$</set>
+          <set token="tok_ou_label">$label$</set>
+          <set token="tok_tab_1">active</set>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="input_source_link_field" searchWhenChanged="true" depends="$tok_audit_value$">
+      <label>1.3 Select Source Link Field</label>
+      <default>sAMAccountName</default>
+      <initialValue>sAMAccountName</initialValue>
+      <search base="base_user_list" id="sub_source_field_list">
+        <query>head 100
+| fieldsummary
+| search count&gt;0 NOT(field=sourcetype OR field=index OR field=tag* OR field=source OR field=eventtype OR field=splunk_server OR field=date_*)
+| table field, values 
+| fields + field, values
+| rex max_match=2 field=values "\{\"value\"\:\"(?P&lt;Example_Values&gt;[\S\-\S][^\"]+)"
+| search Example_Values="*"
+| stats values(Example_Values) AS Example_Values by field
+| table field,Example_Values
+| sort field</query>
+      </search>
+      <fieldForLabel>field</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <change>
+        <condition value="sAMAccountName">
+          <set token="tok_source_link_field">sAMAccountName</set>
+          <set token="tok_base_raw_srch_filt">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $value$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($value$) AS search
+| eval search="\"".mvjoin(search,"\" OR \"")."\""
+| table search</set>
+          <set token="tok_base_srch_filt">([| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $value$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($value$) AS search
+| eval search="\"".mvjoin(search,"\" OR \"")."\""
+| table search])</set>
+        </condition>
+        <condition>
+          <set token="tok_source_link_field">$value$</set>
+          <set token="tok_base_raw_srch_filt">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $value$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($value$) AS search
+| eval search="\"".mvjoin(search,"\" OR \"")."\""
+| table search</set>
+          <set token="tok_base_srch_filt">([| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $value$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($value$) AS search
+| eval search="\"".mvjoin(search,"\" OR \"")."\""
+| table search])</set>
+        </condition>
+      </change>
+    </input>
+    <html depends="$tok_audit_value$,$tok_users_found$">
+      <!--HR WIDTH="75%" SIZE="1"/-->
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Step 2</font>: Select Target data to correllate user accounts (Attribute: $tok_source_link_field$) in, or under, the above selected OU's with:</i>
+        </b>
+      </p>
+	</html>
+    <input type="time" token="field1" searchWhenChanged="true" depends="$tok_audit_value$,$tok_users_found$">
+      <label>2.1 Select Time Range</label>
+      <default>
+        <earliest>-4h@m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_index" searchWhenChanged="true" depends="$tok_audit_value$,$tok_users_found$">
+      <label>2.2 Select Base Search index</label>
+      <choice value="all">All</choice>
+      <default></default>
+      <initialValue></initialValue>
+      <search>
+        <query>| eventcount summarize=false index=* | search count&gt;0 NOT index=_* NOT index=history NOT index=summary | dedup index | fields index| sort index</query>
+        <earliest>-24h</earliest>
+        <latest>now</latest>
+      </search>
+      <fieldForLabel>index</fieldForLabel>
+      <fieldForValue>index</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_show_sourcetype"></unset>
+          <unset token="tok_index_filt"></unset>
+          <unset token="tok_target_link_field"></unset>
+          <unset token="tok_user_drilldown"></unset>
+          <unset token="tok_base_srch_msg"></unset>
+          <set token="form.tok_sourcetype"></set>
+        </condition>
+        <condition value="all">
+          <set token="tok_show_sourcetype">True</set>
+          <set token="tok_index_filt"></set>
+          <set token="tok_base_srch_msg">No Target Data specified for (index, sourcetype, or extra text), so sub-search filter values will search across all indexed data.</set>
+          <set token="tok_base_srch_color">Orange</set>
+          <set token="form.tok_sourcetype"></set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition>
+          <set token="tok_show_sourcetype">True</set>
+          <set token="tok_index_filt">index="$value$"</set>
+          <set token="form.tok_sourcetype"></set>
+          <set token="tok_base_srch_msg">index="$value$" $tok_filter_text$</set>
+          <set token="tok_base_src_data_filt">index="$value$" $tok_base_src_data_filt$</set>
+          <set token="tok_base_srch_color">blue</set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_sourcetype" searchWhenChanged="true" depends="$tok_audit_value$,$tok_users_found$,$tok_show_sourcetype$">
+      <label>2.3 Select Base Search sourcetype</label>
+      <default></default>
+      <search>
+        <query>| metadata type=sourcetypes $tok_index_filt$
+| eval sourcetype=lower(sourcetype)
+| stats count by sourcetype | sort sourcetype | table sourcetype</query>
+      </search>
+      <choice value="all">All</choice>
+      <fieldForLabel>sourcetype</fieldForLabel>
+      <fieldForValue>sourcetype</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_show_field_list"></unset>
+          <unset token="tok_sourcetype_filt"></unset>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition value="all">
+          <set token="tok_show_field_list">True</set>
+          <set token="tok_sourcetype_filt"></set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+        <condition>
+          <set token="tok_show_field_list">True</set>
+          <set token="tok_sourcetype_filt">sourcetype="$value$"</set>
+          <set token="tok_base_srch_msg">$tok_index_filt$ sourcetype="$value$" $tok_filter_text$</set>
+          <set token="tok_base_srch_color">blue</set>
+          <set token="tok_base_src_data_filt">$tok_base_src_data_filt$ sourcetype="$value$"</set>
+          <unset token="tok_user_drilldown"></unset>
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_target_link_field" searchWhenChanged="true" depends="$tok_audit_value$,$tok_users_found$,$tok_show_field_list$">
+      <label>2.4 Select Target Link Field</label>
+      <choice value="search">(Raw Text Search)</choice>
+      <choice value="manual">(Enter Manual Field)</choice>
+      <default></default>
+      <initialValue></initialValue>
+      <search id="base_field_list">
+        <query>$tok_index_filt$ $tok_sourcetype_filt$  
+([$tok_base_raw_srch_filt$])
+| head 100
+| fieldsummary
+| search count&gt;0 NOT(field=sourcetype OR field=index OR field=tag* OR field=source OR field=eventtype OR field=splunk_server OR field=date_*)
+| table field, values 
+| fields + field, values
+| search values!=""
+| stats count by field
+| table field
+| sort field</query>
+		<earliest>$field1.earliest$</earliest>
+		<latest>$field1.latest$</latest>
+      </search>
+      <fieldForLabel>field</fieldForLabel>
+      <fieldForValue>field</fieldForValue>
+      <change>
+        <condition value="">
+          <unset token="tok_target_link_field_label"></unset>
+          <unset token="tok_target_link_field_filt"></unset>
+          <unset token="tok_target_results_drilldown"></unset>
+          <unset token="tok_user_drilldown"></unset>
+          <unset token="tok_show_manual_field"></unset>
+          <unset token="tok_dd_srch_inp"></unset>
+          <unset token="tok_sec_srch_res"></unset>
+          <set token="tok_sec_srch_disp_btn">display:none;</set>
+        </condition>
+        <condition value="search">
+          <set token="tok_target_link_field_label">Raw_Search_Text</set>
+          <set token="tok_target_results_drilldown">sourcetype=</set>
+          <set token="tok_target_link_field_filt">eval search="\"".mvjoin(search,"\" OR \"")."\""</set>
+          <set token="tok_base_srch_filt">([$tok_base_raw_srch_filt$])</set>
+		  <set token="tok_sec_srch_res">| fields _time,_raw,host,sourcetype,source</set>
+		  <set token="tok_sec_srch_disp"></set>
+		  <set token="tok_sec_srch_disp_btn">display:none;</set>
+          <set token="tok_base_srch_fld_list">_time,_raw,host,sourcetype,source</set>
+          <set token="tok_result_a_srch">fields host, sourcetype, source 
+| stats count AS Total_Events, dc(host) AS Total_Hosts by sourcetype
+| sort -Total_Events
+| addtotals row=f col=t labelfield=sourcetype Total_Events</set>
+		  <set token="tok_results_b_srch">| fields _time,sourcetype
+| timechart count by sourcetype</set>
+		  <set token="tok_dd_srch_inp">source</set>
+          <unset token="tok_show_manual_field"></unset>
+          <unset token="tok_result_non_raw"></unset>
+        </condition>
+        <condition value="manual">
+          <set token="tok_show_manual_field">true</set>
+          <set token="tok_target_link_field_label">Pending</set>
+          <unset token="tok_target_results_drilldown"></unset>
+          <unset token="tok_target_link_field_filt">eval search="\"".mvjoin(search,"\" OR \"")."\""</unset>
+          <unset token="tok_sec_srch_res"></unset>
+          <unset token="tok_result_a_srch"></unset>
+          <unset token="tok_result_b_srch"></unset>
+          <unset token="tok_result_non_raw"></unset>
+          <unset token="tok_dd_srch_inp"></unset>
+          <set token="tok_sec_srch_disp_btn">display:none;</set>
+        </condition>
+        <condition>
+          <set token="tok_target_link_field_label">$value$</set>
+          <set token="tok_target_results_drilldown">$value$=</set>
+		  <set token="tok_sec_srch_res">| fields _time,_raw,host,sourcetype,$value$
+| search ([| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $tok_source_link_field$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($tok_source_link_field$) AS search
+| eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"
+| table search])</set>
+		  <set token="tok_sec_srch_disp">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $tok_source_link_field$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($tok_source_link_field$) AS search
+| eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"
+| table search</set>
+          <set token="tok_result_a_srch">fields host, sourcetype,$value$ 
+| stats count AS Total_Events, dc(host) AS Total_Hosts, dc(sourcetype) AS Total_Sourcetypes by $value$
+| sort 0 -Total_Events
+| addtotals row=f col=t labelfield=$value$ Total_Events</set>
+		  <set token="tok_sec_srch_disp_btn"></set>
+          <set token="tok_target_link_field_filt">eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"</set>
+		  <set token="tok_results_b_srch">| fields _time,$value$ | timechart count by $value$</set>
+		  <set token="tok_base_srch_fld_list">_time,_raw,host,sourcetype,$value$</set>
+		  <set token="tok_dd_srch_inp">$value$</set>
+		  <set token="tok_result_non_raw">true</set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="input_tok_manual_field" searchWhenChanged="true" depends="$tok_show_manual_field$,$tok_ou$,$tok_users_found$,$tok_show_field_list$">
+      <label>2.5 Manual Field Entry</label>
+      <default></default>
+      <initialValue></initialValue>
+      <change>
+        <condition value=""></condition>
+        <condition>
+          <set token="tok_target_link_field_label">$value$</set>
+          <set token="tok_target_results_drilldown">$value$=</set>
+          <set token="tok_target_link_field_filt">eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"</set>
+		  <set token="tok_sec_srch_res">| fields _time,_raw,host,sourcetype,$value$
+| search ([| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $tok_source_link_field$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($tok_source_link_field$) AS search
+| eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"
+| table search])</set>
+		  <set token="tok_sec_srch_disp">| inputlookup $tok_user_lkp$ WHERE domain=$tok_domain$
+| fields $tok_source_link_field$, distinguishedName 
+| WHERE match(distinguishedName, "$tok_ou$")
+| stats values($tok_source_link_field$) AS search
+| eval search="$value$ IN(\"".mvjoin(search,"\",\"")."\")"
+| table search</set>
+          <set token="tok_result_a_srch">fields host, sourcetype,$value$ 
+| stats count AS Total_Events, dc(host) AS Total_Hosts, dc(sourcetype) AS Total_Sourcetypes by $value$
+| sort 0 -Total_Events
+| addtotals row=f col=t labelfield=$value$ Total_Events</set>
+		  <set token="tok_results_b_srch">| fields _time,$value$| timechart count by $value$</set>
+		  <set token="tok_base_srch_fld_list">_time,_raw,host,sourcetype,$value$</set>
+		  <set token="tok_dd_srch_inp">$value$</set>
+		  <set token="tok_result_non_raw">true</set>
+		  <set token="tok_sec_srch_disp_btn"></set>
+        </condition>
+      </change>
+    </input>
+    <input type="text" token="input_tok_filter_text" searchWhenChanged="true" depends="$tok_audit_value$,$tok_users_found$,$tok_show_field_list$">
+      <label>2.6 Extra Search Filter Text</label>
+      <default></default>
+      <initialValue></initialValue>
+      <change>
+        <condition value="">
+          <set token="tok_filter_text"></set>
+        </condition>
+        <condition>
+          <set token="tok_filter_text">"$value$"</set>
+          <set token="tok_base_srch_msg">$tok_base_src_data_filt$ "$value$"</set>
+          <set token="tok_base_srch_color">blue</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row id="tabs_row" depends="$tok_ou_label$">
+    <panel rejects="$tok_admin_show_warn$,$tok_admin_show_running$">
+      <title>Results for OU ($tok_ou_label$) $tok_filt_msg$</title>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Organization Unit User Accounts ($tok_user_count$)</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Resulting Events ($tok_results_count$)</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Search Details</a>
+          </li>        
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="tab_members" depends="$tok_tab_1$">
+    <panel depends="$tok_ou$,$tok_users_found$">
+      <table>
+        <title>Users in the $tok_ou_label$ OU - Total Members ($tok_user_count$)</title>
+        <search base="base_user_list">
+          <query>| table cn, $tok_source_link_field$, distinguishedName | sort cn</query>
+        </search>
+      </table>
+    </panel>
+    <panel depends="$tok_ou$,$tok_no_users_found$">
+      <html>
+      <HR WIDTH="75%" SIZE="3"/>
+      <p style="font-size:8;">
+        <b>
+          <i> <font color="red">Warning</font>: No Users Found in Specified OU.</i>
+        </b>
+      </p>
+	</html>
+    </panel>
+  </row>
+  <row id="tab_results" depends="$tok_tab_2$">
+    <panel depends="$tok_target_link_field$">
+      <table>
+        <title>Resulting Events Counts - Total Events ($tok_results_count$)</title>
+        <search base="base_built_search">
+          <query>$tok_result_a_srch$</query>
+        </search>
+        <option name="count">5</option>
+        <drilldown>
+          <eval token="tok_user_drilldown">if($click.value$="Total","*",$click.value$)</eval>
+          <eval token="tok_user_drilldown_label">if($click.value$="Total","All Events",$click.value$)</eval>
+        </drilldown>
+      </table>
+      <html>
+        <h4>
+          <i>
+            <font color="green">Click the $tok_target_link_field_label$ value above to filter the Events and TimeChart panel.</font>
+          </i>
+        </h4>
+      </html>
+    </panel>
+    <panel depends="$tok_target_link_field$,$tok_result_non_raw$">
+      <chart>
+        <title>Resulting Events Overtime - For ($tok_user_drilldown_label$)</title>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$"
+$tok_results_b_srch$</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel depends="$tok_target_link_field$" rejects="$tok_result_non_raw$">
+      <chart>
+        <title>Resulting Events Overtime</title>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$"
+$tok_results_b_srch$</query>
+        </search>
+        <option name="charting.axisTitleX.visibility">collapsed</option>
+        <option name="charting.axisTitleY.visibility">collapsed</option>
+        <option name="charting.chart">line</option>
+        <option name="charting.legend.placement">bottom</option>
+      </chart>
+    </panel>
+    <panel depends="$tok_user_drilldown$">      
+      <chart>
+        <title>Sourcetype Counts for ($tok_user_drilldown_label$)</title>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$" 
+| fields sourcetype
+| stats count by sourcetype
+| sort -count</query>
+        </search>
+        <option name="charting.chart">pie</option>
+        <option name="charting.drilldown">all</option>
+      </chart>
+    </panel>
+  </row>
+  <row id="tab_results_raw" depends="$tok_tab_2$,$tok_user_drilldown$">
+    <panel depends="$tok_user_drilldown$" id="pan_dd_raw_filter">
+      <title>Raw Events for ($tok_user_drilldown_label$)</title>
+      <input type="dropdown" token="input_tok_dd_sourcetype" searchWhenChanged="true" depends="$tok_ou$,$tok_users_found$,$tok_show_sourcetype$">
+        <label>Filter Raw Results by $tok_dd_srch_inp$</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$"
+| fields $tok_dd_srch_inp$
+| stats count by $tok_dd_srch_inp$ 
+| sort $tok_dd_srch_inp$ 
+| table $tok_dd_srch_inp$</query>
+        </search>
+        <fieldForLabel>$tok_dd_srch_inp$</fieldForLabel>
+        <fieldForValue>$tok_dd_srch_inp$</fieldForValue>
+        <change>
+          <condition value="all">
+            <set token="tok_sourcetype_dd_filt"></set>
+          </condition>
+          <condition>
+            <set token="tok_sourcetype_dd_filt">$tok_dd_srch_inp$="$value$"</set>
+          </condition>
+        </change>
+      </input>
+      </panel>
+      <panel depends="$tok_user_drilldown$" id="pan_dd_raw">
+      <event>
+        <search base="base_built_search">
+          <query>search $tok_target_results_drilldown$"$tok_user_drilldown$" $tok_sourcetype_dd_filt$
+| table _time,_raw</query>
+        </search>
+        <option name="count">5</option>
+        <option name="list.drilldown">full</option>
+        <option name="list.wrap">0</option>
+        <option name="maxLines">100</option>
+        <option name="raw.drilldown">full</option>
+        <option name="table.drilldown">all</option>
+        <option name="table.wrap">0</option>
+        <option name="type">list</option>
+      </event>
+    </panel>
+  </row>
+  <row id="tab_details" depends="$tok_tab_3$">
+    <panel depends="$tok_target_link_field$,$tok_users_found$">
+      <html>
+        <h3> Built Search Details </h3>
+        <table border="1" cellpadding="10"> 
+  		<tr>
+          	<td style="width: 10%;">
+            	<center>
+              		<b>
+                		<i> Resulting Full Search:</i>
+              		</b>
+            	</center>
+          	</td>
+          	<td style="width: 80%;">
+            	<p style="font-size:12;">
+          		<b>
+                  <font color="$tok_base_srch_color$">$tok_base_srch_msg$</font>
+                </b>
+<pre style="width:80%;">$tok_base_srch_filt$
+$tok_sec_srch_res$</pre>  
+				</p>
+          	</td>
+          	<td style="width: 10%;">
+              <a href="/app/ms_windows_ad_objects/search?q=$tok_base_src_data_filt|u$%20$tok_filter_text|u$%20$tok_base_srch_filt|u$%20$tok_sec_srch_res$&amp;earliest=$field1.earliest$%40h&amp;latest=$field1.latest$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+              </a>
+          	</td>
+        </tr>
+		<tr>
+            <td style="width: 10%;">
+        		<center>
+            		<b>
+              			<i>Source Sub Search Filter:</i>
+            		</b>
+          		</center>
+            </td>
+            <td style="width: 80%;"> 
+                <p style="font-size:12;">
+<pre style="width:80%;">$tok_base_raw_srch_filt$</pre>
+				</p>
+            </td>
+          	<td style="width: 10%;">
+              <a href="/app/ms_windows_ad_objects/search?q=$tok_base_raw_srch_filt|u$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+              </a>
+          	</td>
+          </tr>
+		<tr style="$tok_sec_srch_disp_btn$">
+            <td style="width: 10%;">
+        		<center>
+            		<b>
+              			<i>Post Raw Collection - Sub Search Filter:</i>
+            		</b>
+          		</center>
+            </td>
+            <td style="width: 80%;"> 
+                <p style="font-size:12;">
+<pre style="width:80%;">$tok_sec_srch_disp$</pre>
+				</p>
+            </td>
+          	<td style="width: 10%">
+              <a href="/app/ms_windows_ad_objects/search?q=$tok_sec_srch_disp|u$" class="btn small" target="_blank">
+                  <i class="icon-search"> Open Search</i>
+              </a>
+          	</td>
+          </tr>
+          <tr>
+            <td style="width: 10%;vertical-align:top;">
+        		<center>
+            		<b>
+              			<i>Raw Sub Search - Filtered String:</i>
+            		</b>
+          		</center>
+            </td>         
+          	<td colspan="2" style="width:90%;">
+          		<p style="font-size:12;">
+<pre style="width:95%;">$tok_filter$</pre>
+				</p>
+          	</td>
+          </tr>
+        </table> 
+      </html>
+    </panel>
+  </row>
+  <row depends="$hidden_style$">
+    <panel>
+      <html>
+        <style>
+#tab_results_id:after {content: "\0020($tok_results_count$)";font-weight: bold !important;color:$tok_results_count_color$ !important;}   
+#tab_members_id:after {	content: "\0020($tok_user_count$)";font-weight: bold !important;color:$tok_user_count_color$ !important;}
+#input_src_filt_element_ou {width:500px !important;padding-right: 20px !important;margin-right: 20px !important;}
+[id^="input_src_filt_element_"] [data-component="splunk-core:/splunkjs/mvc/components/Dropdown"] {width: 475px !important;padding-right:20px;margin-right:20px !important;display: flex;}    
+#pan_dd_raw_filter {width: 20% !important;}
+#pan_dd_raw {width: 80% !important;}
+        </style>
+      </html>
+    </panel>
+  </row>
+</form>

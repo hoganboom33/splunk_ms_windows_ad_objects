@@ -1,0 +1,44 @@
+{
+  "schemaVersion": "1.0.0", 
+  "info": {
+    "title": "MS Windows AD Objects", 
+    "id": {
+      "group": null, 
+      "name": "ms_windows_ad_objects", 
+      "version": "5.0.0"
+    }, 
+    "author": [
+      {
+        "name": "Steve Hogan", 
+        "email": "shogan@splunk.com",
+        "company": "Splunk, Inc."
+      }
+    ],
+    "releaseDate": null,
+    "description": "Splunk Application to build and update AD Object Lookup Files using admon data collected from Splunk Universal Forwarders on a domain controller in the Active Directory environment.  5.0.0 adds MITRE ATT&CK technique mapping across the shipped detections, a summary-index feature engineering layer, three behavioural Active Directory risk models (change-velocity DensityFunction, peer-group KMeans and privilege-path graph analytics) writing to a KV Store risk collection, an optional and disabled-by-default GenAI/LLM narrative layer (entity explanation, alert triage and natural-language to SPL, all descriptive and never executed), and a labeled evaluation harness that measures per-model precision, recall and F1.  All machine learning and AI content ships disabled; the machine learning searches require Splunk Machine Learning Toolkit 5.4 or later.", 
+    "classification": {
+      "intendedAudience": "IT",
+      "categories": [
+        "IT Operations",
+        "Utilities",
+        "Security, Fraud & Compliance"
+      ],
+      "developmentStatus": "Production/Stable"
+    }, 
+    "commonInformationModels": null, 
+    "releaseNotes": {
+      "name": "README", 
+      "text": "README.txt",
+      "uri": "https://splunkbase.splunk.com/app/3177/#/details"
+    }
+  }, 
+  "dependencies": {
+    "Splunk_ML_Toolkit": {
+      "version": "5.4+",
+      "package": null,
+      "optional": true
+    }
+  },
+  "supportedDeployments": ["_standalone", "_distributed", "_search_head_clustering"],
+  "targetWorkloads": ["_search_heads"]
+}

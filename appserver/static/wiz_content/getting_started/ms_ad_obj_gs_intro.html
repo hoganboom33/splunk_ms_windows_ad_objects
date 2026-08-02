@@ -1,0 +1,282 @@
+﻿<div class="left-single-box">
+	<h1 style="text-align:center;font-family:proxima_nova;margin: 0;padding: 0;">Introduction - MS Windows AD Objects - Getting Started and Data In Guide</h1>
+	<p style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:italic;margin: 0;padding: 0;">The MS Windows AD Objects application leverages admon data for building and updating local AD Objects Splunk Lookups.   These lookup files can be leveraged for looking up the latest (&lt; 10 Minutes) AD attribute information of User, Groups, Group Policies, Organizational Units, and Computer AD objects. This app contains updated .conf files for the Splunk® for Windows Infrastructure for replacing the use of the Splunk® Support for Active Directory ldap queries in the searches/macros/pallete panels/dashboards to instead use the local Splunk AD Objects lookup files.</p>
+	<center>
+		<table border="2" style="padding: 4px;width:98%;">
+			<tr style="text-align:left !important;">
+				<td style="width:24%;vertical-align:top;padding:2px;">
+				<div style="height:530px !important;max-height:530px !important;overflow:scroll;">
+					<h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;padding-top:1px !important;margin-top:1px !important;">
+						Getting Started and Data In Guide Information
+					</h3>
+					<dl>
+						<dt>What's in this Guide?</dt>
+						<dd style="font-weight:200;">This Guide is specifically designed to help you not only configure the <b>MS Windows Application</b>, but also to help quickly get your Windows and Active Directory data in to Splunk.</dd>
+					<dd>To aligned the configuration steps to your Splunk Environment and Deplyoment needs, the <b>1. Scope Definition</b> will collect some basic information about your environment and deployment plans.</dd>
+					</dl>
+					<dl>
+						<dt>How to use this Guide</dt>
+						<dd style="font-weight:200;">Each <i>Section Step</i> of this guide builds on the previous Part, verify each of the previous steps or requirements have been completed before proceeding to the next Part.</dd>
+					</dl>
+					<dl>
+						<dt>Goals for the Guide</dt>
+						<dd style="font-weight:200;">At the end, you will have your Windows/Active Directory data flowing into Splunk, have the MS Windows AD Objects application configured and well on your way to start leveraging the power of Splunk.
+						</dd>
+					</dl>
+					<details style="padding:0px !important;margin:0px !important;">
+						<summary class="ms_obj_summary_step_tip" style="width:180px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+							<i class="ms_obj_icon_tip"></i>
+						</summary>
+						<dl>
+							<dt>Useful Information</dt>
+							<dd style="font-weight:200;"><b>New to Splunk:</b> If you are new to Splunk, it is recommended to specifically follow the steps outlined, and then once you become more familiar with Splunk you can adjust the different configurations, like data/indexes/etc.</dd>
+							<dd style="font-weight:200;"><b>Current Splunk Ninja:</b> If you are <b>Splunk Ninja</b>, it is recommended to still walk through this guide to ensure the required <b>MS Windows AD Objects</b> application's configuration steps are completed.</dd>
+							<dd style="font-weight:200;"><i class="icon-warning" style="padding-right:10px !important;font-size:25px !important;width:25px;height: 25px;padding-left: 4px;color:#DC4E41" /> <b>Upgrading Pre-Version 4.0 - MS Windows AD Objects:</b> If you are upgrading the MS Windows AD Objects application from a version prior to Version 4.0, it is <b>Highly</b> recommended you walk through this guide, because this version has numureous enhancements that you will both want to take advantage of, and make sure there is no impact to any custom created dashboards/reports in the previous version.</dd>
+						</dl>
+					</details>
+				</div>
+			</td>
+				<td style="width:38%;vertical-align:top;padding:4px;">
+				<h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;">
+					Guide Part Descriptions
+				</h3>
+				<table style="border: 3px solid #e20082;;padding: 4px;margin: 4px;">
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<img src="/static/app/ms_windows_ad_objects/icons/icon_edit_input.png" style="height: 40px;width: 40px;" title="Scope Definition"/>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+									Section Step 1: <i>Scope Definition</i>
+								</dt>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									<i><b>Required:</b> This step is used to align the subsequent steps with your environment and deployment plans.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<img src="/static/app/ms_windows_ad_objects/icons/icon_priority_list.png" style="height: 40px;width: 40px;" title="Preparation"/>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+									Section Step 2: <i>Preparation</i>
+								</dt>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									<i>Provides the preparation steps for the Splunk Core components, MS Windows AD Objects and TA Configuration.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">							
+							<img src="/static/app/ms_windows_ad_objects/icons/icon_splk_forwarder.png" style="height: 40px;width: 40px;" title="Deployment"/>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+									Section Step 3: <i>Deployment</i>
+								</dt>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;">
+									<i>Covers the steps for distributing the previously configured Splunk Technical Add-Ons to the target Windows Systems.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+									Section Step 4: <i>Check Data</i>
+								</dt>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+									<i>This section provides you a way of verifying, and troubleshooting previous configuration steps.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+					<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+						<td style="text-align:right;width: 10% !important;padding: 10px !important;padding:4px;border: 2px solid #f99d1c;">
+							<img src="/static/app/ms_windows_ad_objects/icons/icon_pre_check.png" style="height: 40px;width: 40px;" title="Build Lookup Step"/>
+						</td>
+						<td style="padding:2px;">
+							<dl style="margin-bottom:5px !important;margin-top:2px !important;">
+								<dt style="font-weight:200;padding-top:2px;margin-top:2px;">
+									Section Step 5: <i>Build Lookups</i>
+								</dt>
+								<dd style="font-weight:200;padding-top:2px;margin-top:2px;padding-bottom:2px;margin-bottom:2px;">
+									<i>This last section walks through the the final step of building the MS Windows AD Object's lookup tables.</i>
+								</dd>
+							</dl>
+						</td>
+					</tr>
+				</table>
+				<dl>
+					<dt><b>Section Step</b> Navigation:</dt>
+					<dd><i>Use the <a href="#" class="btn btn-mini sp-btn-gradient" id="info_nav_top_prev_btn"><i class="icon-chevron-left"/>Prev</a> <a href="#" class="btn btn-mini sp-btn-gradient" id="info_nav_top_next_btn">Next<i class="icon-chevron-right"/></a> navigation buttons to progress through each Section or click on the Sections icon.</i></dd>
+					<dd><a href="#" class="btn btn-mini sp-btn-gradient" id="info_nav_top_next_btn" data-t-mod-id="info_mod_intro_1_pop"><i>Click Here</i> to view the Icon Legend for this guide</a></dd>
+				</dl>
+			</td>
+				<td style="width:38%;vertical-align:top;padding:4px;">
+					<h3 style="text-align:center;font-family:proxima_nova;font-size:14px; font-style:strong;padding-left:5px;padding-right:5px;padding-top:1px !important;margin-top:1px !important;">
+					Application Architecture and Data Sources
+				</h3>
+					<div style="height:530px !important;max-height:530px !important;overflow:scroll;">
+						<table style="border: 3px solid #e20082;padding: 4px;margin: 4px; text-align:left;">
+							<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+								<td><center><h2><b>Required Applications</b></h2></center></td>
+						  	</tr>				  
+							<tr>
+							  <td style="padding:2px;">
+							   <table border="1" style="width:100%;border: 1px solid #f99d1c;">
+									<tr>
+										<td style="width:35%;text-align:center;"><center><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_sbase.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk Add-On for Windows (Splunk_TA_windows) <a href="https://splunkbase.splunk.com/app/742/" target="-blank"><i class="icon-external img_icon_small" /></a></center></td>
+										<td style="width:65%;padding:2px;"><div class="li_content">This TA (Technical Add-On) is for base Windows data collection</div></td>
+									</tr>
+									<tr>
+										<td style="padding:2px;"><center><img src="/static/app/ms_windows_ad_objects/img/ms_windows_ad_objects_icon.jpg" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> MS Windows AD Objects <a href="https://splunkbase.splunk.com/app/3177/" target="-blank"><i class="icon-external img_icon_small" /></a></center></td>
+										<td style="padding:2px;"><div class="li_content">The MS Windows AD Objects application provides over 50+ dashboards, and reports that primarily leverage admon(ActiveDirectory) build and updated in KV Store lookups.</div></td>
+									</tr>
+									<tr>
+										<td style="padding:2px;"><center><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_cloud.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk Cloud UF App (Splunk Cloud™ Only) <a href="https://docs.splunk.com/Documentation/SplunkCloud/latest/Data/UsingforwardingagentsCloud#Work_with_the_forwarder_app" target="-blank"><i class="icon-external img_icon_small" /></a></center></td>
+										<td style="padding:2px;"><div class="li_content">You install this app on your forwarder, heavy forwarder, or on your deployment server, and it allows you to easily connect to Splunk Cloud.</div></td>
+									</tr>
+								</table>
+								<ul class="note_lst" style="padding-top:10px;">
+									<li class="mrk_note"> The <b>MS Windows AD Objects</b> application provide pre-configured TA inputs for collecting windows and Active Directory data.   These are provided to help get you started with best practices, but they can me adjusted for your specific needs.  These Pre-defined TA's will be preceded by the <img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="height: 20px !important;width: 20px !important;padding-left:5px !important;"/> icon in this guide (<a href="/static/app/ms_windows_ad_objects/ex_win_ta/ms_ad_obj_ta_examples.zip"><img src="/static/app/ms_windows_ad_objects/icons/icon_app_download.png" style="height: 20px;width: 20px;" title="Preparation"/>  <b>Download TA Examples</b></a>)</li>
+								</ul>
+							  </td>
+							</tr>
+							<tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+								<td style="padding:2px;">
+									<details style="padding:0px !important;margin:0px !important;">
+										<summary class="ms_obj_summary_app" style="width:450px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+									<i class="ms_obj_icon_app"/><b>Splunk Core: <i>Installed Applications</i></b></summary>	
+									<table>
+									  <tr>
+										<td style="padding:2px;">
+											<ul class="note_lst">
+											  <li><h3>Splunk Cloud™ Managed Environment:</h3>
+													<ul style="width:90%;text-align:left;list-style: none;">	
+														<li><img src="/static/app/ms_windows_ad_objects/img/ms_windows_ad_objects_icon.jpg" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> MS Windows AD Objects</li>
+														<li><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_sbase.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk Add-On for Windows (Splunk_TA_windows)</li>
+													</ul>
+											  </li>
+											  <li class="mrk_note"> A cloud support ticket will need to be open to add the Splunk Windows Add-On for Windows to the Splunk Cloud Search Heads.</li>
+											  <li class="mrk_note"> Make sure <b>Sharing</b> is set to <b>Global</b> for all eventtypes, macros, and field extractions.</li>
+											</ul>
+										</td>
+									  </tr>
+									  <tr>
+										<td style="padding:2px;">
+										  <ul>					  
+											  <li>
+												<h3>Splunk® Enterprise:</h3>
+													<ul style="width:90%;text-align:left;list-style: none;">
+														<li style="text-align:left;list-style: none;"><b><i>Splunk Search Head</i></b>:
+															<ul>
+																<li><img src="/static/app/ms_windows_ad_objects/img/ms_windows_ad_objects_icon.jpg" id="img_vj_mgmt_icon" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> MS Windows AD Objects</li>
+																<li><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_sbase.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk Add-On for Windows (Splunk_TA_windows)</li>	  									
+															</ul>
+														</li>
+														<li><b><i>Splunk Indexer</i></b>:
+															<ul>
+																<li><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_sbase.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk Add-On for Windows (Splunk_TA_windows)</li>	  									
+															</ul>
+														</li>
+														<li><h3>Splunk Heavy Forwarder:</h3>
+															<ul style="width:90%;text-align:left;list-style: none;">
+															  <li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_splk_sbase.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows </li>
+															</ul>
+														</li>
+														<li><h3>Splunk Deployment Server</h3> 
+															<ul style="width:90%;text-align:left;list-style: none;">
+																<li> 
+																	<li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows (<b><i>* Full App and local\inputs.conf</i></b>)</li>
+																	<li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows_dc </li>
+																	<li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows_admon </li>
+																</li>
+															</ul>
+														</li>
+													</ul>
+												</li>
+											</ul>
+										</td>
+									  </tr>
+									</table>
+							</details>		  							
+							</td>
+						  </tr>
+						  <tr style="padding:4px;border: 2px solid #f99d1c;padding: 2px;margin: 2px;">
+							<td>
+								<details style="padding:0px !important;margin:0px !important;">
+								<summary class="ms_obj_summary_app" style="width:450px !important;text-align:left !important;padding:2px !important;margin:2px !important;">
+									<i class="ms_obj_icon_app"/><b>Splunk Universal Forwarders: <i>Applications</i></b></summary>	
+								<table>
+								<tr>
+									<td style="padding:2px;">
+									  <ul>
+										<li><h4>Splunk Universal Forwarder - Download <a href="https://www.splunk.com/en_us/download/universal-forwarder.html" target="_blank"><img src="/static/app/ms_windows_ad_objects/icons/icon_app_download.png" style="font-size:15px !important;height: 15px !important;width: 15px !important;"/>Splunk Universal Forwarder Download</a></h4></li>
+										</ul>
+									</td>
+								</tr>
+								<tr>
+									<td style="padding:2px;">
+									  <ul>
+										<li><h4>Windows Member Servers:</h4>
+												<ul>
+													  <li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows (<b><i>* Full App and local\inputs.conf</i></b>)</li>
+												</ul>
+											</li>
+											</ul>	
+									</td>
+								</tr>
+								<tr>
+									<td style="padding:2px;">
+									  <ul>
+												<li><h4>All Domain Controllers:</h4>
+													<ul>
+													  <li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows (<b><i>* Full App and local\inputs.conf</i></b>)</li>
+															<li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows_dc </li>
+											  
+														</ul>
+												</li>
+											</ul>	
+									</td>
+								</tr>	
+								  <tr>
+									<td style="padding:2px;">
+									  <ul>
+											<li><h4>Admon Collection:</h4>
+													<ul>
+														<li><i><b>Only Deploy this TA to one AD Domain Controller per AD Domain</b></i>
+															<ul>
+																<li style="text-align:left;list-style: none;"><img src="/static/app/ms_windows_ad_objects/icons/icon_custom_input.png" style="font-size:20px !important;height: 20px !important;width: 20px !important;"/> Splunk_TA_windows_admon </li>
+															</ul>
+															<ul>
+																<li><b>Note:</b> If deploying to a Domain Controller the <b>Splunk_TA_windows_admon</b> will be deployed along with the <b>Splunk_TA_windows</b> and <b>Splunk_TA_windows_dc</b> that are specified in the <i>All Domain Controllers</i> section above.</li>
+															</ul>
+														</li>
+													</ul>
+											</li>
+											</ul>	
+										</td>
+									</tr>					    
+								</table> 
+							</details>
+						   </td>
+			</tr>
+						</table>
+					</div>
+				</td>
+			</tr>
+		</table>
+	</center>
+</div>
+	

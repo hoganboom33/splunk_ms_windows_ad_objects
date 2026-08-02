@@ -1,0 +1,417 @@
+<form stylesheet="ms_ad_obj_changes.css" version="1.1">
+  <label>AD Objects - Computer - Changes</label>
+  <!-- Base Domain List Search -->
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Windows Change Events Search -->
+  <search id="base_obj_change">
+    <query>`ms_obj_changes_base_cat("Computer")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$)
+| `ms_obj_md_computer_change_cmb("$tok_computer_lkp$")`
+| eval domain="$tok_domain$"
+| lookup $tok_computer_lkp$ lookup_cmp AS comp_obj_lkp,domain AS domain OUTPUT cn,sAMAccountName,orig_cn,dn,lookup_cmp
+| eval computer_obj_lkp=if(isnull(orig_cn) OR orig_cn="",if(isnull(sAMAccountName) OR sAMAccountName="",if(isnull(cn) OR cn="",lower(comp_obj_lkp),lower(cn)),lower(sAMAccountName)),lower(orig_cn))
+| table time_group,adminuser,computer_obj_lkp,msad_action,Correlation_IDs,Change_Actions,Change_Summary,Change_Details,lookup_cmp</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+    <progress>
+      <unset token="show_win_results"></unset>
+      <unset token="show_win_results_msg"></unset>
+      <unset token="show_win_results_warn"></unset>
+      <set token="show_win_results_run">True</set>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_win_results_run"></unset>
+        <unset token="show_win_results"></unset>
+        <unset token="show_obj_filter"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">2. No Change Events for Selected Time Range. Adjust Time Range to view change results.</set>
+        <unset token="show_win_results_msg"></unset>
+        <set token="show_win_results_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_win_results_run"></unset>
+        <set token="show_win_results">True</set>
+        <set token="show_message">True</set>
+        <set token="show_obj_filter">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3+4: Select a Group or Filter the Group List</set>
+        <unset token="show_win_results_warn"></unset>
+        <set token="show_win_results_msg">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Create Object Search Filters -->
+  <search id="base_obj_filt">
+    <query>| makeresults
+| eval filt_raw_text="([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_cmp\",\"$tok_computer_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn\",\"raw_txt\")`])"
+| eval filt_raw_text_lbl="|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_cmp\",\"$tok_computer_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn\",\"raw_txt\")`"
+| eval filt_link="| search computer_obj_lkp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_cmp\",\"$tok_computer_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn\",\"link\")`])"
+| eval filt_link_r_evt="| search computer_obj_lkp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_cmp\",\"$tok_computer_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn\",\"link\")`])"
+| eval filt_link_admon="| search computer_obj_lkp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_cmp\",\"$tok_computer_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,dn\",\"link\")`])"
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt,filt_raw_text_lbl,filt_link_admon</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_filt_raw_txt"></unset>
+        <unset token="tok_filt_link"></unset>
+        <unset token="tok_filt_link_add"></unset>
+        <unset token="tok_filt_link_r_evt"></unset>
+        <unset token="tok_filt_link_admon"></unset>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("Computer","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_compute_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","raw_txt")`])
+| search comp_obj_sam IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_group("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","raw_txt")`]) 
+| eval computer_obj_lkp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+| search computer_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","link")`])</set>
+      </condition>
+      <condition>
+        <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+        <set token="tok_filt_link">$result.filt_link$</set>
+        <set token="tok_filt_link_add">$result.filt_link_add$</set>
+        <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+        <set token="tok_filt_link_admon">$result.filt_link_admon$</set>
+        <set token="tok_srch_filt_raw">$result.filt_raw_text_lbl$</set>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("Computer","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_compute_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","raw_txt")`])
+| search comp_obj_sam IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_group("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","raw_txt")`]) 
+| eval computer_obj_lkp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+| search computer_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_cmp","$tok_computer_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,dn","link")`])</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown Windows Change Events -->
+  <search base="base_obj_change" id="sub_dd_obj_search">
+    <query>search msad_action=$tok_msad_action$
+$tok_filt_link$</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_dd_msg"></unset>
+        <unset token="show_dd_tbl"></unset>
+        <set token="show_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_dd_msg">True</set>
+        <set token="show_dd_tbl">True</set>
+        <unset token="show_dd_warn"></unset>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Drilldown admon Events -->
+  <search id="base_obj_admon">
+    <query>`ms_obj_admon_flt_obj_type(ms_obj_md_admon_computer("$tok_dc_val$"),ms_obj_admon_base_a_type)` $tok_filt_raw_txt$
+| fields admonEventType,_time,_raw</query>
+    <progress>
+      <unset token="show_admon_results"></unset>
+      <unset token="show_admon_results_msg"></unset>
+      <unset token="show_admon_results_warn"></unset>
+      <set token="show_admon_results_run">True</set>
+    </progress>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_admon_results_run"></unset>
+        <unset token="show_admon_results"></unset>
+        <unset token="show_admon_dd_tbl"></unset>
+        <unset token="show_admon_results_msg"></unset>
+        <set token="show_admon_results_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_admon_results_run"></unset>
+        <set token="show_admon_results">True</set>
+        <set token="show_admon_dd_tbl">True</set>
+        <unset token="show_admon_results_warn"></unset>
+        <set token="show_admon_results_msg">True</set>
+      </condition>
+    </done>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <!-- Sub admon Action List -->
+  <search base="base_obj_admon" id="sub_dd_admon_type_search">
+    <query>fields admonEventType
+| stats count by admonEventType
+| table admonEventType</query>
+  </search>
+  <!-- Sub Drilldown admon Events -->
+  <search base="base_obj_admon" id="sub_dd_admon_search">
+    <query>search admonEventType=$tok_admon_action$
+$tok_filt_link_admon$</query>
+  </search>
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row id="rw_initial_filters">
+    <panel>
+      <input type="dropdown" token="tok_sel_domain" searchWhenChanged="true">
+        <label>1. Select Domain</label>
+        <choice value="sel">Select Domain...</choice>
+        <initialValue>sel</initialValue>
+        <default>sel</default>
+        <search base="base_domain_search">
+          <query>table domain | sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_domain"></unset>
+            <unset token="show_time_range"></unset>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the Target Domain to run the report against.</set>
+          </condition>
+          <condition>
+            <set token="show_message">True</set>
+            <set token="tok_user_domain_add">False</set>
+            <set token="tok_domain">$value$</set>
+            <set token="show_time_range">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Select Time Range for Change Activity.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="Time" depends="$show_time_range$">
+        <label>2. Time Range</label>
+        <default>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <condition>
+            <eval token="set_time_from">strftime(relative_time(now(),'earliest'),"%m/%d/%y %I:%M %p")</eval>
+            <eval token="set_time_to">strftime(relative_time(now(),'latest'),"%m/%d/%y %I:%M %p")</eval>
+          </condition>
+        </change>
+      </input>
+      <input id="input_computer_filter_list" type="text" token="tok_computer_filter_bs" searchWhenChanged="true" depends="$show_obj_filter$">
+        <label>3. Enter Computer Name Filter</label>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <change>
+          <condition match="len($value$)&gt;0">
+            <set token="tok_obj_list_filter">| search lookup_cmp="$value$"</set>
+          </condition>
+          <condition>
+            <set token="tok_obj_list_filter"></set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_computer_list" type="dropdown" token="inp_tok_obj" searchWhenChanged="true" depends="$show_obj_filter$">
+        <label>4. Select Computer</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <search base="base_obj_change" id="sub_obj_list_search">
+          <query>stats values(lookup_cmp) AS lookup_cmp by computer_obj_lkp $tok_obj_list_filter$
+  | sort computer_obj_lkp</query>
+        </search>
+        <fieldForLabel>computer_obj_lkp</fieldForLabel>
+        <fieldForValue>computer_obj_lkp</fieldForValue>
+        <change>
+          <condition value="all">
+            <unset token="tok_sel_obj"></unset>
+            <set token="tok_filt_link"></set>
+            <set token="tok_filt_raw_txt"></set>
+            <set token="tok_filt_link_admon"></set>
+          </condition>
+          <condition>
+            <set token="tok_sel_obj">$value$</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_message$" id="inp_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="$tok_message_color$">
+              <i>
+                <b>$tok_message_state$ </b> $tok_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+  </row>
+  <row>
+    <panel id="result_details_pan_list">
+      <title>Windows-Security-Relevant Changes - (From: $set_time_from$ To: $set_time_to$)</title>
+      <input type="dropdown" token="tok_evt_chg_type" searchWhenChanged="true" depends="$show_win_results$">
+        <label>Select Event Change Type</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <search base="base_obj_change" id="sub_change_actions">
+          <query>|stats count by msad_action
+| eval label=case(msad_action="enabled","Enabled",msad_action="created","Created",msad_action="disabled","Disabled",msad_action="modified" OR msad_action="changed","Modified",msad_action="deleted","Deleted",msad_action="moved","Moved")
+| eval label=if(isnull(label),msad_action,label)
+| table msad_action,label 
+| sort msad_action</query>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>msad_action</fieldForValue>
+        <change>
+          <condition value="all">
+            <set token="tok_msad_action">*</set>
+          </condition>
+          <condition>
+            <set token="tok_msad_action">$value$</set>
+          </condition>
+        </change>
+      </input>
+      <input id="input_res_field_type" type="radio" token="input_tbl_res_flds" searchWhenChanged="true" depends="$show_win_results$">
+        <label>Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+        <change>
+          <condition value="Change_Summary">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Summary</set>
+          </condition>
+          <condition value="Change_Details">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Details</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_win_results_run$" id="result_win_results_run">
+        <center>
+          <h3>
+            <img class="run_spin run_spin_dom_chk hidden" style="height:20px;width:20px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Searching for Windows Change Events</h3>
+        </center>
+      </html>
+      <table id="result_details_tbl_dd" depends="$show_win_results$">
+        <search base="sub_dd_obj_search">
+          <query>table time_group,adminuser,computer_obj_lkp,Change_Actions,$tok_tbl_res_flds$
+| rename time_group AS Time_Minute_Group,adminuser as "Administrator",computer_obj_lkp AS "Target_Computer",Change_Details as "Change Details",Change_Summary as "Change Summary"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$Time.earliest$&latest=$Time.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_dd" depends="$show_win_results_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$Time.earliest$&amp;latest=$Time.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw events for <b>All Windows Change</b> activities</p><p style="font-size:8;">Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_warn" depends="$show_win_results_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No Windows Change Events found within Time Period (From: $set_time_from$ To: $set_time_to$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$Time.earliest$&amp;latest=$Time.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Raw Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Windows Change</b> activities</h4>
+        </center>
+      </html>
+    </panel>
+    <panel id="result_details_pan_admon_dd">
+      <title>Directory Record Changes - (From: $set_time_from$ To: $set_time_to$)</title>
+      <input type="dropdown" token="inp_tok_admon_action" searchWhenChanged="true" depends="$show_admon_results$">
+        <label>Select admon Change Type</label>
+        <choice value="all">All</choice>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <search base="sub_dd_admon_type_search">
+          <query>eval trigger="$show_admon_results$"</query>
+        </search>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>admonEventType</fieldForValue>
+        <change>
+          <condition value="all">
+            <set token="tok_admon_action">*</set>
+          </condition>
+          <condition>
+            <set token="tok_admon_action">$value$</set>
+          </condition>
+        </change>
+      </input>
+      <html id="result_admon_results_run" depends="$show_admon_results_run$">
+        <center>
+          <h3>
+            <img class="run_spin run_spin_dom_chk hidden" style="height:20px;width:20px;" src="/static/app/ms_windows_ad_objects/loader_green_on_grey.gif"/> Searching for Directory Change Events</h3>
+        </center>
+      </html>
+      <event id="result_details_tbl_admon_dd" depends="$show_admon_results$">
+        <search base="base_obj_admon">
+          <query/>
+        </search>
+        <option name="count">5</option>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$Time.earliest$&latest=$Time.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </event>
+      <html id="result_details_msg_admon_dd" depends="$show_admon_results_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$Time.earliest$&amp;latest=$Time.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw <b>admon</b> events for <b>All Admon Change</b> activities</p><p style="font-size:8;">Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_admon_warn" depends="$show_admon_results_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No Admon Change Events found within Time Period (From: $set_time_from$ To: $set_time_to$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$Time.earliest$&amp;latest=$Time.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Admon Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Admon Change</b> activities:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+  </row>
+</form>

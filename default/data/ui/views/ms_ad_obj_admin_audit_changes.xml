@@ -1,0 +1,1293 @@
+<form script="audit_report.js,ms_ad_obj_html_token_setter.js" stylesheet="ms_ad_obj_gbl_tabs.css" version="1.1">
+  <label>AD Objects - Admin - Change Management</label>
+  <init>
+    <unset token="tok_show_tabs"></unset>
+    <unset token="tok_srch_admin_raw_filter"></unset>
+    <unset token="tok_srch_admin_user_filter"></unset>
+    <unset token="tok_start_chg_srch"></unset>
+    <unset token="tok_start_logon_srch"></unset>
+    <unset token="tok_group_search"></unset>
+    <unset token="tok_admin_search"></unset>
+    <unset token="tok_show_filter_btns"></unset>
+    <set token="tok_login_count">0</set>
+    <set token="tok_login_color">orange</set>
+    <set token="tok_user_chg_count">0</set>
+    <set token="tok_user_chg_color">orange</set>
+    <set token="tok_group_chg_count">0</set>
+    <set token="tok_group_chg_color">orange</set>
+    <set token="tok_group_m_chg_count">0</set>
+    <set token="tok_group_m_chg_color">orange</set>
+    <set token="tok_comp_chg_count">0</set>
+    <set token="tok_comp_chg_color">orange</set>
+    <set token="tok_gpo_chg_count">0</set>
+    <set token="tok_gpo_chg_color">orange</set>
+    <set token="tok_ou_chg_count">0</set>
+    <set token="tok_ou_chg_color">orange</set>
+  </init>
+  <search id="base_time_filt">
+    <query>| makeresults
+| eval t_filt_s ="$main_Time.earliest$", t_filt_e="$main_Time.latest$"
+| eval t_filt_s_f=case(match(t_filt_s,"^\d+$"),t_filt_s,t_filt_s="",0,match(t_filt_s,"^(\-|\@)"),relative_time(now(),t_filt_s))
+| eval t_filt_e_f=case(match(t_filt_e,"^\d+$"),t_filt_e,t_filt_e="",9999999999,match(t_filt_e,"^(\-|\@)"),relative_time(now(),t_filt_e),t_filt_e="now",now())
+| eval t_filt_s_l=if(t_filt_s_f=0,"0",strftime(t_filt_s_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_e_l=if(t_filt_e_f=9999999999,"All Time",strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| eval t_filt_full_l=if(t_filt_e_f=9999999999,"All Time","From: ".strftime(t_filt_s_f,"%m/%d/%y %I:%M %P")." To: ".strftime(t_filt_e_f,"%m/%d/%y %I:%M %P"))
+| table t_filt_s_f, t_filt_s_l,t_filt_e_f, t_filt_e_l,t_filt_full_l</query>
+    <progress>
+      <condition>
+        <set token="time_from_val">$result.t_filt_s_f$</set>
+        <set token="time_to_val">$result.t_filt_e_f$</set>
+        <set token="time_from_string">$result.t_filt_s_l$</set>
+        <set token="time_to_string">$result.t_filt_e_l$</set>
+        <set token="tok_filt_msg">$result.t_filt_full_l$</set>
+      </condition>
+    </progress>
+  </search>
+  <search id="init_admin_list">
+    <query>| inputlookup AD_Obj_Admin_Audit WHERE [| `ms_obj_domain_list`| stats values(domain) AS admin_domain | format | table search]
+| eval last_time_utc=tonumber(last_time_utc)    
+| search last_time_utc&gt;$time_from_val$
+| eventstats values(admin_domain) AS domain_filt
+| eval domain_filt="\"".mvjoin(domain_filt,"\",\"")."\""
+| table domain_filt,admin_domain,admin_user,last_time_string,last_time_utc</query> 
+    <preview>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_admin_show_running">True</set>
+        <eval token="tok_admin_initial_progress">round(($job.doneProgress$*100),0)</eval>
+        <set token="tok_admin_initial_state">$job.dispatchState$</set>
+        <set token="tok_user_chg_count">0</set>
+        <set token="tok_user_chg_color">red</set>
+        <set token="tok_group_chg_count">0</set>
+        <set token="tok_group_chg_color">red</set>
+        <set token="tok_comp_chg_count">0</set>
+        <set token="tok_comp_chg_color">red</set>
+        <set token="tok_gpo_chg_count">0</set>
+        <set token="tok_gpo_chg_color">red</set>
+        <set token="tok_ou_chg_count">0</set>
+        <set token="tok_ou_chg_color">red</set>
+        <unset token="tok_admin_show_warn"></unset>
+        <unset token="tok_admin_show_inputs"></unset>
+      </condition>
+      <condition>
+        <unset token="tok_admin_show_warn"></unset>
+        <unset token="tok_admin_show_running"></unset>
+        <set token="tok_admin_show_inputs">True</set>
+        <set token="tok_user_chg_count">0</set>
+        <set token="tok_user_chg_color">orange</set>
+        <set token="tok_group_chg_count">0</set>
+        <set token="tok_group_chg_color">orange</set>
+        <set token="tok_comp_chg_count">0</set>
+        <set token="tok_comp_chg_color">orange</set>
+        <set token="tok_gpo_chg_count">0</set>
+        <set token="tok_gpo_chg_color">orange</set>
+        <set token="tok_ou_chg_count">0</set>
+        <set token="tok_ou_chg_color">orange</set>
+      </condition>
+    </preview>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_show_tabs"></unset>
+        <unset token="tok_admin_show_inputs"></unset>
+        <unset token="tok_admin_show_running"></unset>
+        <set token="tok_admin_show_warn">True</set>
+        <set token="tok_admin_audit_base_srch">| inputlookup AD_Obj_Admin_Audit WHERE [| `ms_obj_domain_list`| stats values(domain) AS admin_domain | format | table search]| sort -last_time_utc</set>
+      </condition>
+      <condition>
+        <unset token="tok_admin_show_warn"></unset>
+        <unset token="tok_admin_show_running"></unset>
+        <set token="tok_domain_filt">$result.domain_filt$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`
+| search domain IN($tok_domain_filt$)</query>
+    <progress>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="tok_show_domain_inp"></unset>
+        <unset token="tok_inp_message"></unset>
+      </condition>
+      <condition>
+        <set token="tok_show_domain_inp">True</set>
+        <set token="tok_inp_message">True</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="tok_admin_show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="tok_admin_show_inputs">True</set>
+        <set token="tok_show_domain_inp">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Search for getting Admin Login Events -->  
+  <search id="base_logon_search">
+    <query>`ms_obj_$tok_start_logon_srch$("user")` $tok_domain$ ([|$tok_srch_admin_raw_filter$])
+| fields _time,signature,src_ip,src_host,src_nt_host,src_nt_domain,dest_nt_domain,user,Logon_Type,host,status,Failure_Reason
+| eval Failure_Reason=if(isnull(Failure_Reason),if(isnull(signature),"Unknown",signature),Failure_Reason)
+| eval src_ip=if(isnull(src_ip) OR src_ip=="127.0.0.1" OR src_ip=="::1" OR src_ip="-","localhost",src_ip),src_nt_domain=if(isnull(src_nt_domain),upper(dest_nt_domain),upper(src_nt_domain))
+| eval src_nt_host=if(isnull(src_nt_host),if(isnull(srch_host),if(src_ip=="localhost",upper(host),upper(host)." (".src_ip.")"),upper(src_host)),replace(src_nt_host,"\s","####"))
+| makemv delim="####" src_nt_host
+| lookup AD_Audit_Logon_Types Logon_Type OUTPUT Logon_TypeName
+| eval Logon_Type="[Type ID: ".Logon_Type." ] ".Logon_TypeName
+| fillnull value="Not In Event" src_nt_host, src_ip,Logon_Type,src_nt_domain,status
+| eval src_user=lower(user)
+| stats values(src_nt_host) AS src_nt_host, count by src_ip,src_nt_domain,src_user,Logon_Type,status,Failure_Reason
+| search src_user IN([|$tok_srch_admin_user_filter$])
+| eventstats sum(count) AS sess_count</query>
+    <earliest>$main_Time.earliest$</earliest>
+    <latest>$main_Time.latest$</latest>
+    <progress>
+      <condition>
+        <eval token="tok_login_count">$job.dispatchState$</eval>
+        <set token="tok_login_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_login_count">0</set>
+        <set token="tok_login_color">red</set>
+      </condition>
+      <condition>
+        <eval token="tok_login_count">toString($result.sess_count$,"commas")</eval>
+        <set token="tok_login_color">green</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Base Search for getting User, Group and Computer Change Events -->
+  <search id="base_ugc_chg_search">
+    <query>`ms_obj_win_events_security`
+[| inputlookup AD_Audit_Change_EventCodes WHERE change_category="User" OR change_category="Computer" OR change_category="Group" OR change_category="Group Membership"
+    | stats values(EventCode) AS EventCode by obj_type
+    | format
+    | table search] src_user_type="user" ([|$tok_srch_admin_raw_filter$])
+| fields _time,EventCode,comp_obj_dn,comp_obj_sam,group_obj_lkp,msad_action,dir_svcs_action,obj_type,signature,change_signature,src_nt_domain,dest_nt_domain,src_user,user,user_obj_lkp,user_obj_dn,user_type,AttributeLDAPDisplayName,AttributeValue,Correlation_ID,DN,MSADChangedAttributes,MSADChanges,MSADGroupClass,MSADGroupClassID,MSADGroupType,New_DN,Old_DN,change_category,member_obj_cn,member_obj_dn,member_obj_lkp,member_obj_id,member_obj_sam,Old_Account_Name,New_Account_Name
+| lookup AD_Audit_Change_EventCodes EventCode AS EventCode,obj_type AS obj_type OUTPUT change_category
+| eval member_obj_lkp=trim(member_obj_lkp)
+| eval group_obj_val=if(obj_type="group",if(isnull(member_obj_lkp),if(isnull(group_obj_lkp),NULL,trim(group_obj_lkp)),member_obj_lkp),NULL)
+| eval user_obj_lkp=if(obj_type="user" OR Class="user" OR objectClass=="user",if(isnull(New_Account_Name),if(isnull(user_obj_dn),if(isnull(DN),if(isnull(New_DN),lower(user),lower(New_DN)),lower(DN)),lower(user_obj_dn)),lower(New_Account_Name)),NULL)
+| eval computer_obj_lkp=if(obj_type="computer" OR user_type="computer" OR Class="computer" OR objectClass=="computer",if(isnull(comp_obj_dn),if(isnull(comp_obj_sam),if(match(user,"\$$"),user,NULL),comp_obj_sam),comp_obj_dn),NULL)
+| eval obj_val=mvappend(user_obj_lkp,group_obj_val,computer_obj_lkp)
+| eval dir_svcs_action=if(isnull(dir_svcs_action),"Unknown",dir_svcs_action)
+| eval adminuser=if(isnull(src_nt_domain),if(isnull(dest_nt_domain),src_user,dest_nt_domain."\\".src_user),src_nt_domain."\\".src_user)
+| stats values(*) AS * by _time,adminuser,src_user,obj_val,msad_action,dir_svcs_action
+| eval domain="$tok_domain$"
+| search src_user IN([|$tok_srch_admin_user_filter$])</query>
+    <progress>
+      <condition match=" 'job.resultCount' != 0">
+        <set token="tok_tab_1">active</set>
+        <unset token="tok_tab_2"></unset>
+        <unset token="tok_tab_3"></unset>
+        <unset token="tok_tab_4"></unset>
+        <unset token="tok_tab_5"></unset>
+        <unset token="tok_tab_6"></unset>
+        <unset token="tok_tab_7"></unset>
+        <unset token="tok_tab_8"></unset>
+        <unset token="tok_tab_9"></unset>
+      </condition>
+    </progress>
+    <earliest>$main_Time.earliest$</earliest>
+    <latest>$main_Time.latest$</latest>
+  </search>
+<!-- Sub Searches for User, Groups and Computer Changes -->  
+<!--    Groups Changes | `ms_obj_md_group_change_out("$tok_group_lkp$")`-->
+  <search base="base_ugc_chg_search" id="sub_group_chg_srch">
+          <query>search obj_type="group" change_category!="Group Membership"
+| `ms_obj_md_group_change_cmb("$tok_group_lkp$")`</query>
+    <progress>
+      <condition>
+        <eval token="tok_group_chg_count">$job.dispatchState$</eval>
+        <set token="tok_group_chg_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_group_chg_count">0</set>
+        <set token="tok_group_chg_color">red</set>
+        <unset token="tok_show_group_res_type"></unset>
+      </condition>
+      <condition>
+        <eval token="tok_group_chg_count">toString($job.resultCount$,"commas")</eval>
+        <set token="tok_group_chg_color">green</set>
+        <set token="tok_show_group_res_type">True</set>
+      </condition>
+    </done>
+  </search>
+<!--    Group Membership Changes | `ms_obj_md_group_m_change_out("$tok_group_lkp$","$tok_user_lkp$","$tok_computer_lkp$")` -->
+  <search base="base_ugc_chg_search" id="sub_group_m_chg_srch">
+          <query>search obj_type="group" change_category="Group Membership"
+| `ms_obj_md_group_change_cmb("$tok_group_lkp$")`
+| lookup $tok_group_lkp$ lookup_grp AS group,domain AS domain OUTPUT MSADGroupClass,MSADGroupType
+| lookup $tok_user_lkp$ lookup_usr AS member_obj_lkp,domain AS domain OUTPUT cn AS u_cn
+| lookup $tok_group_lkp$ lookup_grp AS member_obj_lkp,domain AS domain OUTPUT cn AS g_cn
+| lookup $tok_computer_lkp$ lookup_cmp AS member_obj_lkp,domain AS domain OUTPUT cn AS c_cn
+| eval member=if(isnull(u_cn),if(isnull(g_cn),if(isnull(c_cn),member_obj_lkp,mvdedup(c_cn)),mvdedup(g_cn)),mvdedup(u_cn))
+</query>
+    <progress>
+      <condition>
+        <eval token="tok_group_m_chg_count">$job.dispatchState$</eval>
+        <set token="tok_group_m_chg_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_group_m_chg_count">0</set>
+        <set token="tok_group_m_chg_color">red</set>
+        <unset token="tok_show_group_m_res_type"></unset>
+      </condition>
+      <condition>
+        <eval token="tok_group_m_chg_count">toString($job.resultCount$,"commas")</eval>
+        <set token="tok_group_m_chg_color">green</set>
+        <set token="tok_show_group_m_res_type">True</set>
+      </condition>
+    </done>
+  </search>
+<!--    User Changes -->
+  <search base="base_ugc_chg_search" id="sub_user_chg_srch">
+          <query>search obj_type="user" change_category="User"
+| `ms_obj_md_user_change_cmb("$tok_user_lkp$")`</query>
+    <progress>
+      <condition>
+        <eval token="tok_user_chg_count">$job.dispatchState$</eval>
+        <set token="tok_user_chg_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_user_chg_count">0</set>
+        <set token="tok_user_chg_color">red</set>
+        <unset token="tok_show_user_res_type"></unset>
+      </condition>
+      <condition>
+        <eval token="tok_user_chg_count">toString($job.resultCount$,"commas")</eval>
+        <set token="tok_user_chg_color">green</set>
+        <set token="tok_show_user_res_type">True</set>
+      </condition>
+    </done>
+  </search>
+<!--    Computer Changes -->
+  <search base="base_ugc_chg_search" id="sub_comp_chg_srch">
+          <query>search obj_type="Computer" change_category="Computer"
+| `ms_obj_md_computer_change_cmb("$tok_computer_lkp$")`
+| lookup $tok_computer_lkp$ lookup_cmp AS comp_obj_lkp,domain AS domain OUTPUT cn,sAMAccountName,orig_cn,dn,lookup_cmp
+| eval computer_obj_lkp=if(isnull(orig_cn) OR orig_cn="",if(isnull(sAMAccountName) OR sAMAccountName="",if(isnull(cn) OR cn="",lower(comp_obj_lkp),lower(cn)),lower(sAMAccountName)),lower(orig_cn))
+| table time_group,adminuser,computer_obj_lkp,msad_action,Correlation_IDs,Change_Actions,Change_Summary,Change_Details,lookup_cmp</query>
+    <progress>
+      <condition>
+        <eval token="tok_comp_chg_count">$job.dispatchState$</eval>
+        <set token="tok_comp_chg_color">blue</set>
+      </condition>
+    </progress>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="tok_comp_chg_count">0</set>
+        <set token="tok_comp_chg_color">red</set>
+        <unset token="tok_show_comp_res_type"></unset>
+      </condition>
+      <condition>
+        <eval token="tok_comp_chg_count">toString($job.resultCount$,"commas")</eval>
+        <set token="tok_comp_chg_color">green</set>
+        <set token="tok_show_comp_res_type">True</set>
+      </condition>
+    </done>
+  </search>
+<!-- Admin Group Membership Searches -->
+  <search id="base_group_members">
+    <query>| inputlookup $tok_group_lkp$ WHERE dn="$tok_group$" AND domain="$tok_domain$"
+| fields cn,dn,member
+| rename cn AS Group,dn AS Group_DN
+| rename member AS dn
+| mvexpand dn
+| table Group,Group_DN,dn</query>
+  </search>
+  <search base="base_aa_list" id="sub_admin_group_list">
+    <query>stats values(admin_user_filt_val) AS admin_user_filt_val by Group_dn
+| eval domain="$tok_domain$"
+| lookup $tok_group_lkp$ dn AS Group_dn,domain AS domain OUTPUT cn AS Group_cn,groupType,groupType_Name
+| eval admin_user_filter=mvjoin(admin_user_filt_val,"|")
+| table admin_user_filter,Group_dn,Group_cn,groupType,groupType_Name</query>
+  </search>
+  <search id="base_target_details">
+    <query>$tok_base_info_srch$
+| table *</query>
+  </search>
+  <search base="base_target_details">
+    <query>table objectGUID,cn,domain,distinguishedName,description,displayName,IsDeleted,IsRecycled,objectSid,sAMAccountName,whenChanged,whenCreated,last_time_utc</query>
+    <progress>
+      <set token="tok_desc_cn">$result.cn$</set>
+      <set token="tok_desc_domain">$result.domain$</set>
+      <set token="tok_desc_distinguishedName">$result.distinguishedName$</set>
+      <set token="tok_group_dn">$result.distinguishedName$</set>
+      <set token="tok_desc_description">$result.description$</set>
+      <set token="tok_desc_displayName">$result.displayName$</set>
+      <set token="tok_desc_IsDeleted">$result.isDeleted$</set>
+      <set token="tok_desc_IsRecycled">$result.isRecycled$</set>
+      <set token="tok_desc_objectSid">$result.objectSid$</set>
+      <set token="tok_desc_sAMAccountName">$result.sAMAccountName$</set>
+      <set token="tok_desc_whenChanged">$result.whenChanged$</set>
+      <set token="tok_desc_whenCreated">$result.whenCreated$</set>
+    </progress>
+  </search><!--eval trigger="$tok_base_admin_lst_tg$" base="init_admin_list"-->
+  <search id="base_aa_list" >
+    <query>| inputlookup AD_Obj_Admin_Audit WHERE admin_domain="$tok_domain$"
+| lookup $tok_user_lkp$ lookup_usr AS admin_user,domain AS admin_domain OUTPUT description,displayName,isRecycled,isDeleted,objectSid,whenChanged,whenCreated,objectGUID AS admin_objectGUID,cn AS admin_cn,dn AS admin_dn
+| lookup $tok_group_lkp$ member AS admin_dn,domain AS admin_domain OUTPUT dn AS Group_dn
+| eval IsDeleted=if(IsDeleted=="TRUE" OR IsRecycled=="TRUE","TRUE","FALSE")
+| eval admin_user_filt_val=admin_user
+| eval admin_user_filt_val="\"".mvjoin(mvappend(admin_user_filt_val,admin_dn,admin_userPrincipalName),"|")."\""
+| table admin_domain,admin_user, admin_objectGUID, admin_cn,admin_dn,last_time_string,last_time_utc,description,displayName,isRecycled,isDeleted,objectSid,whenChanged,whenCreated,objectGUID,Group_dn,admin_user_filt_val</query>
+  </search>
+<!-- LDAP Tab View Searches -->
+  <search id="audit_query" base="base_target_details">
+    <query> makemv delim="|" objectClass
+| makemv delim="####" dSCorePropagationData    
+| makemv delim=" " userAccountControl      
+| fields *</query>
+  </search>
+  <fieldset submitButton="false" autoRun="false">
+  </fieldset>
+  <row id="rw_initial_filters">
+    <panel id="rw_initial_panel">
+      <input type="time" token="main_Time" searchWhenChanged="true">
+        <label>Select Time Range (Last Time)</label>
+        <default>
+          <earliest>@d</earliest>
+          <latest>now</latest>
+        </default>
+      </input>    
+      <input type="dropdown" token="inp_tok_domain" searchWhenChanged="true" depends="$tok_show_domain_inp$" id="inp_sel_domain">
+        <label>1. Select Admin Domain</label>
+        <choice value="sel">Select Domain...</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+          <search base="base_domain_search">
+            <query>sort domain</query>
+          </search>
+          <fieldForLabel>domain</fieldForLabel>
+          <fieldForValue>domain</fieldForValue>
+          <change>
+            <condition value="sel">
+              <unset token="tok_show_srch_type"></unset>
+              <unset token="tok_srch_ad_user_list"></unset>
+              <unset token="tok_start_logon_srch"></unset>
+              <unset token="tok_start_chg_srch"></unset>
+              <unset token="tok_srch_admin_raw_filter"></unset>
+              <unset token="tok_srch_admin_user_filter"></unset>
+              <unset token="tok_group_search"></unset>
+              <unset token="tok_admin_search"></unset>
+              <unset token="tok_domain"></unset>
+              <set token="atok_search_type">admin_search</set>
+              <set token="form.atok_search_type">admin_search</set>
+              <set token="tok_message_color">green</set>
+              <set token="tok_message_state">Info:</set>
+              <set token="tok_message">1: Select the AD Domain for the target Administrators</set>
+            </condition>
+            <condition>
+              <unset token="tok_srch_ad_user_list"></unset>
+              <unset token="tok_start_logon_srch"></unset>
+              <unset token="tok_start_chg_srch"></unset>
+              <unset token="tok_srch_admin_raw_filter"></unset>
+              <unset token="tok_srch_admin_user_filter"></unset>
+              <unset token="tok_group_search"></unset>
+              <unset token="tok_admin_search"></unset>
+              <set token="tok_base_admin_lst_tg">$value$</set>
+              <set token="tok_domain">$value$</set>
+              <set token="atok_search_type">admin_search</set>
+              <set token="form.atok_search_type">admin_search</set>
+              <set token="tok_show_srch_type">true</set>
+              <set token="tok_user">sel</set>
+              <set token="form.tok_user">sel</set>
+              <set token="tok_message_color">green</set>
+              <set token="tok_message_state">Info:</set>
+              <set token="tok_message">2: Select how you would like to search for admin changes, by either admin group, or specific admin.</set>
+            </condition>
+          </change>
+        </input>    
+      <input type="radio" token="tok_search_type" searchWhenChanged="true" depends="$tok_show_srch_type$" id="inp_sel_a_type">
+        <label>2. Search by Group Or Admin</label>
+        <choice value="admin_search">By Admin</choice>
+        <choice value="group_search">By Group</choice>
+        <change>
+          <condition value="group_search">
+            <unset token="tok_admin_search"></unset>
+            <unset token="tok_audit_value_label"></unset>
+            <unset token="tok_audit_value"></unset>
+            <unset token="tok_start_chg_srch"></unset>
+            <unset token="tok_start_logon_srch"></unset>
+            <unset token="tok_user"></unset>
+            <unset token="tok_srch_admin_user_filter"></unset>
+            <unset token="tok_srch_admin_raw_filter"></unset>
+            <set token="tok_group_type_bs">all</set>
+            <set token="form.tok_group_type_bs">all</set>
+            <set token="tok_group_search">True</set>
+            <set token="tok_group">sel</set>
+            <set token="form.tok_group">sel</set>
+            <set token="tab_active_desc">AD Object Details Description for</set>
+            <set token="tok_login_count">0</set>
+            <set token="tok_login_color">orange</set>
+            <set token="tok_group_chg_count">0</set>
+            <set token="tok_user_chg_count">0</set>
+            <set token="tok_gpo_chg_count">0</set>
+            <set token="tok_ou_chg_count">0</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">3 + 4: Select Group Type to filter the Group List, and then Select the Admin Group to search for changes made by its members.</set>
+          </condition>
+          <condition value="admin_search">
+            <unset token="tok_group_search"></unset>
+            <unset token="tok_group"></unset>
+            <unset token="tok_srch_admin_user_filter"></unset>
+            <unset token="tok_srch_admin_raw_filter"></unset>
+            <unset token="tok_audit_value_label"></unset>
+            <unset token="tok_audit_value"></unset>
+            <unset token="tok_start_chg_srch"></unset>
+            <unset token="tok_start_logon_srch"></unset>
+            <set token="tok_admin_search">True</set>
+            <set token="tok_user">sel</set>
+            <set token="form.tok_user">sel</set>
+            <set token="tab_active_desc">AD Object Details Description for</set>
+            <set token="tok_login_count">0</set>
+            <set token="tok_login_color">orange</set>
+            <set token="tok_group_chg_count">0</set>
+            <set token="tok_user_chg_count">0</set>
+            <set token="tok_gpo_chg_count">0</set>
+            <set token="tok_ou_chg_count">0</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">3: Select a Specific Admin to search for changes made by them.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_group_type_bs" searchWhenChanged="true" depends="$tok_group_search$" id="inp_sel_grp_type">
+        <label>3. Select Group Type</label>
+        <choice value="all">All</choice>
+        <search base="sub_admin_group_list">
+          <query>stats count by groupType_Name | sort groupType_Name</query>
+        </search>
+        <fieldForLabel>groupType_Name</fieldForLabel>
+        <fieldForValue>groupType_Name</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_group">sel</set>
+            <set token="form.tok_group">sel</set>
+            <set token="tok_group_type">*</set>
+          </condition>
+          <condition>
+            <set token="tok_group">sel</set>
+            <set token="form.tok_group">sel</set>
+            <set token="tok_group_type">$value$</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_group" searchWhenChanged="true" depends="$tok_group_search$" id="inp_sel_grp">
+        <label>4. Select Group</label>
+        <search base="sub_admin_group_list">
+          <query>search groupType_Name="$tok_group_type$" |table Group_cn,Group_dn | sort Group_cn</query>
+        </search>
+        <choice value="sel">Select Admin Group</choice>
+        <fieldForLabel>Group_cn</fieldForLabel>
+        <fieldForValue>Group_dn</fieldForValue>
+        <selectFirstChoice>True</selectFirstChoice>
+        <change>
+          <condition value="sel">
+            <unset token="tok_audit_value"></unset>
+            <unset token="tok_admin_name"></unset>
+            <unset token="tok_audit_value_label"></unset>
+            <unset token="tok_srch_admin_user_filter"></unset>
+            <unset token="tok_srch_admin_raw_filter"></unset>
+            <unset token="tok_admin_type_label"></unset>
+            <unset token="tok_start_chg_srch"></unset>
+            <unset token="tok_start_logon_srch"></unset>
+          </condition>
+          <condition>
+            <set token="tok_show_tabs">True</set>
+            <unset token="tok_tab_2"></unset>
+            <unset token="tok_tab_3"></unset>
+            <unset token="tok_tab_4"></unset>
+            <unset token="tok_tab_5"></unset>
+            <unset token="tok_tab_6"></unset>
+            <unset token="tok_tab_7"></unset>
+            <unset token="tok_tab_8"></unset>
+            <unset token="tok_tab_9"></unset>
+            <set token="form.tok_comp_res_tp">Change_Summary</set>
+            <set token="form.tok_user_res_tp">Change_Summary</set>
+            <set token="form.tok_group_m_res_tp">Change_Summary</set>
+            <set token="form.tok_group_res_tp">Change_Summary</set>
+            <set token="form.inp_filt_comp_bs">all</set>
+            <set token="form.inp_filt_user_bs">all</set>
+            <set token="form.inp_filt_m_group_bs">all</set>
+            <set token="form.inp_filt_member_bs">all</set>
+            <set token="form.inp_filt_group_bs">all</set>
+            <set token="tok_tab_1">active</set>
+            <set token="tok_base_info_srch">| inputlookup $tok_group_lkp$ WHERE dn="$value$" | lookup AD_Obj_Group member AS dn OUTPUT dn AS memberOf</set>
+            <set token="tok_audit_value">$value$</set>
+            <set token="tok_group_name">$label$</set>
+            <set token="tok_audit_value_label">$label$</set>
+            <set token="tok_admin_type_label">Admins - In Group ($label$)</set>
+            <set token="tok_srch_admin_user_filter">`ms_obj_aa_filt_by_groupm_in("$tok_domain$","dn","$value$","cn,sAMAccountName,userPrincipalName","$tok_user_lkp$","$tok_group_lkp$")`</set>
+            <set token="tok_srch_admin_raw_filter">`ms_obj_aa_filt_by_groupm_raw("$tok_domain$","dn","$value$","cn,sAMAccountName,userPrincipalName","$tok_user_lkp$","$tok_group_lkp$")`</set>
+            <set token="tok_start_chg_srch">_changes_base</set>
+            <set token="tok_start_logon_srch">failed_success_logons</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_user" searchWhenChanged="true" depends="$tok_admin_search$" id="inp_sel_admin">
+        <label>3. Select Admin User</label>
+        <search base="base_aa_list" id="input_admin_list">
+          <query>eval admin_cn="[".admin_user."] ".admin_cn
+  | stats count by admin_cn,admin_dn
+  | sort admin_cn</query>
+        </search>
+        <choice value="sel">Select Admin...</choice>
+        <fieldForLabel>admin_cn</fieldForLabel>
+        <fieldForValue>admin_dn</fieldForValue>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <!--default>start</default>
+        <initialValue>start</initialValue-->
+        <change>
+          <condition value="sel">
+            <unset token="tok_audit_value"></unset>
+            <unset token="tok_admin_name"></unset>
+            <unset token="tok_audit_value_label"></unset>
+            <unset token="tok_srch_admin_user_filter"></unset>
+            <unset token="tok_srch_admin_raw_filter"></unset>
+            <unset token="tok_admin_type_label"></unset>
+            <unset token="tok_start_chg_srch"></unset>
+            <unset token="tok_start_logon_srch"></unset>
+          </condition>
+          <condition>
+            <set token="tok_srch_admin_user_filter">`ms_obj_aa_filt_by_admin_in("$tok_domain$","dn","$value$","cn,sAMAccountName,userPrincipalName","$tok_user_lkp$")`</set>
+            <set token="tok_srch_admin_raw_filter">`ms_obj_aa_filt_by_admin_raw("$tok_domain$","dn","$value$","cn,sAMAccountName,userPrincipalName","$tok_user_lkp$")`</set>
+            <set token="tok_start_chg_srch">_changes_base</set>
+            <set token="tok_start_logon_srch">failed_success_logons</set>
+            <set token="tok_show_tabs">True</set>
+            <set token="form.tok_comp_res_tp">Change_Summary</set>
+            <set token="form.tok_user_res_tp">Change_Summary</set>
+            <set token="form.tok_group_m_res_tp">Change_Summary</set>
+            <set token="form.tok_group_res_tp">Change_Summary</set>
+            <set token="form.inp_filt_comp_bs">all</set>
+            <set token="form.inp_filt_user_bs">all</set>
+            <set token="form.inp_filt_m_group_bs">all</set>
+            <set token="form.inp_filt_member_bs">all</set>
+            <set token="form.inp_filt_group_bs">all</set>
+            <unset token="tok_tab_2"></unset>
+            <unset token="tok_tab_3"></unset>
+            <unset token="tok_tab_4"></unset>
+            <unset token="tok_tab_5"></unset>
+            <unset token="tok_tab_6"></unset>
+            <unset token="tok_tab_7"></unset>
+            <unset token="tok_tab_8"></unset>
+            <unset token="tok_tab_9"></unset>
+            <set token="tok_tab_1">active</set>
+            <set token="tok_base_info_srch">| inputlookup $tok_user_lkp$ WHERE dn="$value$" AND domain="$tok_domain$"| lookup $tok_group_lkp$ member AS dn OUTPUT dn AS memberOf</set>
+            <set token="tok_audit_value">$value$</set>
+            <set token="tok_admin_name">$label$</set>
+            <set token="tok_audit_value_label">$label$</set>
+            <set token="tok_admin_type_label">Admin - ($label$)</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$tok_inp_message$" id="inp_msg">
+        <p style="font-size:8;" id="inp_msg_p">
+          <font color="$tok_message_color$">
+            <i>
+              <b>$tok_message_state$: </b> $tok_message$.
+            </i> 
+          </font>
+        </p>
+      </html>
+    </panel>
+  </row>
+  <row id="tabs_row" depends="$tok_show_tabs$">
+    <panel>
+      <title>Administrator Changes from $time_from_string$ to $time_to_string$</title>
+      <html>
+        <ul id="tabs" class="nav nav-tabs">
+          <li>
+            <img src="/static/app/ms_windows_ad_objects/ms_windows_ad_objects_icon.png" id="img_vj_mgmt_icon" style="height: 30px !important;width: 30px !important;padding-right:5px !important;"/>
+          </li>
+          <li class="$tok_tab_1$">
+            <a href="#tab_uc_def" class="toggle-tab" data-token-json="{&quot;tok_tab_1&quot;:&quot;active&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Info</a>
+          </li>             
+          <li class="$tok_tab_2$">
+            <a href="#tab_user_list" class="toggle-tab" data-token-json="{&quot;tok_tab_2&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Membership</a>
+          </li>
+          <li class="$tok_tab_3$">
+            <a href="#tab_access" class="toggle-tab" data-token-json="{&quot;tok_tab_3&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">LDAP</a>
+          </li>      
+          <li class="$tok_tab_4$">
+            <a id="tab_login_id" href="#tab_dash_rep" class="toggle-tab" data-token-json="{&quot;tok_tab_4&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Logins <b style="color:$tok_login_color$;">($tok_login_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_5$">
+            <a id="tab_group_changes_id" href="#tab_walk" class="toggle-tab" data-token-json="{&quot;tok_tab_5&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Group Changes <b style="color:$tok_group_chg_color$;">($tok_group_chg_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_6$">
+            <a id="tab_group_m_changes_id" href="#tab_walk" class="toggle-tab" data-token-json="{&quot;tok_tab_6&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Group Member Changes <b style="color:$tok_group_m_chg_color$;">($tok_group_m_chg_count$)</b>
+            </a>
+          </li>
+          <li class="$tok_tab_7$">
+			<a id="tab_user_changes_id" href="#tab_knowledge" class="toggle-tab" data-token-json="{&quot;tok_tab_7&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">User Changes <b style="color:$tok_user_chg_color$;">($tok_user_chg_count$)</b>
+            </a>
+          </li>    
+          <li class="$tok_tab_8$">
+            <a id="tab_comp_changes_id" href="#tab_assist" class="toggle-tab" data-token-json="{&quot;tok_tab_8&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">Computer Changes <b style="color:$tok_comp_chg_color$;">($tok_comp_chg_count$)</b>
+            </a>
+          </li>
+			<li class="$tok_tab_9$">
+            <a id="tab_gpo_changes_id" href="#tab_error" class="toggle-tab" data-token-json="{&quot;tok_tab_9&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_10&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">GPO Changes <b style="color:$tok_gpo_chg_color$;">($tok_gpo_chg_count$)</b>
+            </a>
+          </li>          
+          <li id="tab_ou_changes_id" class="$tok_tab_10$">
+            <a href="#tab_smpl" class="toggle-tab" data-token-json="{&quot;tok_tab_10&quot;:&quot;active&quot;,&quot;tok_tab_1&quot;:&quot;undefined&quot;,&quot;tok_tab_2&quot;:&quot;undefined&quot;,&quot;tok_tab_3&quot;:&quot;undefined&quot;,&quot;tok_tab_4&quot;:&quot;undefined&quot;,&quot;tok_tab_5&quot;:&quot;undefined&quot;,&quot;tok_tab_6&quot;:&quot;undefined&quot;,&quot;tok_tab_7&quot;:&quot;undefined&quot;,&quot;tok_tab_8&quot;:&quot;undefined&quot;,&quot;tok_tab_9&quot;:&quot;undefined&quot;}" style="padding-left: 15px !important;padding-right: 15px !important;">OU Changes <b style="color:$tok_ou_chg_color$;">($tok_ou_chg_count$)</b>
+            </a> 
+          </li>         
+		 </ul>
+      </html>
+    </panel>
+  </row>
+  <row id="rw_result_msg" depends="$tok_admin_show_warn$">
+    <panel>
+      <html>
+        <h2>
+          <font color="red">Warning</font> <i>- No updated admin changes in the selected time period (<b>$time_from_string$ to $time_to_string$</b>), adjust the time period to search for administrative changes, or view the below options.</i>
+        </h2>
+        <ul type="none">
+          <li>
+            <h4>
+              <b>Troubleshooting Options:</b>
+            </h4>
+            <li style="padding-left: 50px;">
+              <ui type="square">
+            	  <b>Review AD_Obj_Admin_Audit lookup:</b>
+                <ui type="square">
+                  <li style="padding-left: 60px;">
+                    <i>
+                      <a href="/app/ms_windows_ad_objects/search?q=$tok_admin_audit_base_srch|u$" target="_blank">Click Here</a> to view the lookup table that contains the list of administrators who have made AD Object Changes, and the time of their last AD change.
+                    </i>
+                  </li>
+                </ui>
+              </ui>  
+            </li>
+            <li style="padding-left: 50px;">
+              <ui type="square">
+                <b>Update AD_Obj_Admin_Audit lookup with the most recent changes:</b>
+                <ui type="square">
+                  <li style="padding-left: 60px;">
+                    <i>If you believe there has either been administrative changes made in the last 30 minutes, or there were administrative changes made during the time period you selected, then <a href="@go?s=ms_ad_obj_sched_sync_admin_audit" target="_blank">Click Here</a> to update the AD_Obj_Admin_Audit lookup with the latest administrator changes.</i>
+                  </li>
+                  <li style="padding-left: 60px;">
+                    <i>By default this lookup is scheduled to update every 30 minutes. You can also adjust the time to update the lookup with older time periods.</i>
+                  </li>                  
+                </ui>
+              </ui>  
+            </li>
+          </li>
+        </ul>         
+      </html>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_1$" id="rw_results_a_info">
+    <panel depends="$tok_audit_value_label$,$tok_admin_show_inputs$">
+      <html>
+        <h2>$tab_active_desc$ - <b>
+            <i>$tok_audit_value_label$</i>
+          </b>
+        </h2>
+        	<p>
+            <i>Use the Tabbed views to analyze the Group Membership, AD Attributes, and Group/User/Computer/GPO Change history for - <b>$tok_audit_value_label$</b>.</i>
+          </p>     
+      </html>
+      <table>
+        <search base="base_target_details">
+          <query>table cn,domain,distinguishedName,description,displayName,IsDeleted,IsRecycled,objectSid,sAMAccountName,whenChanged,whenCreated,last_time_utc
+| eval last_time_utc=strftime(last_time_utc,"%I:%M:%S %P, %A %m/%d/%y")
+| rename cn AS "Common Name", domain AS "Domain", distinguishedName AS "Distinguished Name", description AS "Description:", displayName AS "Display Name:", IsDeleted AS "Is Deleted:", IsRecycled AS "Is Recycled:" , objectSid AS "Object SID:", sAMAccountName AS "User Account:", whenChanged AS "When Changed:", whenCreated AS "When Created:",last_time_utc AS "Last Administrative Action Time"
+| transpose
+| sort column
+| rename column AS "AD Field", "row 1" AS "Value"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">12</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$tok_show_tabs$,$tok_tab_2$">
+    <panel depends="$tok_group$,$tok_group_search$,$tok_audit_value_label$" id="pan_results_a_grp_m_user">
+      <table>
+        <title>$tok_group_name$ - Group Membership - User Accounts</title>
+        <search base="base_group_members">
+          <query>join dn [|inputlookup $tok_user_lkp$ WHERE domain="$tok_domain$"| fields dn,cn,sAMAccountName,domain | table dn,cn,sAMAccountName,domain]
+| sort domain,cn, sAMAccountName
+| table domain,cn, sAMAccountName
+| rename cn AS Member, sAMAccountName AS "Member_Account", domain AS "Member_Domain",</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+    <panel depends="$tok_group$,$tok_group_search$,$tok_audit_value_label$" id="pan_results_a_grp_m_grps">
+      <table>
+        <title>$tok_group_name$ - Group Membership - Embedded Groups</title>
+        <search base="base_group_members">
+          <query>join dn [|inputlookup $tok_group_lkp$ WHERE domain="$tok_domain$" | fields dn,cn,sAMAccountName,domain | table dn,cn,sAMAccountName,domain]
+| table domain,cn, sAMAccountName
+| sort domain,cn, sAMAccountName
+| rename cn AS Member, sAMAccountName AS "Member Account", domain AS "Member Domain",</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$tok_group$,$tok_group_search$,$tok_audit_value_label$" id="pan_results_a_grp_m_comp">
+      <table>
+        <title>$tok_group_name$ - Group Membership - Computers</title>
+        <search base="base_group_members">
+          <query>join dn [|inputlookup $tok_computer_lkp$ WHERE domain="$tok_domain$" | fields dn,cn,sAMAccountName,domain | table dn,cn,sAMAccountName,domain]
+| sort domain,cn, sAMAccountName
+| table domain,cn, sAMAccountName
+| rename cn AS Member, sAMAccountName AS "Member Account", domain AS "Member Domain",</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+    <panel depends="$tok_user$,$tok_admin_search$,$tok_audit_value_label$" id="pan_results_a_grp_m">
+      <table>
+        <title>Group Membership for Admin ($tok_desc_sAMAccountName$)</title>
+        <search base="base_aa_list">
+          <query>search admin_dn="$tok_user$"
+| lookup $tok_group_lkp$ dn AS Group_dn,domain AS admin_domain OUTPUT cn AS Group_cn,description AS Group_description
+| table Group_cn,Group_dn,Group_description
+| sort Group_cn
+| rename Group_cn AS "Group Name", Group_description AS "Group Description", Group_dn AS "Group DN"</query>
+        </search>
+        <option name="count">10</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="tab_ldap" depends="$tok_show_tabs$,$tok_tab_3$">
+    <panel depends="$tok_audit_value$">
+      <title>AD Object LDAP View</title>
+      <html>
+        	<div id="audit_report"/>
+      	</html>
+    </panel>
+  </row>
+  <row id="tab_login" depends="$tok_show_tabs$,$tok_tab_4$">
+    <panel depends="$tok_audit_value_label$" id="pan_results_s_logins">
+      <title>Successful Login Details:</title>
+      <table>
+        <title>Successful Logins from $tok_admin_type_label$ by Account</title>
+        <search base="base_logon_search">
+          <query>where status="success"
+| stats sum(count) AS count by src_user,src_nt_domain 
+| eventstats sum(count) AS total_count
+| sort -count 
+| rename src_user as "Admin Username", src_nt_domain as "Domain", count as "Total Logins"</query>
+        </search>
+        <fields>"Admin Username","Domain","Total Logins"</fields>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+      <table>
+        <title>Successful Logins from $tok_admin_type_label$ by Source System</title>
+        <search base="base_logon_search">
+          <query>where status="success"
+| stats sum(count) AS count by Logon_Type,src_nt_host, src_ip, src_user 
+| sort -count
+| appendpipe [|stats sum(count) AS src_ip_cnt by src_ip,src_user]
+| appendpipe [|stats sum(count) AS src_nt_host_cnt by src_nt_host,src_user]
+| appendpipe [|stats sum(count) AS logon_type_cnt by Logon_Type,src_user]
+| eval src_nt_host_summary=src_nt_host." (".src_nt_host_cnt.")"
+| eval logon_type_summary=Logon_Type." (".logon_type_cnt.")"
+| eval src_ip_summary=src_ip." (".src_ip_cnt.")"
+| stats sum(count) AS Total_Logins, list(src_nt_host_summary) AS src_nt_host_summary, list(src_ip_summary) AS src_ip_summary, list(logon_type_summary) AS logon_type_summary by src_user
+| table src_user, src_nt_host_summary, src_ip_summary, logon_type_summary, Total_Logins
+| sort -Total_Logins
+| rename src_user AS "Admin User",src_nt_host_summary as "Workstation Summary",src_ip_summary as "IP Address Summary", logon_type_summary AS "Logon Type Summary",Total_Logins as "Total Logins"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+      <table>
+        <title>Successful Logins from $tok_admin_type_label$ by Source System</title>
+        <search base="base_logon_search">
+          <query>where status="success"
+| stats sum(count) AS count by src_user,src_nt_host, src_ip 
+| sort -count
+| rename user AS "Admin User",src_nt_host as "Workstation",src_ip as "IP Address", count as "Total Logins"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+    </panel>
+    <panel depends="$tok_audit_value_label$" id="pan_results_f_logins">
+      <title>Failed Login Details:</title>
+      <table>
+        <title>Failed Logins from $tok_admin_type_label$ by Account</title>
+        <search base="base_logon_search">
+          <query>where status="failure"
+| stats sum(count) AS count by src_user,src_nt_domain,Failure_Reason
+| eval Failure_Reason="(".count.") ".Failure_Reason
+| sort -count
+| stats list(Failure_Reason) AS Failure_Reason,sum(count) AS Total_Attempts by src_user,src_nt_domain
+| sort -Total_Attempts 
+| rename src_user as "Admin Username", src_nt_domain as "Domain", Total_Attempts as "Total Attempts", Failure_Reason as "Failure Reason"</query>
+        </search>
+        <fields>"Admin Username","Domain","Total Attempts","Failure Reason"</fields>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+      <table>
+        <title>Failed Logins from $tok_admin_type_label$ by Source System</title>
+        <search base="base_logon_search">
+          <query>where status="failure"
+| stats sum(count) AS count by Logon_Type,src_nt_host, src_ip, src_user 
+| sort -count
+| appendpipe [|stats sum(count) AS src_ip_cnt by src_ip,src_user]
+| appendpipe [|stats sum(count) AS src_nt_host_cnt by src_nt_host,src_user]
+| appendpipe [|stats sum(count) AS logon_type_cnt by Logon_Type,src_user]
+| eval src_nt_host_summary=src_nt_host." (".src_nt_host_cnt.")"
+| eval logon_type_summary=Logon_Type." (".logon_type_cnt.")"
+| eval src_ip_summary=src_ip." (".src_ip_cnt.")"
+| stats sum(count) AS Total_Attempts, list(src_nt_host_summary) AS src_nt_host_summary, list(src_ip_summary) AS src_ip_summary, list(logon_type_summary) AS logon_type_summary by src_user
+| table src_user, src_nt_host_summary, src_ip_summary, logon_type_summary, Total_Attempts
+| sort -Total_Attempts
+| rename src_user AS "Admin User",src_nt_host_summary as "Workstation Summary",src_ip_summary as "IP Address Summary", logon_type_summary AS "Logon Type Summary",Total_Attempts as "Total Attempts"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+      <table>
+        <title>Failed Logins from $tok_admin_type_label$ by Source System</title>
+        <search base="base_logon_search">
+          <query>where status="failure"
+| stats sum(count) AS count by src_user,src_nt_host, src_ip 
+| sort -count
+| rename user AS "Admin User",src_nt_host as "Workstation",src_ip as "IP Address", count as "Total Attempts"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">5</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_filters_results_group" depends="$tok_show_tabs$,$tok_tab_5$">
+    <panel depends="$tok_audit_value_label$">
+      <input id="inp_det_opt_group" type="radio" token="tok_group_res_tp" searchWhenChanged="true" depends="$tok_show_group_res_type$">
+        <label>Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+      </input>
+      <input type="dropdown" token="inp_filt_group_bs" searchWhenChanged="true" depends=",$tok_show_group_res_type$">
+        <label>Filter Result Group</label>
+        <choice value="all">All</choice>
+        <search base="sub_group_chg_srch">
+          <query>stats count by group | eval group_label=group." (".tostring(count,"commas").")"| sort group</query>
+        </search>
+        <fieldForLabel>group_label</fieldForLabel>
+        <fieldForValue>group</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_filt_group"></set>
+          </condition>
+          <condition>
+            <set token="tok_filt_group">search group="$value$"|</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  <row id="rw_results_group" depends="$tok_show_tabs$,$tok_tab_5$">
+    <panel>
+      <table>
+        <title>Group Changes by $tok_admin_type_label$ $tok_group_res_tp$</title>
+        <search base="sub_group_chg_srch">
+          <query>$tok_filt_group$ table time_group,domain,adminuser,group,MSADGroupClass,MSADGroupType,$tok_group_res_tp$
+| eval domain="$tok_domain$"
+| lookup $tok_group_lkp$ lookup_grp AS group,domain AS domain OUTPUT MSADGroupClass,MSADGroupType
+| rename adminuser as "Admin User",msad_action as "Action", group as "Target Group",MSADGroupClass as "GroupClass",MSADGroupType as "GroupType",Change_Summary as "Change Summary",Change_Details as "Change Details"</query>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_filters_results_group_m" depends="$tok_show_tabs$,$tok_tab_6$">
+    <panel depends="$tok_audit_value_label$">
+      <input id="inp_det_opt_group_m" type="radio" token="tok_group_m_res_tp" searchWhenChanged="true" depends="$tok_show_group_m_res_type$">
+        <label>Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+      </input>
+      <input type="dropdown" token="inp_filt_m_group_bs" searchWhenChanged="true" depends=",$tok_show_group_m_res_type$">
+        <label>Filter Result Group</label>
+        <choice value="all">All</choice>
+        <search base="sub_group_m_chg_srch">
+          <query>stats count by group | eval group_label=group." (".tostring(count,"commas").")"| sort group</query>
+        </search>
+        <fieldForLabel>group_label</fieldForLabel>
+        <fieldForValue>group</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_filt_m_group"></set>
+          </condition>
+          <condition>
+            <set token="tok_filt_m_group">search group="$value$"|</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="inp_filt_member_bs" searchWhenChanged="true" depends=",$tok_show_group_m_res_type$">
+        <label>Filter Result Member</label>
+        <choice value="all">All</choice>
+        <search base="sub_group_m_chg_srch">
+          <query>stats count by member | eval member_label=member." (".tostring(count,"commas").")" | sort member</query>
+        </search>
+        <fieldForLabel>member_label</fieldForLabel>
+        <fieldForValue>member</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_filt_member"></set>
+          </condition>
+          <condition>
+            <set token="tok_filt_member">search member="$value$"|</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  <row id="rw_results_group_m" depends="$tok_show_tabs$,$tok_tab_6$">
+    <panel>
+      <table>
+        <title>Group Membership Changes by $tok_admin_type_label$</title>
+        <search base="sub_group_m_chg_srch">
+          <query>$tok_filt_m_group$ $tok_filt_member$ table time_group,adminuser,group,msad_action,MSADGroupType,MSADGroupClass,member,$tok_group_m_res_tp$
+| rename  group as "Target Group",MSADGroupClass as "GroupClass",msad_action AS "Action",member AS "Target Member",MSADGroupType as "GroupType",adminuser as "Admin User",Change_Summary as "Change Summary",Change_Details as "Change Details"</query>
+          <progress>
+            <condition>
+              <eval token="tok_group_m_chg_count">$job.dispatchState$</eval>
+              <set token="tok_group_m_chg_color">blue</set>
+            </condition>
+          </progress>
+          <done>
+            <condition match=" 'job.resultCount' == 0">
+              <set token="tok_group_m_chg_count">0</set>
+              <set token="tok_group_m_chg_color">red</set>
+            </condition>
+            <condition>
+              <eval token="tok_group_m_chg_count">toString($job.resultCount$,"commas")</eval>
+              <set token="tok_group_m_chg_color">green</set>
+            </condition>
+          </done>
+        </search>
+        <option name="count">5</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="rowNumbers">false</option>
+        <option name="wrap">true</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_filters_results_user" depends="$tok_show_tabs$,$tok_tab_7$">
+    <panel depends="$tok_audit_value_label$">
+      <input id="inp_det_opt_user" type="radio" token="tok_user_res_tp" searchWhenChanged="true" depends="$tok_show_user_res_type$">
+        <label>Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+      </input>
+      <input type="dropdown" token="inp_filt_user_bs" searchWhenChanged="true" depends=",$tok_show_user_res_type$">
+        <label>Filter Result User</label>
+        <choice value="all">All</choice>
+        <search base="sub_user_chg_srch" id="inp_user_chg">
+          <query>stats count by user | sort user | eval user_label=user." (".tostring(count,"commas").")"</query>
+        </search>
+        <fieldForLabel>user_label</fieldForLabel>
+        <fieldForValue>user</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_filt_user"></set>
+          </condition>
+          <condition>
+            <set token="tok_filt_user">search user="$value$"|</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  <row id="rw_results_user" depends="$tok_show_tabs$,$tok_tab_7$">
+    <panel>
+      <table>
+        <title>User Account Changes by $tok_admin_type_label$</title>
+        <search base="sub_user_chg_srch" id="res_usr_tbl">
+          <query>$tok_filt_user$ table time_group,adminuser,user,msad_action,dest_user_subject,Change_Actions,$tok_user_res_tp$
+| rename msad_action as "Action",user as "Target User",dest_user_subject as "Target User ID",adminuser as "Admin User",Change_Summary as "Change Summary",Change_Details as "Change Details"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_filters_results_comp" depends="$tok_show_tabs$,$tok_tab_8$">
+    <panel depends="$tok_audit_value_label$">
+      <input id="inp_det_opt_comp" type="radio" token="tok_comp_res_tp" searchWhenChanged="true" depends="$tok_show_comp_res_type$">
+        <label>Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+      </input>
+      <input type="dropdown" token="inp_filt_comp_bs" searchWhenChanged="true" depends=",$tok_show_comp_res_type$">
+        <label>Filter Result Computer</label>
+        <choice value="all">All</choice>
+        <search base="sub_comp_chg_srch" id="inp_comp_chg">
+          <query>stats count by computer_obj_lkp | sort computer_obj_lkp | eval computer_obj_lkp_label=computer_obj_lkp." (".tostring(count,"commas").")"</query>
+        </search>
+        <fieldForLabel>computer_obj_lkp_label</fieldForLabel>
+        <fieldForValue>computer_obj_lkp</fieldForValue>
+        <default>all</default>
+        <initialValue>all</initialValue>
+        <change>
+          <condition value="all">
+            <set token="tok_filt_comp"></set>
+          </condition>
+          <condition>
+            <set token="tok_filt_comp">search computer_obj_lkp="$value$"|</set>
+          </condition>
+        </change>
+      </input>
+    </panel>
+  </row>
+  
+  <row id="rw_results_computer" depends="$tok_show_tabs$,$tok_tab_8$">
+    <panel>
+      <table>
+        <title>Computer Account Changes by $tok_admin_type_label$</title>
+        <search base="sub_comp_chg_srch" id="res_comp_tbl">
+          <query>$tok_filt_comp$ table time_group,adminuser,computer_obj_lkp,msad_action,Correlation_IDs,Change_Actions,lookup_cmp,$tok_comp_res_tp$
+| rename msad_action as "Action",computer_obj_lkp as "Target Computer",lookup_cmp as "Target Computer ID",adminuser as "Admin User",Change_Summary as "Change Summary",Change_Details as "Change Details"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_results_gpo" depends="$tok_show_tabs$,$tok_tab_9$">
+    <panel depends="$tok_audit_value_label$">
+      <table>
+        <title>Group Policy Changes by $tok_admin_type_label$</title>
+        <search>
+          <query>`ms_obj$tok_start_chg_srch$_cat("Group Policy")` (src_nt_domain="$tok_domain$" OR dest_nt_domain="$tok_domain$") ([|$tok_srch_admin_raw_filter$])
+| fields _time, session_id, src_nt_domain, src_user,Object_Name_Guid,displayName,dir_svcs_action,AttributeLDAPDisplayName,AttributeValue,MSADChangedAttributes,Correlation_ID,signature,msad_action,Old_DN,New_DN
+| fillnull value="NA" Correlation_ID,msad_action
+| search src_user IN([|$tok_srch_admin_user_filter$])
+| eval adminuser=if(isnull(src_nt_domain),src_user,src_nt_domain."\\".src_user) 
+| eval Object_Lookup_Name="{".lower(Object_Name_Guid)."}" 
+| `ms_obj_msad-changed-attributes`
+| stats max(_time) AS last_time, min(_time) AS start_time,list(MSADChanges) AS MSADChanges,values(Correlation_ID) AS Correlation_IDs by session_id,Object_Lookup_Name,adminuser,signature,msad_action
+| eval signature=mvdedup(signature)
+| join type=left Object_Lookup_Name [| inputlookup AD_Obj_GPO WHERE domain="$tok_domain$" | fields cn, displayName | eval Object_Lookup_Name=trim(lower(cn)) | table Object_Lookup_Name, displayName]
+| eval displayName=if(isnull(displayName),"Warning GPO Not Found In Lookup(".Object_Lookup_Name.")",displayName) 
+| eval MSADChanges=mvjoin(MSADChanges, "########")
+| eval MSADChanges=case(isnull(signature) AND isnull(MSADChanges),"Unknown Changes",isnull(signature),MSADChanges,isnotnull(MSADChanges),"Signature: ".signature."########".MSADChanges)
+| eval SessionTime="Session ID (".session_id.")|Start: ".strftime(start_time,"%m/%d/%y %I:%M:%S %P")."|End: ".strftime(last_time,"%m/%d/%y %I:%M:%S %P")
+| table SessionTime,adminuser,msad_action,displayName,Correlation_IDs,MSADChanges
+| makemv delim="########" MSADChanges
+| makemv delim="|" Session_Time
+| rename adminuser as "Admin User",msad_action as "Action",displayName as "GPO Name",MSADChanges as "Changes"</query>
+          <earliest>$main_Time.earliest$</earliest>
+          <latest>$main_Time.latest$</latest>
+          <progress>
+            <condition>
+              <eval token="tok_gpo_chg_count">$job.dispatchState$</eval>
+              <set token="tok_gpo_chg_color">blue</set>
+            </condition>
+          </progress>
+          <done>
+            <condition match=" 'job.resultCount' == 0">
+              <set token="tok_gpo_chg_count">0</set>
+              <set token="tok_gpo_chg_color">red</set>
+            </condition>
+            <condition>
+              <eval token="tok_gpo_chg_count">toString($job.resultCount$,"commas")</eval>
+              <set token="tok_gpo_chg_color">green</set>
+            </condition>
+          </done>
+        </search>
+        <fields>SessionTime,"Admin User",Action,"GPO Name",Changes</fields>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row id="rw_results_ou" depends="$tok_show_tabs$,$tok_tab_10$">
+    <panel depends="$tok_audit_value_label$">
+      <table>
+        <title>Organizational Unit Changes by $tok_admin_type_label$</title>
+        <search id="tbl_ou_search">
+          <query>`ms_obj$tok_start_chg_srch$_cat("OU")` (src_nt_domain="$tok_domain$" OR dest_nt_domain="$tok_domain$") ([|$tok_srch_admin_raw_filter$])
+| fields _raw,_time,chg_gp_guid,dir_svcs_action,signature,LDAP_Display_Name,gpo_name,ou_obj_dn,DN,Old_DN,New_DN,Correlation_ID,Value,LDAP_Display_Name,chg_gp_guid,src_user,src_nt_domain,EventCode,msad_action
+| eval domain="$tok_domain$"
+| search src_user IN([|$tok_srch_admin_user_filter$])
+| eval dest_ou_dn=if(isnull(New_DN),DN,New_DN),adminuser=if(isnull(src_nt_domain),lower(src_user),src_nt_domain."\\".lower(src_user))
+| rex field=dest_ou_dn "(?i)ou\=(?&lt;ou_name&gt;[^\,]+)"
+| rex field=Value max_match=0 "\{(?&lt;chg_gp_guid&gt;[^\}]+)"
+| fillnull value="NA" chg_gp_guid,dir_svcs_action,signature,LDAP_Display_Name,gpo_name,DN,Old_DN,New_DN,Correlation_ID
+| mvexpand chg_gp_guid
+| eval gpo_link=if(LDAP_Display_Name=="gPLink",lower(chg_gp_guid),"")
+| eval Value=if(isnull(Value),lower(AttributeValue),lower(Value))
+| lookup AD_Obj_GPO gpo_link, domain AS domain OUTPUT displayName AS gpo_name
+| eval mod_summary=if(LDAP_Display_Name=="gPLink" AND isnotnull(gpo_name),"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Linked GPO: ".gpo_name."| - Target Linked GPO ID: ".chg_gp_guid,"| - Action: ".dir_svcs_action."| - Target Attribute: ".LDAP_Display_Name."| - Target Attribute Value: ".Value)
+| eval chg_summary=case(EventCode=5137,"OU Created:| - Event Correlation ID: ".Correlation_ID."| - DN: ".DN,EventCode=5138,"OU Undeleted:| - Event Correlation ID: ".Correlation_ID." - ",EventCode=5139,"OU Moved:| - Event Correlation ID: ".Correlation_ID."| - From: ".Old_DN."| - To: ".New_DN,EventCode=5141,"OU Deleted:| - Event Correlation ID: ".Correlation_ID,EventCode=5136 OR EventCode=4662,"OU Modified: | - Event Correlation ID: ".Correlation_ID."|".mod_summary)
+| table _time,adminuser,msad_action,ou_name,dest_ou_dn,EventCode,signature,chg_summary
+| stats values(*) AS * by _time,adminuser,ou_name,msad_action
+| makemv delim="|" chg_summary
+| rename msad_action AS "Action",adminuser AS "Admin User",ou_name AS OU,dest_ou_dn AS "OU DN",chg_summary AS "Changes"</query>
+          <earliest>$main_Time.earliest$</earliest>
+          <latest>$main_Time.latest$</latest>
+          <progress>
+            <condition>
+              <eval token="tok_ou_chg_count">$job.dispatchState$</eval>
+              <set token="tok_ou_chg_color">blue</set>
+            </condition>
+          </progress>
+          <done>
+            <condition match=" 'job.resultCount' == 0">
+              <set token="tok_ou_chg_count">0</set>
+              <set token="tok_ou_chg_color">red</set>
+            </condition>
+            <condition>
+              <eval token="tok_ou_chg_count">toString($job.resultCount$,"commas")</eval>
+              <set token="tok_ou_chg_color">green</set>
+            </condition>
+          </done>
+        </search>
+        <fields>_time,"Admin User",Action,OU,"OU DN",Changes</fields>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">row</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row depends="$hiddenstyle$">
+    <panel>
+      <html>
+          <style>
+#inp_msg {height:20px !important;padding:0 !important;margin:0 !important;}
+#res_filt_msg {padding:0 !important;margin:0 !important;}
+#rw_result_msg {border: 4px solid red;padding: 2px;margin: 2px;}
+#rw_initial_panel-fieldset {height:100px !important;padding: 0px 12px 0px 12px !important;}
+#rw_initial_panel .dashboard-panel {margin: 0 5px 0px 0 !important;min-height: 130px !important;max-height: 130px !important;height: 130px !important;width: 100% !important;border: 4px solid #e20082;}
+[id^=rw_filters_] {padding: 0px;width: 99.5% !important;margin-bottom: 0px !important;margin-left: 2px !important;padding-bottom: 0px !important;text-align: center;}
+[id^=rw_filters_] dashboard-panel h2.panel-title {font-weight:bold !important;}
+[id^=rw_filters_] .dashboard-panel {min-height: 100px !important;height: 100px !important;width: 100% !important;border: 3px solid #e20082;}
+[id^=rw_filters_]-fieldset {padding: 0px 12px 0px 12px !important;}
+[id^=rw_filters_] .input label {font-weight: 800 !important;}
+#tab_ldap {padding: 0px;width: 99.5% !important;margin-bottom: 0px !important;margin-left: 2px !important;padding-bottom: 0px !important;}
+#tab_ldap .dashboard-panel h2.panel-title {font-weight:bold !important;}
+#tab_ldap .dashboard-panel {width: 99% !important;border: 2px solid #f99d1c;left: .5%;}
+[id^=rw_results_] {padding: 0px;width: 99.5% !important;margin-bottom: 0px !important;margin-left: 2px !important;padding-bottom: 0px !important;}
+[id^=rw_results_] .dashboard-panel h2.panel-title {font-weight:bold !important;}
+[id^=rw_results_] .dashboard-panel {width: 99% !important;border: 2px solid #f99d1c;left: .5%;}
+[id^=apan_results_] {padding: 0px;margin-bottom: 0px !important;margin-left: 2px !important;padding-bottom: 0px !important;}
+[id^=pan_results_] .dashboard-panel h2.panel-title {font-weight:bold !important;}
+[id^=pan_results_] .dashboard-panel {border: 2px solid #f99d1c;}
+[id^=inp_sel_] [data-component="splunk-core:/splunkjs/mvc/components/Dropdown"] {width: 175px !important;display: flex;}
+#inp_det_opt_user,#inp_det_opt_group,#inp_det_opt_group_m,#inp_det_opt_comp {text-align: center !important;vertical-align: middle !important;width: 350px !important;line-height:5px !important;height: 60px !important;margin: 0 0 0 15px !important;padding: 0 0 0 15px !important;}
+#inp_det_opt_user label,#inp_det_opt_group label,#inp_det_opt_group_m label,#inp_det_opt_comp label {margin: 0 0 0 0 !important;padding: 0 0 0 0 !important;}
+#inp_det_opt_user div,#inp_det_opt_group div,#inp_det_opt_group_m div,#inp_det_opt_comp div {margin-left: 2px;margin-right: 2px;text-overflow: ellipsis;overflow: hidden;width: 80px !important;text-align: center !important;font-size: 10px !important;display:inline !important;}     
+#inp_det_opt_user div div div div,#inp_det_opt_group div div div div,#inp_det_opt_group_m div div div div,#inp_det_opt_comp div div div div {-webkit-box-shadow: 0 3px 7px rgba(0, 0, 4, 0.3);left: 2px;right: 2px;padding-right: 4px;padding-left: 4px;}
+#inp_det_opt_user button,#inp_det_opt_group button,#inp_det_opt_group_m button,#inp_det_opt_comp button {padding-top: 12px !important;margin-top: 3px!important;top: 5px!important;right: 2px!important;}
+</style>
+      </html>
+    </panel>
+  </row>
+</form>

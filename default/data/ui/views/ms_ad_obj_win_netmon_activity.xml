@@ -1,0 +1,163 @@
+<form version="1.1">
+  <label>AD Objects - WinNetMon - Activity</label>
+  <search id="base_netmon_search">
+    <query>eventtype=netmon_windows 
+| fields _time,host, Direction, PacketType, Protocol, RemoteHostName, LocalPort, RemotePort, ProcessName, UserName 
+| stats count by host, Direction, PacketType, Protocol, RemoteHostName, LocalPort, RemotePort, ProcessName, UserName</query>
+    <earliest>$Time.earliest$</earliest>
+    <latest>$Time.latest$</latest>
+  </search>
+  <fieldset submitButton="false" autoRun="true">
+    <input type="dropdown" token="NetworkHost" searchWhenChanged="true">
+      <label>Host</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields host 
+| stats count by host 
+| sort host</query>
+      </search>
+      <fieldForLabel>host</fieldForLabel>
+      <fieldForValue>host</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="Direction" searchWhenChanged="true">
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields Direction 
+| stats count by Direction 
+| sort Direction</query>
+      </search>
+      <fieldForLabel>Direction</fieldForLabel>
+      <fieldForValue>Direction</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="Protocol" searchWhenChanged="true">
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields Protocol 
+| stats count by Protocol 
+| sort Protocol</query>
+      </search>
+      <fieldForLabel>Protocol</fieldForLabel>
+      <fieldForValue>Protocol</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="PacketType" searchWhenChanged="true">
+      <label>Packet Type</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields PacketType 
+| stats count by PacketType 
+| sort PacketType</query>
+      </search>
+      <fieldForLabel>PacketType</fieldForLabel>
+      <fieldForValue>PacketType</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="RemoteHostName" searchWhenChanged="true">
+      <label>Remote Host</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields RemoteHostName 
+| stats count by RemoteHostName 
+| sort RemoteHostName</query>
+      </search>
+      <fieldForLabel>RemoteHostName</fieldForLabel>
+      <fieldForValue>RemoteHostName</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="RemotePort" searchWhenChanged="true">
+      <label>Remote Port</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" LocalPort="$LocalPort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields RemotePort 
+| stats count by RemotePort 
+| sort RemotePort</query>
+      </search>
+      <fieldForLabel>RemotePort</fieldForLabel>
+      <fieldForValue>RemotePort</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="LocalPort" searchWhenChanged="true">
+      <label>Local Port</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" UserName="$UserName$" ProcessName="$NetworkProcessName$" 
+| fields LocalPort 
+| stats count by LocalPort 
+| sort LocalPort</query>
+      </search>
+      <fieldForLabel>LocalPort</fieldForLabel>
+      <fieldForValue>LocalPort</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="NetworkProcessName" searchWhenChanged="true">
+      <label>Process Name</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" UserName="$UserName$"  
+| fields ProcessName 
+| stats count by ProcessName 
+| eval ProcessName_label=ProcessName
+| rex mode=sed field=ProcessName "s/\\\/\\\\\\\/g"
+| sort ProcessName</query>
+      </search>
+      <fieldForLabel>ProcessName_label</fieldForLabel>
+      <fieldForValue>ProcessName</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="dropdown" token="UserName" searchWhenChanged="true">
+      <label>User Name</label>
+      <choice value="*">All</choice>
+      <search base="base_netmon_search">
+        <query> search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" LocalPort="$LocalPort$" ProcessName="$NetworkProcessName$"
+| fields UserName 
+| stats count by UserName 
+| eval UserName_label=UserName
+| rex mode=sed field=UserName "s/\\\/\\\\\\\/g"
+| sort UserName</query>
+      </search>
+      <fieldForLabel>UserName_label</fieldForLabel>
+      <fieldForValue>UserName</fieldForValue>
+      <default>*</default>
+      <initialValue>*</initialValue>
+    </input>
+    <input type="time" token="Time" searchWhenChanged="true">
+      <label></label>
+      <default>
+        <earliest>-15m</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <table>
+        <title>Network Information</title>
+        <search base="base_netmon_search">
+          <query>search host="$NetworkHost$" Direction="$Direction$" Protocol="$Protocol$" PacketType="$PacketType$" RemoteHostName="$RemoteHostName$" RemotePort="$RemotePort$" ProcessName="$NetworkProcessName$" UserName="$UserName$" 
+| table host, Direction, PacketType, Protocol, RemoteHostName, LocalPort, RemotePort, ProcessName, UserName</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="drilldown">cell</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+</form>

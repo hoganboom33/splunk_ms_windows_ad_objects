@@ -1,0 +1,907 @@
+<form stylesheet="ms_ad_obj_reports.css" version="1.1">
+  <label>AD Objects - User - Reports</label>
+  <search id="base_obj_change">
+    <query>`ms_obj_changes_base_cat("User")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) user_type!="computer" user_type!="system"
+| `ms_obj_md_user_change_cmb("$tok_user_lkp$")`
+| table time_group,adminuser,user,msad_action,dest_user_subject,Correlation_IDs,Change_Actions,Change_Summary,Change_Details
+| eval domain="$tok_domain$"
+| lookup $tok_user_lkp$ lookup_usr AS user, domain AS domain OUTPUT domain,whenChanged,userAccountControl,uac_details AS userAccountControl_Details,userPrincipalName,distinguishedName</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+  </search>
+  <search base="base_obj_change" id="sub_obj_change">
+    <query>search msad_action="$tok_action$"
+| fillnull value="" whenChanged,userAccountControl,userAccountControl_Details,userPrincipalName,distinguishedName
+| eval chg_trigger="$tok_chg_trigger$"
+| eval time_group_epoch=strptime(time_group,"%m/%d/%y %I:%M %P")
+| eval whenChanged_epoch=strptime(whenChanged,"%I:%M.%S %P, %a %m/%d/%Y")
+| stats max(time_group_epoch) AS l_time,max(whenChanged_epoch) AS whenChanged_epoch,count,values(userAccountControl_Details) AS userAccountControl_Details by user,userAccountControl,userPrincipalName,distinguishedName
+| eval whenChanged=if(whenChanged=="",strftime(l_time,"%m/%d/%y %a %I:%M %P"),strftime(whenChanged_epoch,"%m/%d/%y %a %I:%M %P"))
+| table user,whenChanged,userAccountControl,userAccountControl_Details,userPrincipalName,distinguishedName</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_action_input"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">3. No Change Events for Selected Time Range. Adjust Time Range to view change results.</set>
+        <unset token="show_changed_rep">True</unset>
+      </condition>
+      <condition>
+        <set token="show_action_input">True</set>
+        <unset token="show_chg_no_data_msg"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3. Adjust Time Range and 4. Select MSAD Action.</set>
+        <set token="show_changed_rep">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Time Range Report Search -->
+  <search id="base_obj_time">
+    <query>$tok_report$($tok_user_lkp$,$tok_domain$,"$set_time_from$","$set_time_to$")`
+| eval whenChanged=strftime(strptime(whenChanged,"%I:%M.%S %P, %a %m/%d/%Y"),"%m/%d/%y %a %I:%M %P")
+| eval whenCreated=strftime(strptime(whenCreated,"%I:%M.%S %P, %a %m/%d/%Y"),"%m/%d/%y %a %I:%M %P")
+| eval time_trigger="$tok_time_trigger$"</query>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="show_time_rep"></unset>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">3. No $tok_time_label$ Events for Selected Time Range. Adjust Time Range to view $tok_time_label$ results.</set>
+      </condition>
+      <condition>
+        <set token="show_message">True</set>
+        <set token="tok_message_color">green</set>
+        <set token="tok_message_state">Info:</set>
+        <set token="tok_message">3. Adjust Time Range for $tok_time_label$.</set>
+        <set token="show_time_rep">True</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Create Object Search Filters -->
+  <search id="base_obj_filt">
+    <query>| makeresults
+| eval filt_raw_text="([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_usr\",\"$tok_user_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,userPrincipalName,dn\",\"raw_txt\")`])"
+| eval filt_raw_text_lbl="|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_usr\",\"$tok_user_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,userPrincipalName\",\"raw_txt\")`"
+| eval filt_link="| search user IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_usr\",\"$tok_user_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])"
+| eval filt_link_r_evt="| search user IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_usr\",\"$tok_user_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,userPrincipalName\",\"link\")`])"
+| eval filt_link_admon="| search user_obj_lkp IN([|`ms_obj_ss_filt_raw_link(\"$tok_sel_obj$\",\"lookup_usr\",\"$tok_user_lkp$\",\"$tok_domain$\",\"$tok_sel_obj$\",\"cn,sAMAccountName,userPrincipalName,dn\",\"link\")`])"
+| table filt_raw_text,filt_link,filt_link_add,filt_link_r_evt,filt_raw_text_lbl,filt_link_admon</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_filt_raw_txt"></unset>
+        <unset token="tok_filt_link"></unset>
+        <unset token="tok_filt_link_add"></unset>
+        <unset token="tok_filt_link_r_evt"></unset>
+        <unset token="tok_filt_link_admon"></unset>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("User","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","raw_txt")`])
+| search user IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_user("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","raw_txt")`]) 
+| eval user_obj_lkp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+| search user_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","link")`])</set>
+      </condition>
+      <condition>
+        <set token="tok_filt_raw_txt">$result.filt_raw_text$</set>
+        <set token="tok_filt_link">$result.filt_link$</set>
+        <set token="tok_filt_link_add">$result.filt_link_add$</set>
+        <set token="tok_filt_link_r_evt">$result.filt_link_r_evt$</set>
+        <set token="tok_filt_link_admon">$result.filt_link_admon$</set>
+        <set token="tok_srch_filt_raw">$result.filt_raw_text_lbl$</set>
+        <set token="tok_obj_raw_dd_src_url">`ms_obj_changes_base_cat_act("User","*")` (src_nt_domain=$tok_domain$ OR dest_nt_domain=$tok_domain$) ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","raw_txt")`])
+| search user IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","link")`])</set>
+        <set token="tok_obj_admon_dd_src_url">`ms_obj_admon_flt_obj_type(ms_obj_md_admon_user("$tok_dc_val$"),ms_obj_admon_base_a_type)` ([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","raw_txt")`]) 
+| eval user_obj_lkp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+| search user_obj_lkp IN([|`ms_obj_ss_filt_raw_link("$tok_sel_obj$","lookup_usr","$tok_user_lkp$","$tok_domain$","$tok_sel_obj$","cn,sAMAccountName,userPrincipalName","link")`])</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Create Active Search Filters -->
+  <search id="base_active_filt">
+    <query>| makeresults
+| eval filt_active_start=relative_time(now(), "-$tok_active_days$d@d")
+| eval filt_active_from=strftime(filt_active_start,"%m/%d/%Y")
+| eval filt_active_search=if("$tok_report_label$"=="Active","where lastLogonTimestamp&gt;".filt_active_start,"where lastLogonTimestamp&lt;".filt_active_start)
+| table filt_active_start,filt_active_from,filt_active_search</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <unset token="tok_active_start"></unset>
+        <unset token="tok_active_from"></unset>
+        <unset token="tok_active_search"></unset>
+      </condition>
+      <condition>
+        <set token="tok_active_start">$result.filt_active_start$</set>
+        <set token="tok_active_from">$result.filt_active_from$</set>
+        <set token="tok_active_search">$result.filt_active_search$</set>
+      </condition>
+    </done>
+  </search>  
+  <!-- Base Domain List Search -->
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown Windows Change Events -->
+  <search base="base_obj_change" id="sub_dd_obj_search">
+    <query>search msad_action=$tok_action$
+$tok_filt_link$</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_dd_msg"></unset>
+        <unset token="show_dd_tbl"></unset>
+        <set token="show_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_dd_msg">True</set>
+        <set token="show_dd_tbl">True</set>
+        <unset token="show_dd_warn"></unset>
+      </condition>
+    </done>
+  </search>
+  <!-- Sub Drilldown admon Events -->
+  <search id="base_obj_admon">
+    <query>`ms_obj_admon_flt_obj_type(ms_obj_md_admon_user("$tok_dc_val$"),ms_obj_admon_base_a_type)` $tok_filt_raw_txt$
+| eval user_obj_lkp=if(isnull(cn),if(isnull(sAMAccountName),lower(dn),lower(sAMAccountName)),lower(cn))
+$tok_filt_link_admon$</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_admon_dd_msg"></unset>
+        <unset token="show_admon_dd_tbl"></unset>
+        <set token="show_admon_dd_warn">True</set>
+      </condition>
+      <condition>
+        <set token="show_admon_dd_msg">True</set>
+        <set token="show_admon_dd_tbl">True</set>
+        <unset token="show_admon_dd_warn"></unset>
+      </condition>
+    </done>
+    <earliest>$field3.earliest$</earliest>
+    <latest>$field3.latest$</latest>    
+  </search>
+  <fieldset submitButton="false" autoRun="true"></fieldset>
+  <row id="rw_initial_filters">
+    <panel id="pan_initial_inputs">
+      <input type="dropdown" token="tok_sel_domain" searchWhenChanged="true">
+        <label>1. Select Domain</label>
+        <choice value="sel">Select Domain...</choice>
+        <initialValue>sel</initialValue>
+        <default>sel</default>
+        <search base="base_domain_search">
+          <query>table domain | sort domain</query>
+        </search>
+        <fieldForLabel>domain</fieldForLabel>
+        <fieldForValue>domain</fieldForValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_domain"></unset>
+            <unset token="show_rep_list"></unset>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">1: Select the Target Domain to run the report against.</set>
+          </condition>
+          <condition>
+            <set token="show_message">True</set>
+            <set token="tok_user_domain_add">False</set>
+            <set token="tok_domain">$value$</set>
+            <set token="show_rep_list">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">2: Select the Target Report from the "Select Report" dropdown.</set>
+          </condition>
+        </change>
+      </input>
+      <input type="dropdown" token="inp_tok_report" searchWhenChanged="true" depends="$show_rep_list$">
+        <label>2. Select Report</label>
+        <choice value="sel">Select Report...</choice>
+        <choice value="all_users">All Users</choice>
+        <choice value="new_users">New Users</choice>
+        <choice value="unused_users">Unused</choice>
+        <choice value="deleted_users">Deleted</choice>
+        <choice value="changed_users">Changed</choice>
+        <choice value="disabled_users">Disabled</choice>
+        <choice value="smartcard_required">SmartCard Required</choice>
+        <choice value="no_smartcard_required">No SmartCard Required</choice>
+        <choice value="sensitive_users">Sensitive</choice>
+        <choice value="password_too_old">Password Too Old</choice>
+        <choice value="dont_require_password">Password Not Required</choice>
+        <choice value="whose_password_doesnt_expire">Password Does Not Expire</choice>
+        <choice value="that_dont_expire">Don't Expire</choice>
+        <choice value="expired_users">Expired Users</choice>
+        <choice value="users_with_no_manager">Not Managed</choice>
+        <choice value="active_users">Active</choice>
+        <choice value="inactive_users">Inactive</choice>
+        <default>sel</default>
+        <initialValue>sel</initialValue>
+        <change>
+          <condition value="sel">
+            <unset token="tok_report_label"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="tok_report"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+          <condition value="all_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-all-users("$tok_user_lkp$","$tok_domain$")`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="new_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">New Users</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-new-users</set>
+            <set token="show_time_input">True</set>
+            <set token="form.tok_msad_action">created</set>
+            <set token="tok_action">created</set>
+            <set token="tok_action_lbl">Created</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="fields_time_rep">domain,user,whenCreated,userAccountControl,userAccountControl_Details,userPrincipalName,distinguishedName</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="active_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_time_input"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_active_label">Enter Days Back for Last Login</set>
+            <set token="show_active_rep">True</set>
+            <unset token="show_time_rep"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <set token="show_active_msg">True</set>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">4. Enter Days Back for Last Login</set>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="inactive_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_time_input"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_active_rep">True</set>
+            <set token="show_active_msg">True</set>
+            <set token="tok_active_label">Enter Days Since Last Login</set>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">4. Enter Days Since Last Login</set>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="unused_users">
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-unused-users($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="deleted_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">Deleted Users</set>
+            <set token="tok_report">|`ms_obj_md_secrpt-deleted-users</set>
+            <set token="show_time_input">True</set>
+            <set token="form.atok_msad_action">deleted</set>
+            <set token="tok_action">deleted</set>
+            <set token="tok_action_lbl">Deleted</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="fields_time_rep">domain,user,orig_cn,whenDeleted,userAccountControl_Details,userPrincipalName,distinguishedName</set>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="disabled_users">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="tok_chg_trigger"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>           
+            <unset token="show_action_input"></unset>
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="tok_time_trigger">True</set>
+            <set token="tok_time_label">Disabled Users</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-disabled-users</set>
+            <set token="show_time_input">True</set>
+            <set token="tok_action">disabled</set>
+            <set token="tok_action_lbl">Disabled</set>
+            <set token="nmb_res_type_input">4</set>
+            <set token="fields_time_rep">domain,user,whenChanged,userAccountControl,userAccountControl_Details,userPrincipalName,distinguishedName</set>
+          </condition>
+          <condition value="smartcard_required">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-smartcard-required($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="no_smartcard_required">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-no-smartcard-required($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="sensitive_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-sensitive-users($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="password_too_old">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_pwd_old_rep">True</set>
+            <set token="show_message">True</set>
+            <set token="tok_message_color">green</set>
+            <set token="tok_message_state">Info:</set>
+            <set token="tok_message">4. Days Since Password Change</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="dont_require_password">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-that-dont-require-password($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="whose_password_doesnt_expire">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-whose-password-doesnt-expire($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="that_dont_expire">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-that-dont-expire($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="expired_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-expired-users($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="users_with_no_manager">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_regular_rep">True</set>
+            <set token="tok_report">| `ms_obj_md_secrpt-users-with-no-manager($tok_user_lkp$,$tok_domain$)`</set>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_action_input"></unset>
+            <unset token="show_time_input"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_changed_rep"></unset>
+            <unset token="show_message"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="show_action_input"></unset>
+          </condition>
+          <condition value="changed_users">
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_active_rep"></unset>
+            <unset token="show_pwd_old_rep"></unset>
+            <set token="tok_chg_trigger">True</set>
+            <set token="tok_report_label">$label$</set>
+            <set token="show_time_input">True</set>
+            <set token="form.tok_msad_action">all</set>
+            <set token="tok_action">*</set>
+            <set token="tok_action_lbl">All Changes</set>
+            <set token="nmb_res_type_input">5</set>
+            <unset token="show_regular_rep"></unset>
+            <unset token="show_time_rep"></unset>
+            <unset token="show_res_type_input"></unset>
+          </condition>
+        </change>
+      </input>
+      <input type="time" token="field3" searchWhenChanged="true" depends="$show_time_input$">
+        <label>3. Select Time Range</label>
+        <default>
+          <earliest>-4h@m</earliest>
+          <latest>now</latest>
+        </default>
+        <change>
+          <unset token="tok_sel_obj"></unset>
+          <unset token="show_res_type_input"></unset>
+          <eval token="set_time_from">strftime(relative_time(now(),'earliest'),"%m/%d/%y %I:%M %p")</eval>
+          <eval token="set_time_to">strftime(relative_time(now(),'latest'),"%m/%d/%y %I:%M %p")</eval>
+        </change>
+      </input>
+      <input type="dropdown" token="tok_msad_action" searchWhenChanged="true" depends="$show_action_input$">
+        <label>4. Select MSAD Action</label>
+        <choice value="all">All</choice>
+        <search base="base_obj_change" id="sub_change_actions">
+          <query>|stats count by msad_action
+| eval label=case(msad_action="enabled","Enabled",msad_action="created","Created",msad_action="disabled","Disabled",msad_action="modified","Modified",msad_action="deleted","Deleted",msad_action="moved","Moved")
+| eval label=if(isnull(label),msad_action,label)
+| table msad_action,label 
+| sort msad_action</query>
+        </search>
+        <default>*</default>
+        <initialValue>*</initialValue>
+        <fieldForLabel>label</fieldForLabel>
+        <fieldForValue>msad_action</fieldForValue>
+        <change>
+          <condition value="all">
+            <unset token="tok_sel_obj"></unset>
+            <unset token="show_res_type_input"></unset>
+            <set token="tok_action">*</set>
+            <set token="tok_action_lbl">All Changes</set>
+          </condition>
+          <condition>
+            <unset token="show_dd_details"></unset>
+            <unset token="show_admon_dd_details"></unset>
+            <unset token="show_res_type_input"></unset>
+            <unset token="tok_sel_obj"></unset>
+            <set token="tok_action">$value$</set>
+            <set token="tok_action_lbl">$label$</set>
+          </condition>
+        </change>
+      </input>
+      <input type="text" token="tok_active_days" searchWhenChanged="true" depends="$show_active_rep$">
+        <label>4. $tok_active_label$</label>
+        <default>30</default>
+        <initialValue>30</initialValue>
+      </input>
+      <input type="text" token="tok_pwd_old_days" searchWhenChanged="true" depends="$show_pwd_old_rep$">
+        <label>4. Days since Password Change</label>
+        <default>30</default>
+        <initialValue>30</initialValue>
+      </input>
+      <html depends="$show_message$" id="inp_msg">
+          <p style="font-size:8;" id="inp_msg_p">
+            <font color="$tok_message_color$">
+              <i>
+                <b>$tok_message_state$ </b> $tok_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+    <panel id="pan_res_type_input" depends="$show_res_type_input$">
+      <input id="input_res_field_type" type="radio" token="input_tbl_res_flds" searchWhenChanged="true">
+        <label>$nmb_res_type_input$. Event Result Type</label>
+        <choice value="Change_Summary">WinEvent Summary</choice>
+        <choice value="Change_Details">WinEvent Details</choice>
+        <choice value="admon">Admon Events</choice>
+        <default>Change_Summary</default>
+        <initialValue>Change_Summary</initialValue>
+        <change>
+          <condition value="Change_Summary">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Summary</set>
+          </condition>
+          <condition value="Change_Details">
+            <unset token="show_admon_dd_details"></unset>
+            <set token="show_dd_details">True</set>
+            <set token="tok_tbl_res_flds">Change_Details</set>
+          </condition>
+          <condition value="admon">
+            <unset token="show_dd_details"></unset>
+            <set token="show_admon_dd_details">True</set>
+          </condition>
+        </change>
+      </input>
+      <html depends="$show_res_message$" id="inp_msg_res_field_type">
+          <p style="font-size:8;" id="inp_msg_res_p">
+            <font color="$tok_res_message_color$">
+              <i>
+                <b>$tok_res_message_state$ </b> $tok_res_message$</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+  </row>
+  <row id="result_details_row">
+    <panel id="result_details_pan_list">
+      <table id="result_details_tbl_reg" depends="$show_regular_rep$">
+        <title>$tok_report_label$ - Users</title>
+        <search>
+          <query>$tok_report$</query>
+          <earliest>$field3.earliest$</earliest>
+          <latest>$field3.latest$</latest>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+      <table id="result_details_tbl_time" depends="$show_time_rep$">
+        <title>$tok_report_label$ - Users - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_time">
+          <query>| table $fields_time_rep$</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <drilldown>
+          <unset token="show_dd_warn"></unset>
+          <unset token="show_admon_dd_details"></unset>
+          <unset token="show_message">True</unset>
+          <set token="tok_sel_obj">$row.user$</set>
+          <set token="show_dd_details">True</set>
+          <set token="form.input_tbl_res_flds">Change_Summary</set>
+          <set token="input_tbl_res_flds">Change_Summary</set>
+          <set token="tok_tbl_res_flds">Change_Summary</set>
+          <set token="show_res_type_input">True</set>
+          <set token="show_res_message">True</set>
+          <set token="tok_res_message_color">green</set>
+          <set token="tok_res_message_state">Info:</set>
+          <set token="tok_res_message">4. Select Event Result Type</set>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_time" depends="$show_time_rep$">
+          <p style="font-size:8;" id="rep_msg_p_time">
+            <font color="green">
+              <i>
+                <b>Click </b> on a User in the above table to view $tok_action_lbl$ Event Details.</i> 
+            </font>
+          </p>
+        </html>
+        <table id="result_details_tbl_active" depends="$show_active_rep$">
+          <title>$tok_report_label$ - Users - (From: $tok_active_from$ - $tok_active_days$ Days)</title>
+          <search id="base_active_search">
+            <query>| `ms_obj_md_secrpt_activity_users($tok_user_lkp$,$tok_domain$,"$tok_active_search$")`</query>
+          </search>
+          <option name="wrap">true</option>
+          <option name="rowNumbers">false</option>
+          <option name="dataOverlayMode">none</option>
+          <option name="count">5</option>
+        </table>
+        <table id="result_details_tbl_pwd_old" depends="$show_pwd_old_rep$">
+          <title>$tok_report_label$ - Users - (Password Older than $tok_pwd_old_days$ Days)</title>
+          <search id="base_pwd_old_search">
+            <query>| `ms_obj_secrpt-users-password-too-old($tok_domain$,$tok_user_lkp$,"$tok_pwd_old_days$")`</query>
+          </search>
+          <option name="wrap">true</option>
+          <option name="rowNumbers">false</option>
+          <option name="dataOverlayMode">none</option>
+          <option name="count">5</option>
+        </table>
+        <html id="result_details_active_msg" depends="$show_active_rep$,$show_active_msg$">  
+            <h3>
+              <i class="icon-info-circle" style="font-size:20px;color:blue;"> Info: The Active and Inactive Reports leverages the lastLogonTimestamp field in the $tok_user_lkp$ lookup.</i>
+              <hr/>
+            </h3>
+            <h4>Since AD only captures the lastLogonTimestamp when the domain controller is locally logged on by the user, the value will be set to 0 for all other logons.   To work around this you can follow the below steps to create a <i>Scheduled Search</i> to update the <i>lastLogon</i> and <i>lastLogonTimestamp</i> values in the $tok_usr_lkp$ to use Windows Successful Logon Events to update these field in the $tok_user_lkp$.
+            <ul>
+              <li><b>Note: You might need to adjust the <i>Earliest</i> and <i>Cron Expression</i> for your environment, depending on the amount of logon events.</b></li>
+            </ul>
+            </h4>
+            <table>
+              <tr>
+                <td style="text-align:center;">
+                  <h4>Create a Scheduled Report to update User's Logon Timestamp in the $tok_user_lkp$ lookup using Windows Successful Logon Events:</h4>
+                </td>
+              </tr>
+              <tr>
+                <td style="text-align:left">
+                  <h4>Scheduled Report for updating User's Logon Timestamp in the $tok_user_lkp$ lookup using Windows Successful Logon Events:</h4>
+                  <ul>
+                    <li>
+                      <b>Example Scheduled Report Settings</b>
+                      <ul>
+                        <li><i>Title</i>: AD_Obj_User_sedemo_Update_logon</li>
+                        <li><i>Search</i>: <code>`ms_obj_upd_user_last_logon("$tok_user_lkp$","$tok_domain$")`</code></li>
+                        <li><i>Earliest</i>: -15m@m</li>
+                        <li><i>Latest</i>: now</li>
+                        <li><i>App</i>: MS Windows AD Objects</li>
+                      </ul>
+                    </li>
+                    <li>
+                      <b>Scheduling Settings</b>
+                      <ul>
+                        <li><i>Cron Expression</i>: <code>06,16,26,36,46,56 * * * *</code></li>
+                      </ul>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </table>
+        </html>
+      <table id="result_details_tbl_chg" depends="$show_changed_rep$">
+        <title>Changed Users - $tok_action_lbl$ - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="sub_obj_change">
+          <query/>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">row</option>
+        <option name="count">5</option>
+        <drilldown>
+          <unset token="show_dd_warn"></unset>
+          <unset token="show_admon_dd_details"></unset>
+          <unset token="show_message"></unset>
+          <set token="tok_sel_obj">$row.user$</set>
+          <set token="show_dd_details">True</set>
+          <set token="form.input_tbl_res_flds">Change_Summary</set>
+          <set token="input_tbl_res_flds">Change_Summary</set>
+          <set token="tok_tbl_res_flds">Change_Summary</set>
+          <set token="show_res_type_input">True</set>
+          <set token="show_res_message">True</set>
+          <set token="tok_res_message_color">green</set>
+          <set token="tok_res_message_state">Info:</set>
+          <set token="tok_res_message">5. Select Event Result Type</set>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_chg" depends="$show_changed_rep$">
+          <p style="font-size:8;" id="rep_msg_p_chg">
+            <font color="green">
+              <i>
+                <b>Click </b> on a User in the above table to view $tok_action_lbl$ Event Details.</i> 
+            </font>
+          </p>
+        </html>
+    </panel>
+    <panel id="result_details_pan_dd" depends="$show_dd_details$">
+      <table id="result_details_tbl_dd" depends="$show_dd_tbl$">
+        <title>"$tok_sel_obj$" - $tok_action_lbl$ Change Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="sub_dd_obj_search">
+          <query>table time_group,adminuser,user,Change_Actions,$tok_tbl_res_flds$
+| rename time_group AS Time_Minute_Group,adminuser as "Administrator",user as "Target_User",Change_Details as "Change Details",Change_Summary as "Change Summary"</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </table>
+      <html id="result_details_msg_dd" depends="$show_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw events for <b>All Windows Change</b> activities with User ($tok_sel_obj$) within Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_warn" depends="$show_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No $tok_action_lbl$ events found for User ($tok_sel_obj$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Raw Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Windows Change</b> activities with User:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>User:</b> $tok_sel_obj$</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+    <panel id="result_details_pan_admon_dd" depends="$show_admon_dd_details$">
+      <event id="result_details_tbl_admon_dd" depends="$show_admon_dd_tbl$">
+        <title>"$tok_sel_obj$" - admon Events - (From: $set_time_from$ To: $set_time_to$)</title>
+        <search base="base_obj_admon">
+          <query/>
+        </search>
+        <drilldown target="_blank">
+          <link>
+            <![CDATA[
+                 /app/ms_windows_ad_objects/search?q=search%20$tok_obj_raw_dd_src_url|u$&earliest=$field3.earliest$&latest=$field3.latest$
+                  ]]>
+          </link>
+        </drilldown>
+      </event>
+      <html id="result_details_msg_admon_dd" depends="$show_admon_dd_msg$">
+        <center>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> View Raw Events</a> - <p style="font-size:8;" id="rep_msg_p_dd">Click to open a new window with raw <b>admon</b> events for <b>All Admon Change</b> activities with User ($tok_sel_obj$) within Time Period (From: $set_time_from$ To: $set_time_to$)</p>
+        </center>
+      </html>
+      <html id="result_details_msg_admon_warn" depends="$show_admon_dd_warn$">
+        <center>
+          <h3>
+            <i class="icon-warning" style="font-size:20px;color:red;">Warning: No Admon events found for User ($tok_sel_obj$)</i>
+            <hr/>
+          </h3>
+          <a href="/app/ms_windows_ad_objects/search?q=search%20$tok_obj_admon_dd_src_url|u$&amp;earliest=$field3.earliest$&amp;latest=$field3.latest$" class="btn mini sp-btn-gradient" target="_blank">
+            <i class="icon-search" style="font-size:12px;color:white;"/> Search Admon Events</a> 
+          <h4 style="font-size:15px;color:red;" id="rep_msg_p_dd_warn">Click to search for <b>All Admon Change</b> activities with User:</h4>
+          <span style="font-size:15px;color:red;" id="rep_msg_p_dd_warn_time">
+            <ul style="list-style: none;">
+              <li>
+                <b>User:</b> $tok_sel_obj$</li>
+              <li>
+                <b>From:</b> $set_time_from$</li>
+              <li>
+                <b>To:</b> $set_time_to$</li>
+            </ul>
+          </span>
+        </center>
+      </html>
+    </panel>
+  </row>
+</form>

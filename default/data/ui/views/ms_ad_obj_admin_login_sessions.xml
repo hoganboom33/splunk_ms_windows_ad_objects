@@ -1,0 +1,245 @@
+<form version="1.1">
+  <label>AD Objects - Admin - Logins Sessions</label>
+  <search id="base_domain_search">
+    <query>| `ms_obj_domain_list`</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <unset token="show_inputs"></unset>
+        <set token="show_domain_warn">True</set>
+      </condition>
+      <condition>
+        <unset token="show_domain_warn"></unset>
+        <set token="show_inputs">True</set>
+      </condition>
+    </done>
+  </search>
+  <search base="base_domain_search" id="dom_lkp_vals">
+    <query>search domain="$tok_domain$"</query>
+    <done>
+      <condition match="$job.resultCount$ == 0">
+        <set token="tok_user_lkp">AD_Obj_User</set>
+        <set token="tok_group_lkp">AD_Obj_Group</set>
+        <set token="tok_computer_lkp">AD_Obj_Computer</set>
+        <set token="tok_kv_suffix"></set>
+        <set token="tok_dc_val">*</set>
+      </condition>
+      <condition>
+        <set token="tok_user_lkp">$result.user_lookup$</set>
+        <set token="tok_group_lkp">$result.group_lookup$</set>
+        <set token="tok_computer_lkp">$result.computer_lookup$</set>
+        <set token="tok_kv_suffix">$result.kv_suffix$</set>
+        <set token="tok_dc_val">$result.dc_val$</set>
+      </condition>
+    </done>
+  </search>
+  <search id="base_search">
+    <query>`ms_obj_win_events_security`  (EventCode=4624 OR EventCode=4638 OR EventCode=4634 OR EventCode=4647 OR EventCode=4800 OR EventCode=4801 ) 
+| fields _time, user, EventCode,user_type 
+| search user_type="user"
+| eval time_day=strftime(_time,"%m/%d/%y") 
+| stats max(_time) as end_time, min(_time) as start_time by user, EventCode, time_day 
+| eval logon_time=if(EventCode==4624 OR EventCode==4801, start_time,end_time) 
+| eval logoff_time=if(EventCode==4634 OR EventCode==4638 OR EventCode==4647 OR EventCode==4800, end_time,start_time) 
+| stats count AS Total_Logons,min(logon_time) AS logon_time, max(logoff_time) AS logoff_time by user, time_day 
+| eval Duration=logoff_time-logon_time 
+| eval Logon_Time=strftime(logon_time,"%m/%d/%y %I:%M:%S %P") 
+|  eval logoff_a_time=strftime(logoff_time,"%m/%d/%y %I:%M:%S %P") 
+| eval Logoff_Time=if(Duration==0,"No Logoff Time",logoff_a_time) 
+| eval Total_Duration=tostring(Duration ,"duration") 
+| table time_day, user, Logon_Time, Logoff_Time, Total_Duration, Duration, Total_Logons</query>
+    <earliest>$field1.earliest$</earliest>
+    <latest>$field1.latest$</latest>
+  </search>
+  <search id="base_ad_users">
+    <query>| inputlookup $tok_user_lkp$ $tok_domain_ad_user$ | fields cn,sAMAccountName,userPrincipalName,domain | table cn,sAMAccountName,userPrincipalName,domain | sort cn</query>
+    <done>
+      <condition match=" 'job.resultCount' == 0">
+        <set token="show_no_lookup_match">True</set>
+        <set token="tok_message_color">red</set>
+        <set token="tok_message_state">Warning:</set>
+        <set token="tok_message">User Not found in the AD_Obj_User lookup using the filter ($tok_user_filter$).</set>
+        <set token="tok_target_user_filter">A*</set>
+        <unset token="show_user_dropdown"></unset>
+      </condition>
+      <condition>
+        <set token="show_user_dropdown">True</set>
+        <set token="tok_target_user_filter">*</set>
+        <unset token="show_no_lookup_match"></unset>
+      </condition>
+    </done>
+  </search>
+  <fieldset submitButton="false">
+    <input type="time" token="field1">
+      <label></label>
+      <default>
+        <earliest>@d</earliest>
+        <latest>now</latest>
+      </default>
+    </input>
+    <input type="dropdown" token="tok_domain" searchWhenChanged="true">
+      <label>Select Domain</label>
+      <choice value="sel">Select Domain...</choice>
+      <search>
+        <query>|inputlookup AD_Obj_Domain | dedup domain | table domain | sort domain</query>
+      </search>
+      <fieldForLabel>domain</fieldForLabel>
+      <fieldForValue>domain</fieldForValue>
+      <default>sel</default>
+      <initialValue>sel</initialValue>
+      <change>
+        <condition value="sel">
+          <unset token="tok_domain_ad_user"></unset>
+          <unset token="tok_domain_srch"></unset>
+          <unset token="tok_domain_usr_srch"></unset>
+        </condition>
+        <condition>
+          <set token="tok_domain_ad_user">WHERE domain="$value$"</set>
+          <set token="tok_domain_srch">dest_nt_domain="$value$"</set>
+          <set token="tok_domain_usr_srch">dest_nt_domain="$value$" AND</set>
+        </condition>
+      </change>
+    </input>
+    <input type="radio" token="tok_logoff_type" searchWhenChanged="true">
+      <label>Select Logoff Type</label>
+      <choice value="Logoff_Time=*">All</choice>
+      <choice value="NOT Logoff_Time=&quot;No Logoff Time&quot;">With Logoff</choice>
+      <choice value="Logoff_Time=&quot;No Logoff Time&quot;">Without Logoff</choice>
+      <default>Logoff_Time=*</default>
+      <initialValue>Logoff_Time=*</initialValue>
+    </input>
+    <input type="text" token="tok_user_filter_bs" searchWhenChanged="true">
+      <label>Enter User Login or Name Filter</label>
+      <initialValue></initialValue>
+      <default></default>
+      <change>
+        <condition value="">
+          <set token="tok_filter"></set>
+          <set token="tok_an_srch"></set>
+          <set token="tok_user_srch"></set>
+          <set token="tok_user_lkup_filter"></set>
+          <set token="form.tok_user">all</set>
+          <unset token="tok_show_total_dur"></unset>
+        </condition>
+        <condition>
+          <set token="tok_an_srch">Account_Name="$value$"</set>
+          <set token="tok_user_srch">user="$value$"</set>
+          <set token="tok_filter">user="$value$"</set>
+          <set token="tok_user_lkup_filter">search (cn="$value$" OR sAMAccountName="$value$" OR userPrincipalName="$value$")|</set>
+          <set token="tok_show_total_dur">True</set>
+          <set token="form.tok_user">all</set>          
+        </condition>
+      </change>
+    </input>
+    <input type="dropdown" token="tok_user" searchWhenChanged="true">
+      <label>Select User</label>
+      <choice value="all">All</choice>
+      <search base="base_ad_users" id="test_view">
+        <query>$tok_user_lkup_filter$stats count by domain,cn,sAMAccountName | dedup sAMAccountName| table cn,sAMAccountName | sort cn</query>
+      </search>
+      <fieldForLabel>cn</fieldForLabel>
+      <fieldForValue>sAMAccountName</fieldForValue>
+      <default>all</default>
+      <initialValue>all</initialValue>
+      <change>
+        <condition value="all">
+          <set token="tok_hold_all"></set>
+          <set token="tok_user_srch">$tok_filter$</set>
+        </condition>
+        <condition>
+          <set token="tok_user_srch">user="$value$"</set>
+          <set token="tok_an_srch">Account_Name="$value$"</set>
+        </condition>
+      </change>
+    </input>
+  </fieldset>
+  <row>
+    <panel>
+      <single>
+        <title>Total Logons</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$ | fields Total_Logons | stats sum(Total_Logons) AS Total_Logons </query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+      <single>
+        <title>Total Logoffs</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$ | fields Logoff_Time | stats count(eval(Logoff_Time!="No Logoff Time")) AS Total_Logoffs </query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+      <single>
+        <title>Total Users</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$ | fields user | stats dc(user) AS Total_Users</query>
+        </search>
+        <option name="drilldown">none</option>
+      </single>
+      <single depends="$tok_show_all$">
+        <title>Total Duration</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$ | fields Duration | stats sum(Duration) AS Total_Duration | eval Total_Duration=tostring(Total_Duration,"duration")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Days:Hrs:Min:Sec</option>
+      </single>
+      <single>
+        <title>Avg Duration</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$ | fields Duration | stats avg(Duration) AS Average_Duration | eval Average_Duration=tostring(round(Average_Duration,0),"duration")</query>
+        </search>
+        <option name="drilldown">none</option>
+        <option name="underLabel">Days:Hrs:Min:Sec</option>
+        <option name="useColors">0</option>
+      </single>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <table>
+        <title>Logon and Logoff By Day</title>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$| table time_day, user, Logon_Time, Logoff_Time, Total_Duration</query>
+        </search>
+        <option name="wrap">true</option>
+        <option name="rowNumbers">false</option>
+        <option name="dataOverlayMode">none</option>
+        <option name="drilldown">cell</option>
+        <option name="count">10</option>
+      </table>
+    </panel>
+  </row>
+  <row>
+    <panel>
+      <title>Total Duration By Day for User ($tok_user$)</title>
+      <chart>
+        <search base="base_search">
+          <query>search $tok_user_srch$ $tok_logoff_type$|stats sum(Duration) As Total_Duration  by time_day| eval Total_Duration=Total_Duration/60/60</query>
+        </search>
+        <option name="charting.chart">column</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.overflowMode">ellipsisNone</option>
+        <option name="charting.axisLabelsX.majorLabelStyle.rotation">0</option>
+        <option name="charting.axisTitleX.visibility">visible</option>
+        <option name="charting.axisTitleY.visibility">visible</option>
+        <option name="charting.axisTitleY2.visibility">visible</option>
+        <option name="charting.axisX.scale">linear</option>
+        <option name="charting.axisY.scale">linear</option>
+        <option name="charting.axisY2.enabled">0</option>
+        <option name="charting.axisY2.scale">inherit</option>
+        <option name="charting.chart.bubbleMaximumSize">50</option>
+        <option name="charting.chart.bubbleMinimumSize">10</option>
+        <option name="charting.chart.bubbleSizeBy">area</option>
+        <option name="charting.chart.nullValueMode">gaps</option>
+        <option name="charting.chart.showDataLabels">none</option>
+        <option name="charting.chart.sliceCollapsingThreshold">0.01</option>
+        <option name="charting.chart.stackMode">default</option>
+        <option name="charting.chart.style">shiny</option>
+        <option name="charting.drilldown">all</option>
+        <option name="charting.layout.splitSeries">0</option>
+        <option name="charting.layout.splitSeries.allowIndependentYRanges">0</option>
+        <option name="charting.legend.labelStyle.overflowMode">ellipsisMiddle</option>
+        <option name="charting.legend.placement">right</option>
+      </chart>
+    </panel>
+  </row>
+</form>
