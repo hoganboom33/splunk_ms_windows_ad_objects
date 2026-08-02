@@ -1329,7 +1329,7 @@ Event Details:
 	uSNCreated=16437
 	instanceType=4
 Additional Details:
-	mail=shogan@splunk.com
+	mail=steve@shoganu.com
 	lastLogonTimestamp=09:53.54 AM, Mon 05/02/2016
 	dSCorePropagationData=20160407184049.0Z|16010101000000.0Z
 	adminCount=1
