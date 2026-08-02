@@ -874,7 +874,7 @@ Event Details:
 	uSNCreated=33803
 	instanceType=4
 Additional Details:
-	mail=tgow@splunk.com
+	mail=tgow@sedemo.com
 	dSCorePropagationData=16010101000000.0Z
 	memberOf=CN=Sales_Management,CN=Users,DC=sedemo,DC=local|CN=Sales,CN=Users,DC=sedemo,DC=local
 	physicalDeliveryOfficeName=Plano
@@ -915,7 +915,7 @@ Event Details:
 	uSNCreated=33803
 	instanceType=4
 Additional Details:
-	mail=tgow@splunk.com
+	mail=tgow@sedemo.com
 	dSCorePropagationData=16010101000000.0Z
 	memberOf=CN=Sales_Management,CN=Users,DC=sedemo,DC=local|CN=Sales,CN=Users,DC=sedemo,DC=local
 	description=Oh Shamwow can I be like you when I am older much much older
@@ -1247,7 +1247,7 @@ Event Details:
 	uSNCreated=33640
 	instanceType=4
 Additional Details:
-	mail=tgow@splunk.com
+	mail=tgow@sedemo.com
 	dSCorePropagationData=16010101000000.0Z
 	memberOf=CN=Accounting_Admins_DL,CN=Users,DC=sedemo,DC=local
 	physicalDeliveryOfficeName=Plano
